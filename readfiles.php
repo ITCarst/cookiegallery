@@ -1,66 +1,41 @@
 <?
-$files = array();
+$path =  $_GET['path'];
 
-$path = $_GET['sendUrl'];
+if($path){
+	$files 		= array();
+	$thumbsF 	= array();
+	$imgDir 	= $path;
+	$thumbDir 	= $imgDir.'\thumbs';
+	
+	if($imgDir && $thumbDir){
+		$dir = opendir($path);
+		$thumbs = opendir($thumbDir);
 
-$dir = opendir($path);
+		/*$ext = substr($fileName, strrpos($fileName, '.') + 1);
+		if(in_array($ext, array("jpg","jpeg","png","gif")){
+			continue;
+		}*/
 
-$thumbs = opendir('gallery-images\thumbs');
-
-
-while ($file = readdir($thumbs)) {
-    if ($file == '.' || $file == '..') {
-        continue;
-    }
-    $files[] = $file;
+		while($file = readdir($dir)) {
+			if($file == '.' || $file == '..') {
+				continue;
+			}
+			$files[] = $file;
+		}
+		while($thumb = readdir($thumbs)) {
+			if($thumb == '.' || $thumb == '..') {
+				continue;
+			}
+			$thumbsF[] = $thumb;
+		}
+		
+		$returnFiles = array_merge($files,$thumbsF);
+		
+		header('Content-type: application/json');
+		echo json_encode($returnFiles);
+		
+	}else{
+		echo 'Sorry but the folders are not correct';	
+	}
 }
-header('Content-type: application/json');
-echo json_encode($files);
-
-
-/*
-Header("content-type: application/x-javascript");
-            
-$gallery = opendir('gallery-images/');
-	while (($file = readdir($gallery))!==false) {
-        echo $file;
-        /*
-		if($file !='.' && $file != '..'){
-			foreach (array($file) as $f){
-                $images = opendir('gallery/'.$file.'/');
-                while(($image = readdir($images)) !== false){
-                    if($image !='.' && $image !='..'){
-                        //echo $image;
-                        $extension = substr($image, strpos($image,'.'));
-                        if($extension = '.jpg' || $extension = '.JPG' || $extension = '.JPEG' || $extension = '.jpeg'){}
-                    }
-                }
-            }
-        }
-    }		
-closedir($gallery);*/
-			/*
-$pathstring  = pathinfo($_SERVER['PHP_SELF']);
-$locationstring = "http://" . $_SERVER['HTTP_HOST'].$pathstring['dirname'] . "/";
-
-function returnimages($dirname=".") {
-	 $pattern="(\.jpg$)|(\.png$)|(\.jpeg$)|(\.gif$)";
-   $files = array();
-	 $curimage=0;
-   if($handle = opendir($dirname)) {
-       while(false !== ($file = readdir($handle))){
-               if(eregi($pattern, $file)){
-                     echo 'picsarray[' . $curimage .']="' . $file . '";';
-                     $curimage++;
-               }
-       }
-
-       closedir($handle);
-   }
-   return($files);
-}
-
-echo 'var locationstring="' . $locationstring . '";';
-echo 'var picsarray=new Array();';
-returnimages()
-?> */
+?>
