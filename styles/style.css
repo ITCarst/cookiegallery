@@ -1,0 +1,32 @@
+html {
+	overflow-y:scroll;
+}
+html, body {
+    margin:0;
+    padding:0;
+    font-family:Arial, sans-serif;
+    font-size:12px;
+}
+.left {
+    float:left;
+}
+.right {
+    float:right;
+}
+.clear {
+    clear:both;
+}
+ul, li {
+    margin:0;
+    padding:0;
+    list-style:none;
+}
+
+/* -----------------------------------------------------------------------------
+ * CONTENT
+ * ----------------------------------------------------------------------------- */
+#wrapper {
+	width:660px;
+	margin:0 auto;
+	text-align:center;
+}
