@@ -28,7 +28,7 @@ CookieGallery = {
     },	
 	_settings: {
 		placeTarget		: 'gallery-module',
-		imagesdir		: '/gallery-images',
+		imagesdir		: 'gallery-images',
 		thumbdir		: '/gallery-images/thumbs',
 		readFiles		: 'readfiles.php',
 		expireTime		: 365 //xpire cookie in days --> default 1 year //if days are not added will expire on browser closing
@@ -159,9 +159,7 @@ function httpRequest(xhr, path, filetype, splitArr){
 				}
 			}
 		}
-		var sendUrl = 'gallery-images'
-		_xhr.open("GET", CookieGallery._settings.readFiles, true);
-		console.log(path)
-		_xhr.send(sendUrl);
+		_xhr.open("GET", CookieGallery._settings.readFiles + '?path=' + CookieGallery._settings.imagesdir , true);
+		_xhr.send(null);
 	}
 }
