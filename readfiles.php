@@ -1,8 +1,14 @@
 <?
 $files = array();
 
-$dir = opendir('gallery-images');
-while ($file = readdir($dir)) {
+$path = $_GET['sendUrl'];
+
+$dir = opendir($path);
+
+$thumbs = opendir('gallery-images\thumbs');
+
+
+while ($file = readdir($thumbs)) {
     if ($file == '.' || $file == '..') {
         continue;
     }
