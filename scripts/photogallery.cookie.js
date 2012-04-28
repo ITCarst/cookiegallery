@@ -36,7 +36,7 @@ function cookie(){
 			//CookieGallery.cookie.set('CookieGallery' , JSON.stringify(returnImg), CookieGallery._settings.expireTime);
 		}
 		if(returnThumbs != ''){
-			//CookieGallery.cookie.set('CookieGalleryThumbs' , returnThumbs, CookieGallery._settings.expireTime);
+			CookieGallery.cookie.set('CookieGalleryThumbs' , returnThumbs, CookieGallery._settings.expireTime);
 		}
 	}
 	//clear cookies 
