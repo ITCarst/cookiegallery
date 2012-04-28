@@ -1,1 +1,5 @@
+[cookie-gallery-1.0.1]
+- read images and thumbs from folders send it to js
+
+[cookie-gallery-1.0.0]
 - created the php reading file
