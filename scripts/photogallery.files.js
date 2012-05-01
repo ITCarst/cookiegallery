@@ -23,13 +23,16 @@ function files(){
 			requestThumbs;
 			
 		//request images from the img folder
-		if(imagesPath){
+		if(imagesPath && thumbPath){
 			httpRequest(requestImages, imagesPath, fileTypes, splitArr);
-			//request thumbs from the folder
-			if(thumbPath){
-				//httpRequest(requestThumbs, thumbPath, fileTypes, splitArr);
-			}
 		}
+		
+		//second request for localhost option
+		//request thumbs from the folder
+		/*if(thumbPath){
+			httpRequest(requestThumbs, thumbPath, fileTypes, splitArr);
+		}*/
+		
 	}
 	_files.ajaxRequest = new ajaxRequest();
 }

@@ -2,38 +2,48 @@
 $path =  $_GET['path'];
 
 if($path){
+	
 	$files 		= array();
 	$thumbsF 	= array();
 	$imgDir 	= $path;
 	$thumbDir 	= $imgDir.'\thumbs';
 	
+	
 	if($imgDir && $thumbDir){
-		$dir = opendir($path);
-		$thumbs = opendir($thumbDir);
 
-		/*$ext = substr($fileName, strrpos($fileName, '.') + 1);
-		if(in_array($ext, array("jpg","jpeg","png","gif")){
-			continue;
-		}*/
+		//check if folder name it's correct
+		if(is_dir($imgDir) && is_dir($thumbDir)){
+			
+			//start opening the dirs
+			$dir = opendir($path);
+			$thumbs = opendir($thumbDir);
 
-		while($file = readdir($dir)) {
-			if($file == '.' || $file == '..') {
-				continue;
+			//read the big images folder
+			while($file = readdir($dir)) {
+				if($file == '.' || $file == '..') {
+					continue;
+				}
+				$files[] = $file;
 			}
-			$files[] = $file;
-		}
-		while($thumb = readdir($thumbs)) {
-			if($thumb == '.' || $thumb == '..') {
-				continue;
+			
+			//read the thumbs folders
+			while($thumb = readdir($thumbs)) {
+				if($thumb == '.' || $thumb == '..') {
+					continue;
+				}
+				$thumbsF[] = $thumb;
 			}
-			$thumbsF[] = $thumb;
+			//return both arrays into one array
+			$returnFiles = array_merge($files, $thumbsF);
+			$encodeJsonRes = $returnFiles;
+			
+		}else{
+			$encodeJsonRes = 'Sorry but the folder name are not correct or missing!';
 		}
-		
-		$returnFiles = array_merge($files,$thumbsF);
 		
 		header('Content-type: application/json');
-		echo json_encode($returnFiles);
-		
+		//send json response to js with the proper result
+		echo json_encode($encodeJsonRes);
 	}else{
 		echo 'Sorry but the folders are not correct';	
 	}
