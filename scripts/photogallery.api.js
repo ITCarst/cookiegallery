@@ -37,7 +37,7 @@ CookieGallery = {
         width:0,
         height:0
     },
-	loaderGif:'images/ajax-loader.gif'
+	loaderGif:'img/ajax-loader.gif'
 };
 
 //window load show preloader
@@ -121,15 +121,20 @@ function httpRequest(xhr, path, filetype, splitArr){
 			if(_xhr.readyState == 4){
 				if (_xhr.status == 200) {
 					
-					console.log(_xhr.responseText)
-					
-					
-					/*var responeTxt = _xhr.responseText,
+					var responeTxt = _xhr.responseText,
 						matchExtension = responeTxt.match(filetype);
+					
+					//check for images extenstions and if the response it's bigger then 0	
+					if(matchExtension && responeTxt.length > 0 && responeTxt.length != '' ){
 						
-					//match extension check for respons length
-					if(matchExtension && responeTxt.length > 0){
-
+						/* ---------------------------------
+						 * PHP JSON RESPONSE
+						 * --------------------------------- */
+						console.log(responeTxt);
+						
+						/* -------------------------------
+						 * LOCAL HOST REQUEST AND PARSE
+						 *  ------------------------------ 
 						//remove the a tag so it wont get duplicated entries
 						var splitArray = responeTxt.split(splitArr);
 						total = splitArray.length;
@@ -150,16 +155,20 @@ function httpRequest(xhr, path, filetype, splitArr){
 						}
 						if(count == total){
 							CookieGallery.cookie.checkCookies(retrunImageFiles, returnImageThumb);
-						}
+						}*/
 					}else{
 						console.log('you don\'t have any images in folders');
-					}*/
+					}
 				}else{
 					console.log("Error Code:" + _xhr.status + ' Error Type:' + _xhr.statusText);  
 				}
 			}
 		}
-		_xhr.open("GET", CookieGallery._settings.readFiles + '?path=' + CookieGallery._settings.imagesdir , true);
+		//php get requst
+		_xhr.open("GET", CookieGallery._settings.readFiles + '?path=' + path, true);
+		
+		//localhost request returing 
+		//_xhr.open("GET", path, true);
 		_xhr.send(null);
 	}
 }
