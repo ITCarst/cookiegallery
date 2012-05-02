@@ -103,8 +103,6 @@ function httpRequest(xhr, path, filetype, splitArr){
 		total = 0,
 		sendUrl = CookieGallery._settings.readFiles + '?path=' + path;
 	
-	console.log(path)
-	
 	if(window.XMLHttpRequest) {
 		_xhr = new XMLHttpRequest();
 	}else if(window.ActiveXObject) {
