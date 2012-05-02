@@ -17,26 +17,26 @@ function cookie(){
 	
 	//get cookies 
 	this.get = function(name){
-		var cookieName = name + '=';
-		var splitCookies = document.cookie.split(/;\s*/);
-		//console.log(splitCookies)
+		var cookieName = name + '=',
+			splitCookies = document.cookie.split(/,|=/),
+			i = 0,
+			c = [];
+			
+		for(i; i < splitCookies.length; i++){
+			c.push(splitCookies[i]);
+			//console.log(c);
+		}
+		return c;
+		
 	}
-	
-	this.checkCookies = function(returnImg, returnThumbs){
-		
-		if(document.cookie.length > 0){
-			var nameEQ = 'CookieGalleryThumbs';
-			var ca = document.cookie.split('/');
-			
-			console.log(ca)
-			
-		}
-		
+	//fn for checking and setting the cookies with the images received from json
+	this.checkCookies = function(returnImg){
 		if(returnImg != ''){
-			//CookieGallery.cookie.set('CookieGallery' , JSON.stringify(returnImg), CookieGallery._settings.expireTime);
-		}
-		if(returnThumbs != ''){
-			CookieGallery.cookie.set('CookieGalleryThumbs' , returnThumbs, CookieGallery._settings.expireTime);
+			//if the cookie gallery hasen't been set then set it
+			if(document.cookie === '' || document.cookie == 0){
+				//set the cookies if there are not there
+				CookieGallery.cookie.set('CookieGallery', returnImg, CookieGallery._settings.expireTime);
+			}
 		}
 	}
 	//clear cookies 
