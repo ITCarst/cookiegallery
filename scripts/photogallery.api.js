@@ -126,7 +126,6 @@ function httpRequest(xhr, path, filetype, splitArr){
 		_xhr.onreadystatechange = function(){
 			if(_xhr.readyState == 4){
 				if (_xhr.status == 200) {
-					
 					var responeTxt = _xhr.responseText,
 						matchExtension = responeTxt.match(filetype);
 					
@@ -138,7 +137,6 @@ function httpRequest(xhr, path, filetype, splitArr){
 						 * --------------------------------- */
 						//parse the json response
 						var parseResponse = JSON.parse(responeTxt);
-						
 						for(var x = 0; x < parseResponse.length; x++){
 							//check matches for extension from the json
 							if(parseResponse[x].match(filetype)){
