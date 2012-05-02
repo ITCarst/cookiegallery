@@ -58,9 +58,7 @@ var init = function(){
 	
 	var tca = CookieGallery.cookie.get('CookieaGallery');
 	
-	for(var i=0; i <tca.length; i++){
-		console.log(tca[i]);
-	}
+	console.log(tca);
 	
 	//if target it's defined add the loader	
 	if(objSettings.placeTarget != ''){
@@ -132,8 +130,6 @@ function httpRequest(xhr, path, filetype, splitArr){
 					var responeTxt = _xhr.responseText,
 						matchExtension = responeTxt.match(filetype);
 					
-					console.log(responeTxt);
-
 					//check for images extenstions and if the response it's bigger then 0	
 					if(matchExtension && responeTxt.length > 0 && responeTxt.length != '' ){
 						
@@ -142,7 +138,6 @@ function httpRequest(xhr, path, filetype, splitArr){
 						 * --------------------------------- */
 						//parse the json response
 						var parseResponse = JSON.parse(responeTxt);
-						
 						
 						for(var x = 0; x < parseResponse.length; x++){
 							//check matches for extension from the json

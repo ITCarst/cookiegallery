@@ -1,4 +1,4 @@
-<?
+<?php
 $path =  $_GET['path'];
 
 if($path){
@@ -6,10 +6,11 @@ if($path){
 	$files 		= array();
 	$thumbsF 	= array();
 	$imgDir 	= $path;
-	$thumbDir 	= $imgDir.'\thumbs';
+	$thumbDir 	= $imgDir.'/thumbs';
 	
 	
 	if($imgDir && $thumbDir){
+		
 		//check if folder name it's correct
 		if(is_dir($imgDir) && is_dir($thumbDir)){
 			//start opening the dirs
