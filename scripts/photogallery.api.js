@@ -103,8 +103,6 @@ function httpRequest(xhr, path, filetype, splitArr){
 		total = 0,
 		sendUrl = CookieGallery._settings.readFiles + '?path=' + path;
 	
-	console.log(path)
-	
 	if(window.XMLHttpRequest) {
 		_xhr = new XMLHttpRequest();
 	}else if(window.ActiveXObject) {
@@ -126,7 +124,6 @@ function httpRequest(xhr, path, filetype, splitArr){
 		_xhr.onreadystatechange = function(){
 			if(_xhr.readyState == 4){
 				if (_xhr.status == 200) {
-					
 					var responeTxt = _xhr.responseText,
 						matchExtension = responeTxt.match(filetype);
 					
