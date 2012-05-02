@@ -135,6 +135,7 @@ function httpRequest(xhr, path, filetype, splitArr){
 						 * --------------------------------- */
 						//parse the json response
 						var parseResponse = JSON.parse(responeTxt);
+						
 						for(var x = 0; x < parseResponse.length; x++){
 							//check matches for extension from the json
 							if(parseResponse[x].match(filetype)){
