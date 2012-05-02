@@ -12,7 +12,7 @@ function files(){
 			imageUrl: CookieGallery._settings.imagesdir,
 			thumbUrl: CookieGallery._settings.thumbdir,
 			fileTypes: /(.jpg)|(.gif)|(.png)|(.bmp)$/g,
-			splitArray: /<li>|<a .*?>|<\/a>|<\/li>/ig //regex for removing unsed tags that are received from xml call
+			splitArray: /<li>|<a .*?>|<\/a>|<\/li>/ig //regex for removing unsed tags that are received from xml call through localhost ajax
 		}
 		var date = new Date().getTime();
 		var imagesPath = _request._options.imageUrl,

@@ -28,7 +28,7 @@ CookieGallery = {
     },	
 	_settings: {
 		placeTarget		: 'gallery-module',
-		imagesdir		: 'gallery-images',
+		imagesdir		: 'gallery-images/',
 		thumbdir		: '/gallery-images/thumbs',
 		readFiles		: 'readfiles.php',
 		expireTime		: 365 //xpire cookie in days --> default 1 year //if days are not added will expire on browser closing
@@ -37,7 +37,7 @@ CookieGallery = {
         width:0,
         height:0
     },
-	loaderGif:'img/ajax-loader.gif'
+	loaderGif: 'img/ajax-loader.gif'
 };
 
 //window load show preloader
@@ -54,6 +54,13 @@ var init = function(){
 	
 	preloadMsg.setAttribute('id', 'preloadMsg');
 	preloadMsg.innerHTML = '<img src="' + mainObj.loaderGif + '" border="0">';
+	
+	
+	var tca = CookieGallery.cookie.get('CookieaGallery');
+	
+	for(var i=0; i <tca.length; i++){
+		console.log(tca[i]);
+	}
 	
 	//if target it's defined add the loader	
 	if(objSettings.placeTarget != ''){
@@ -90,14 +97,15 @@ var init = function(){
 
 
 //general fn for makeing the ajax request in the folders
-
 function httpRequest(xhr, path, filetype, splitArr){
 	var _xhr = xhr,
-		retrunImageFiles = '',
+		retrunImageFiles = [],
 		returnImageThumb = '',
-		addToCookie = '',
 		count = 0,
-		total = 0;
+		total = 0,
+		sendUrl = CookieGallery._settings.readFiles + '?path=' + path;
+	
+	console.log(path)
 	
 	if(window.XMLHttpRequest) {
 		_xhr = new XMLHttpRequest();
@@ -124,20 +132,33 @@ function httpRequest(xhr, path, filetype, splitArr){
 					var responeTxt = _xhr.responseText,
 						matchExtension = responeTxt.match(filetype);
 					
+					console.log(responeTxt);
+
 					//check for images extenstions and if the response it's bigger then 0	
 					if(matchExtension && responeTxt.length > 0 && responeTxt.length != '' ){
 						
 						/* ---------------------------------
 						 * PHP JSON RESPONSE
 						 * --------------------------------- */
-						console.log(responeTxt);
+						//parse the json response
+						var parseResponse = JSON.parse(responeTxt);
 						
+						
+						for(var x = 0; x < parseResponse.length; x++){
+							//check matches for extension from the json
+							if(parseResponse[x].match(filetype)){
+								//push images into the empty array
+								retrunImageFiles.push(parseResponse[x]);
+							}
+						}
+						if(retrunImageFiles != ''){
+							CookieGallery.cookie.checkCookies(retrunImageFiles);
+						}
 						/* -------------------------------
 						 * LOCAL HOST REQUEST AND PARSE
 						 *  ------------------------------ 
 						//remove the a tag so it wont get duplicated entries
 						var splitArray = responeTxt.split(splitArr);
-						total = splitArray.length;
 						
 						//loop through the array and get the founded files from dir
 						for(var x = 0; x < splitArray.length; x++){
@@ -156,6 +177,7 @@ function httpRequest(xhr, path, filetype, splitArr){
 						if(count == total){
 							CookieGallery.cookie.checkCookies(retrunImageFiles, returnImageThumb);
 						}*/
+						
 					}else{
 						console.log('you don\'t have any images in folders');
 					}
@@ -165,7 +187,7 @@ function httpRequest(xhr, path, filetype, splitArr){
 			}
 		}
 		//php get requst
-		_xhr.open("GET", CookieGallery._settings.readFiles + '?path=' + path, true);
+		_xhr.open("GET", sendUrl, true);
 		
 		//localhost request returing 
 		//_xhr.open("GET", path, true);
