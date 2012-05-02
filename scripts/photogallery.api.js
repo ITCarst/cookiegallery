@@ -33,6 +33,7 @@ CookieGallery = {
 		readFiles		: 'readfiles.php',
 		expireTime		: 365 //xpire cookie in days --> default 1 year //if days are not added will expire on browser closing
 	},
+	images:{},
 	thumbs:{
         width:0,
         height:0
@@ -47,35 +48,25 @@ window.onload = function(){
 
 //image/cookie/requests preloader
 var init = function(){
-	
 	var mainObj = CookieGallery,
+		images = mainObj.images,
 		objSettings = CookieGallery._settings,
-		preloadMsg = document.createElement('div');
+		preloadMsg = document.createElement('div'),
+		numResourcesLoaded,
+		cookieGet = CookieGallery.cookie.get('CookieaGallery');
 	
 	preloadMsg.setAttribute('id', 'preloadMsg');
 	preloadMsg.innerHTML = '<img src="' + mainObj.loaderGif + '" border="0">';
 	
 	
-	var tca = CookieGallery.cookie.get('CookieaGallery');
 	
-	console.log(tca);
+	console.log(cookieGet.length);
 	
-	//if target it's defined add the loader	
-	if(objSettings.placeTarget != ''){
-		var mainHolder = document.getElementById(objSettings.placeTarget);
-		if(mainHolder){
-			mainHolder.appendChild(preloadMsg);
-		}else{
-			alert('your defined id doesn\'t match the api id');
-		}
-	}else{
-		alert('you must define an id for the gallery placeholder');
-	}
-
 	//get obj length
-	/*for(var i=0; i < allImages.length; i++){
-		images[allImages[i]] = new Image();
-		images[allImages[i]].onload = function(){
+	/*for(var i=0; i < cookieGet.length; i++){
+		
+		images[cookieGet[i]] = new Image();
+		images[cookieGet[i]].onload = function(){
 			//check if images status
 			if(this.complete === true){
 				//add +1 to counter
@@ -84,13 +75,28 @@ var init = function(){
 				if(totalResources === numResourcesLoaded){
 					//if counter its = with all images then hide loading msg
 					preloadMsg.style.display = 'none';
-					donePreloading();
+					donePreloading(objSettings.placeTarget,preloadMsg);
 				}
 			}
 		}
 		//add source to img
-		images[allImages[i]].src = 'img/' + allImages[i] + '.png';
+		images[cookieGet[i]].src = objSettings.imagesdir + cookieGet[i];
+		
 	}*/
+}
+function donePreloading(target, loadMsg){
+	//if target it's defined add the loader	
+	if(target != ''){
+		var mainHolder = document.getElementById(target);
+		//check if gallery-module exisits
+		if(mainHolder){
+			mainHolder.appendChild(loadMsg);
+		}else{
+			alert('your defined id doesn\'t match the api id');
+		}
+	}else{
+		alert('you must define an id for the gallery placeholder');
+	}
 }
 
 
