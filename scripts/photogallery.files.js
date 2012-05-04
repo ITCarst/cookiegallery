@@ -24,7 +24,13 @@ function files(){
 			
 		//request images from the img folder
 		if(imagesPath && thumbPath){
-			httpRequest(requestImages, imagesPath, fileTypes, splitArr);
+			if(mainObjSettings.readFileType.rFServer === true){
+				httpRequest(requestImages, imagesPath, fileTypes, splitArr);
+			}else if(mainObjSettings.readFileType.rFClient === true){
+				httpRequest(requestImages, imagesPath, fileTypes, splitArr);
+				httpRequest(requestImages, thumbPath, fileTypes, splitArr);
+				
+			}
 		}
 		
 		//second request for localhost option
