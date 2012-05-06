@@ -29,13 +29,13 @@ CookieGallery = {
 	_settings: {
 		placeTarget		: 'gallery-module', //main target wichi is required in the html
 		imagesdir		: 'gallery-images/', //folder of the big images -- 
-		thumbdir		: 'gallery-images/thumbs', //name and path of the thumbs folder
+		thumbdir		: 'gallery-images/thumbs/', //name and path of the thumbs folder
 		readFiles		: 'readfiles.php', //php file wich opens|reads the files from folders
 		expireTime		: 365, //xpire cookie in days --> default 1 year //if days are not added will expire on browser closing
 		setCookieName	: 'CookieGallery', //define the name of the cookie that will hold the imgs
 		readFileType	: { //setting for enableing either php reading file or JS reading dir through ajax
-			rFServer	: false, 
-			rFClient	: true //this option will make 2 ajax requests one for images dir and one for thumbs
+			rFServer	: true, 
+			rFClient	: false //this option will make 2 ajax requests one for images dir and one for thumbs
 		}
 	},
 	images:{},
@@ -48,54 +48,61 @@ CookieGallery = {
 
 //window load show preloader
 window.onload = function(){
-	CookieGallery.init = new init();
+	console.log('loaded')
+	init();
 }
 
 var mainObj = CookieGallery,
-	mainObjSettings = CookieGallery._settings;
+	mainObjSettings = CookieGallery._settings,
+	checkRequest = false,
+	numResourcesLoaded = 0;
 
 
 //image/cookie/requests preloader
-var init = function(){
-	var images = mainObj.images,
-		preloadMsg = document.createElement('div'),
-		numResourcesLoaded,
-		cookieGet = CookieGallery.cookie.get(mainObjSettings.setCookieName);
-	
-	preloadMsg.setAttribute('id', 'preloadMsg');
-	preloadMsg.innerHTML = '<img src="' + mainObj.loaderGif + '" border="0">';
-	
-	//console.log(cookieGet);
-//	
-	//get obj length
-	/*for(var i=0; i < cookieGet.length; i++){
-		
-		images[cookieGet[i]] = new Image();
-		images[cookieGet[i]].onload = function(){
-			//check if images status
-			if(this.complete === true){
-				//add +1 to counter
-				numResourcesLoaded += 1;
-				preloadMsg.innerHTML = 'Loading... (' + ( 100 / totalResources ) * numResourcesLoaded + '%)';
-				if(totalResources === numResourcesLoaded){
-					//if counter its = with all images then hide loading msg
-					preloadMsg.style.display = 'none';
-					donePreloading(objSettings.placeTarget,preloadMsg);
-				}
-			}
-		}
-		//add source to img
-		images[cookieGet[i]].src = objSettings.imagesdir + cookieGet[i];
-		
-	}*/
-}
-function donePreloading(target, loadMsg){
-	//if target it's defined add the loader	
-	if(target != ''){
-		var mainHolder = document.getElementById(target);
+function init (){
+	if(mainObjSettings.placeTarget != ''){
+		var mainHolder = document.getElementById(mainObjSettings.placeTarget);
 		//check if gallery-module exisits
 		if(mainHolder){
-			mainHolder.appendChild(loadMsg);
+		console.log('init')
+			var images = mainObj.images,
+				preloadMsg = document.createElement('div');
+				
+				
+			var date = new Date().getTime(),
+				imagesPath = CookieGallery.files._options.imageUrl,
+				thumbPath = CookieGallery.files._options.thumbUrl,
+				fileTypes = CookieGallery.files._options.fileTypes,
+				splitArr = CookieGallery.files._options.splitArray,
+				requestImages,
+				requestThumbs;
+				
+			preloadMsg.setAttribute('id', 'preloadMsg');
+			preloadMsg.innerHTML = '<img src="' + mainObj.loaderGif + '" border="0">';
+			// <br/>'+'Loading... (' + ( 100 / 13 ) * numResourcesLoaded + '%)
+			mainHolder.appendChild(preloadMsg);
+	
+			//request images from the img folder
+			if(imagesPath && thumbPath){
+				
+				if(mainObjSettings.readFileType.rFServer === true){
+					console.log('make request')
+					httpRequest(requestImages, imagesPath, fileTypes, splitArr);
+					cookieGet = CookieGallery.cookie.get(mainObjSettings.setCookieName);
+					
+					console.log('done request');
+					if(checkRequest === true){
+						console.log('true reqest')
+						praseFiles(cookieGet,images, numResourcesLoaded)
+					}else{
+						console.log('not true yet')
+					}
+					
+				}else if(mainObjSettings.readFileType.rFClient === true){
+					httpRequest(requestImages, imagesPath, fileTypes, splitArr);
+					httpRequest(requestImages, thumbPath, fileTypes, splitArr);
+				}
+			}	
 		}else{
 			alert('your defined id doesn\'t match the api id');
 		}
@@ -103,108 +110,40 @@ function donePreloading(target, loadMsg){
 		alert('you must define an id for the gallery placeholder');
 	}
 }
-
-//general fn for makeing the ajax request in the folders
-function httpRequest(xhr, path, filetype, splitArr){
-	var _xhr = xhr,
-		retrunImageFiles = [],
-		returnImageThumb = '',
-		count = 0,
-		total = 0,
-		sendUrl = mainObjSettings.readFiles + '?path=' + path; //url for read file server side
-	
-	if(window.XMLHttpRequest) {
-		_xhr = new XMLHttpRequest();
-	}else if(window.ActiveXObject) {
-		try{
-			_xhr = ActiveXObject("Msxml2.XMLHTTP.6.0");
-		}catch(e) {
-			try{
-				_xhr = ActiveXObject("Msxml2.XMLHTTP.3.0");
-			}catch(e) {
-				try{
-					_xhr = ActiveXObject("Microsoft.XMLHTTP");
-				}catch(e) {
-					console.log("This browser does not support XMLHttpRequest." + e);		
-				}
+function praseFiles(cGet,images, fLoaded){
+	console.log('parse files')
+	//get cookie length
+		for(var i=0; i < cGet.length; i++){
+			//remove the thumb_ from cookie name that it's set into php|JS
+			var matchT = cGet[i].match(/thumb_/),
+				replaceT = cGet[i].replace(matchT, ''),
+				concatImgs = [];
+			
+			images[replaceT] = new Image();
+			
+			if(matchT){
+				concatImgs += (mainObjSettings.thumbdir + replaceT);
+			}else{
+				concatImgs += (mainObjSettings.imagesdir + replaceT);
 			}
-		}	
-	}
-	if(_xhr){
-		_xhr.onreadystatechange = function(){
-			if(_xhr.readyState == 4){
-				if (_xhr.status == 200) {
+			
+			images[replaceT].onload = function(){
+				//check if images status
+				if(this.complete === true){
+					console.log(this.complete)
+					//add +1 to counter
+					fLoaded += 1;
 					
-					var responeTxt = _xhr.responseText,
-						matchExtension = responeTxt.match(filetype);
+					if(13 === fLoaded){
 					
-					//check for images extenstions and if the response it's bigger then 0	
-					if(matchExtension && responeTxt.length > 0 && responeTxt.length != '' ){
-							console.log('request made')
-
-						if(mainObjSettings.readFileType.rFServer === true){
-							console.log('php reading');
-							/* ---------------------------------
-							 * PHP JSON RESPONSE
-							 * --------------------------------- */
-							//parse the json response
-							var parseResponse = JSON.parse(responeTxt);
-							
-							for(var x = 0; x < parseResponse.length; x++){
-								//check matches for extension from the json
-								if(parseResponse[x].match(filetype)){
-									//push images into the empty array
-									retrunImageFiles.push(parseResponse[x]);
-								}
-							}
-							if(retrunImageFiles != ''){
-								CookieGallery.cookie.checkCookies(retrunImageFiles, false);
-							}
-							
-						}else if(mainObjSettings.readFileType.rFClient === true){
-
-							/* -------------------------------
-							 * LOCAL HOST REQUEST AND PARSE
-							 *  ------------------------------ */ 
-							//remove the a tag so it wont get duplicated entries
-							var splitArray = responeTxt.split(splitArr);
-							total = splitArray.length;
-							
-							//loop through the array and get the founded files from dir
-							for(var x = 0; x < splitArray.length; x++){
-								count++;
-								//check matches for extension from the array
-								if(splitArray[x].match(filetype)){
-									//check for path and if it's thumb then add thumb to the small images
-									if(path === mainObjSettings.imagesdir){
-										retrunImageFiles += splitArray[x];
-									}
-									if(path === mainObjSettings.thumbdir){
-										returnImageThumb += 'thumb_' + splitArray[x] + ' ';
-									}
-								}
-							}
-							if(count == total){
-								CookieGallery.cookie.checkCookies(retrunImageFiles, returnImageThumb);
-							}
-						}else{
-							console.log('please make sure you have enabled one reading file option')
-						}
-					}else{
-						console.log('you don\'t have any images in folders');
+						console.log('hide loading')
+						//if counter its = with all images then hide loading msg
+						preloadMsg.style.display = 'none';
+					
 					}
-				}else{
-					console.log("Error Code:" + _xhr.status + ' Error Type:' + _xhr.statusText);  
 				}
 			}
+			//add source to img
+			images[replaceT].src = concatImgs;
 		}
-		if(mainObjSettings.readFileType.rFServer === true){
-			//php get requst
-			_xhr.open("GET", sendUrl, true);
-		}else if(mainObjSettings.readFileType.rFClient === true){
-			//localhost request returing 
-			_xhr.open("GET", path, true);
-		}
-		_xhr.send(null);
-	}
 }
