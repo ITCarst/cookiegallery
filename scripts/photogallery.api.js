@@ -2,6 +2,7 @@
 if(!window.CookieGallery) {
     window.CookieGallery = {};
 }
+
 CookieGallery = {
 	preload:true,
 	autoplay:{
