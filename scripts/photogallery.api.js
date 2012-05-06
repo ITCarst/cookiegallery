@@ -1,3 +1,13 @@
+/* TO DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  BUG whem loading cookie the c_start even its there returns bad
+  build preloader its not loading the files after the request
+  make preloader work
+  GIVE SUPPROT FOR PARSING THE JS REQUEST OF THE IMAGES not its only php cookie and readig files based
+ return the number of images dinamilcy not hardcode e.g 13
+ 
+*/
+
+
 //append main obj to window obj
 if(!window.CookieGallery) {
     window.CookieGallery = {};
@@ -64,7 +74,8 @@ function init (){
 		var mainHolder = document.getElementById(mainObjSettings.placeTarget);
 		//check if gallery-module exisits
 		if(mainHolder){
-		console.log('init')
+			
+			console.log('init')
 			var images = mainObj.images,
 				preloadMsg = document.createElement('div');
 				
@@ -88,12 +99,19 @@ function init (){
 				if(mainObjSettings.readFileType.rFServer === true){
 					console.log('make request')
 					httpRequest(requestImages, imagesPath, fileTypes, splitArr);
-					cookieGet = CookieGallery.cookie.get(mainObjSettings.setCookieName);
+					
 					
 					console.log('done request');
+					
 					if(checkRequest === true){
-						console.log('true reqest')
-						praseFiles(cookieGet,images, numResourcesLoaded)
+						console.log('true request')
+						
+						setTimeout(function(){
+							cookieGet = CookieGallery.cookie.get(mainObjSettings.setCookieName);
+							praseFiles(cookieGet,images, numResourcesLoaded)
+						},2000)
+						
+						
 					}else{
 						console.log('not true yet')
 					}
@@ -110,8 +128,10 @@ function init (){
 		alert('you must define an id for the gallery placeholder');
 	}
 }
-function praseFiles(cGet,images, fLoaded){
-	console.log('parse files')
+function praseFiles(cGet, images, fLoaded){
+	console.log('parse files');
+	
+	console.log(cGet);
 	//get cookie length
 		for(var i=0; i < cGet.length; i++){
 			//remove the thumb_ from cookie name that it's set into php|JS
@@ -133,10 +153,8 @@ function praseFiles(cGet,images, fLoaded){
 					console.log(this.complete)
 					//add +1 to counter
 					fLoaded += 1;
-					
 					if(13 === fLoaded){
-					
-						console.log('hide loading')
+						console.log('hide loading');
 						//if counter its = with all images then hide loading msg
 						preloadMsg.style.display = 'none';
 					

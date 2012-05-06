@@ -23,7 +23,12 @@ function cookie(){
 	this.get = function(name){
 		if(document.cookie.length > 0 || document.cookie != ''){
 			//check the CookieGallery by name
+			console.log(document.cookie)
+			
 			if(c_start != -1){
+				
+				console.log(c_start)
+				
 				var getIndexes = _cookie.getCIndexes(c_start, c_end);
 				var cookieName = name + '=',
 					splitCookies = getIndexes.split(/,/),
@@ -32,7 +37,6 @@ function cookie(){
 				for(i; i < splitCookies.length; i++){
 					c.push(splitCookies[i]);
 				}
-				checkRequest = true;
 				return c;
 			}else{
 				return 'cookies gal its not set';

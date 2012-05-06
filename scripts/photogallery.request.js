@@ -53,7 +53,6 @@ function httpRequest(xhr, path, filetype, splitArr){
 							}
 							if(retrunImageFiles != ''){
 								CookieGallery.cookie.checkCookies(retrunImageFiles, false);
-								checkRequest = true;
 								console.log('received request');
 							}
 							
@@ -101,6 +100,7 @@ function httpRequest(xhr, path, filetype, splitArr){
 			//localhost request returing 
 			_xhr.open("GET", path, true);
 		}
+		checkRequest = true;
 		_xhr.send(null);
 	}
 }
