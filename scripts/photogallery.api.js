@@ -64,6 +64,7 @@ window.onload = function(){
 var mainObj = CookieGallery,
 	mainObjSettings = CookieGallery._settings,
 	checkRequest = false,
+	doneLoading = false;
 	numResourcesLoaded = 0;
 
 
@@ -71,6 +72,7 @@ var mainObj = CookieGallery,
 function init (){
 	
 	if(mainObjSettings.placeTarget != ''){
+		
 		var mainHolder = document.getElementById(mainObjSettings.placeTarget);
 		//check if gallery-module exisits
 		if(mainHolder){
@@ -99,20 +101,13 @@ function init (){
 					httpRequest(requestImages, imagesPath, fileTypes, splitArr, function(){
 						
 						if(checkRequest === true){
-							
 							var cookieGet = CookieGallery.cookie.get(mainObjSettings.setCookieName);
-							
 							setTimeout(function(){
-							
 								praseFiles(cookieGet, images, numResourcesLoaded);
-								
+								CookieGallery.buildList = new buildList();
 							},1000)	
-								
-						}else{
-							console.log('not true yet')
 						}
 					});
-					
 					
 				}else if(mainObjSettings.readFileType.rFClient === true){
 					httpRequest(requestImages, imagesPath, fileTypes, splitArr);
@@ -132,6 +127,7 @@ function praseFiles(cGet, images, fLoaded){
 	
 	if(cGet != ''){
 		setImages(cGet);
+		doneLoading = true;
 	}else{
 		if(document.cookie.length > 0 || document.cookie != ''){
 			var c_start = document.cookie.indexOf(CookieGallery._settings.setCookieName + "="),
@@ -149,7 +145,7 @@ function praseFiles(cGet, images, fLoaded){
 				setImages(c);
 			}
 		}
-		
+		doneLoading = true;
 	}
 	function setImages(c){
 		for(var i=0; i < c.length; i++){
