@@ -6,7 +6,6 @@ function cookie(){
 		c_start = document.cookie.indexOf(cookieName + "="),
 		c_end = document.cookie.indexOf(";" , c_start);
 
-	
 	//set cookies name|value|time
 	this.set = function(name, value, time){
 		if(time) {
@@ -21,8 +20,10 @@ function cookie(){
 	}
 	//get cookies 
 	this.get = function(name){
+		
 		if(document.cookie.length > 0 || document.cookie != ''){
 			//check the CookieGallery by name
+		
 			if(c_start != -1){
 				var getIndexes = _cookie.getCIndexes(c_start, c_end);
 				var cookieName = name + '=',
@@ -32,10 +33,9 @@ function cookie(){
 				for(i; i < splitCookies.length; i++){
 					c.push(splitCookies[i]);
 				}
-				checkRequest = true;
 				return c;
 			}else{
-				return 'cookies gal its not set';
+				return '';
 			}
 		}else{
 			return 'cookies are not set yet';
@@ -55,7 +55,6 @@ function cookie(){
 			//if its php request do the checking for cookie and set it
 			_cookie.checkCGal(returnImg, cookieName);
 		}
-		console.log('set cookoies');
 	}
 	/*
 		check the cookies are set
