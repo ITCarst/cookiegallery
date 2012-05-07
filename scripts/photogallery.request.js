@@ -1,5 +1,5 @@
 //general fn for makeing the ajax request in the folders
-function httpRequest(xhr, path, filetype, splitArr){
+function httpRequest(xhr, path, filetype, splitArr, callback){
 	var _xhr = xhr,
 		retrunImageFiles = [],
 		returnImageThumb = '',
@@ -47,14 +47,11 @@ function httpRequest(xhr, path, filetype, splitArr){
 								if(parseResponse[x].match(filetype)){
 									//push images into the empty array
 									retrunImageFiles.push(parseResponse[x]);
-									console.log('load files')
 								}
 								
 							}
 							if(retrunImageFiles != ''){
-								CookieGallery.cookie.checkCookies(retrunImageFiles, false);
-								checkRequest = true;
-								console.log('received request');
+								callback(CookieGallery.cookie.checkCookies(retrunImageFiles, false));
 							}
 							
 						}else if(mainObjSettings.readFileType.rFClient === true){
@@ -101,6 +98,7 @@ function httpRequest(xhr, path, filetype, splitArr){
 			//localhost request returing 
 			_xhr.open("GET", path, true);
 		}
+		checkRequest = true;
 		_xhr.send(null);
 	}
 }

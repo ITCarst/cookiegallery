@@ -1,3 +1,13 @@
+/* TO DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  BUG whem loading cookie the c_start even its there returns bad
+  build preloader its not loading the files after the request
+  make preloader work
+  GIVE SUPPROT FOR PARSING THE JS REQUEST OF THE IMAGES not its only php cookie and readig files based
+ return the number of images dinamilcy not hardcode e.g 13
+ 
+*/
+
+
 //append main obj to window obj
 if(!window.CookieGallery) {
     window.CookieGallery = {};
@@ -48,7 +58,6 @@ CookieGallery = {
 
 //window load show preloader
 window.onload = function(){
-	console.log('loaded')
 	init();
 }
 
@@ -60,11 +69,11 @@ var mainObj = CookieGallery,
 
 //image/cookie/requests preloader
 function init (){
+	
 	if(mainObjSettings.placeTarget != ''){
 		var mainHolder = document.getElementById(mainObjSettings.placeTarget);
 		//check if gallery-module exisits
 		if(mainHolder){
-		console.log('init')
 			var images = mainObj.images,
 				preloadMsg = document.createElement('div');
 				
@@ -74,8 +83,8 @@ function init (){
 				thumbPath = CookieGallery.files._options.thumbUrl,
 				fileTypes = CookieGallery.files._options.fileTypes,
 				splitArr = CookieGallery.files._options.splitArray,
-				requestImages,
-				requestThumbs;
+				requestImages = '',
+				requestThumbs = '';
 				
 			preloadMsg.setAttribute('id', 'preloadMsg');
 			preloadMsg.innerHTML = '<img src="' + mainObj.loaderGif + '" border="0">';
@@ -86,17 +95,24 @@ function init (){
 			if(imagesPath && thumbPath){
 				
 				if(mainObjSettings.readFileType.rFServer === true){
-					console.log('make request')
-					httpRequest(requestImages, imagesPath, fileTypes, splitArr);
-					cookieGet = CookieGallery.cookie.get(mainObjSettings.setCookieName);
 					
-					console.log('done request');
-					if(checkRequest === true){
-						console.log('true reqest')
-						praseFiles(cookieGet,images, numResourcesLoaded)
-					}else{
-						console.log('not true yet')
-					}
+					httpRequest(requestImages, imagesPath, fileTypes, splitArr, function(){
+						
+						if(checkRequest === true){
+							
+							var cookieGet = CookieGallery.cookie.get(mainObjSettings.setCookieName);
+							
+							setTimeout(function(){
+							
+								praseFiles(cookieGet, images, numResourcesLoaded);
+								
+							},1000)	
+								
+						}else{
+							console.log('not true yet')
+						}
+					});
+					
 					
 				}else if(mainObjSettings.readFileType.rFClient === true){
 					httpRequest(requestImages, imagesPath, fileTypes, splitArr);
@@ -110,13 +126,36 @@ function init (){
 		alert('you must define an id for the gallery placeholder');
 	}
 }
-function praseFiles(cGet,images, fLoaded){
-	console.log('parse files')
-	//get cookie length
-		for(var i=0; i < cGet.length; i++){
+
+function praseFiles(cGet, images, fLoaded){
+	var _praseF = this;
+	
+	if(cGet != ''){
+		setImages(cGet);
+	}else{
+		if(document.cookie.length > 0 || document.cookie != ''){
+			var c_start = document.cookie.indexOf(CookieGallery._settings.setCookieName + "="),
+				c_end = document.cookie.indexOf(";" , c_start);
+				
+			if(c_start != -1){
+				var getIndexes = CookieGallery.cookie.getCIndexes(c_start, c_end);
+				var cookieName = CookieGallery._settings.setCookieName + '=',
+					splitCookies = getIndexes.split(/,/),
+					i = 0,
+					c = [];
+				for(i; i < splitCookies.length; i++){
+					c.push(splitCookies[i]);
+				}				
+				setImages(c);
+			}
+		}
+		
+	}
+	function setImages(c){
+		for(var i=0; i < c.length; i++){
 			//remove the thumb_ from cookie name that it's set into php|JS
-			var matchT = cGet[i].match(/thumb_/),
-				replaceT = cGet[i].replace(matchT, ''),
+			var matchT = c[i].match(/thumb_/),
+				replaceT = c[i].replace(matchT, ''),
 				concatImgs = [];
 			
 			images[replaceT] = new Image();
@@ -130,20 +169,16 @@ function praseFiles(cGet,images, fLoaded){
 			images[replaceT].onload = function(){
 				//check if images status
 				if(this.complete === true){
-					console.log(this.complete)
 					//add +1 to counter
 					fLoaded += 1;
-					
 					if(13 === fLoaded){
-					
-						console.log('hide loading')
 						//if counter its = with all images then hide loading msg
 						preloadMsg.style.display = 'none';
-					
 					}
 				}
 			}
 			//add source to img
 			images[replaceT].src = concatImgs;
 		}
+	}
 }
