@@ -48,7 +48,6 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 									//push images into the empty array
 									retrunImageFiles.push(parseResponse[x]);
 								}
-								
 							}
 							if(retrunImageFiles != ''){
 								callback(CookieGallery.cookie.checkCookies(retrunImageFiles, false));
