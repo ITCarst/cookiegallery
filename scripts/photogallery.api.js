@@ -1,10 +1,10 @@
 /* TO DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  BUG whem loading cookie the c_start even its there returns bad
-  build preloader its not loading the files after the request
-  make preloader work
-  GIVE SUPPROT FOR PARSING THE JS REQUEST OF THE IMAGES not its only php cookie and readig files based
- return the number of images dinamilcy not hardcode e.g 13
- 
+  on the init fn there is a set timeout don't forget to remove it
+  
+  return the number of images dinamilcy not hardcode e.g 13
+  
+  GIVE SUPPROT FOR RETURNING images in JS
+  
 */
 
 
@@ -99,13 +99,14 @@ function init (){
 				if(mainObjSettings.readFileType.rFServer === true){
 					
 					httpRequest(requestImages, imagesPath, fileTypes, splitArr, function(){
-						
+						var cookieGet = CookieGallery.cookie.get(mainObjSettings.setCookieName);
+
 						if(checkRequest === true){
-							var cookieGet = CookieGallery.cookie.get(mainObjSettings.setCookieName);
+							//test purpose only
 							setTimeout(function(){
 								praseFiles(cookieGet, images, numResourcesLoaded);
 								CookieGallery.buildList = new buildList();
-							},1000)	
+							},100)	
 						}
 					});
 					
