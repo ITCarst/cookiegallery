@@ -48,10 +48,11 @@ CookieGallery = {
 			rFClient	: false //this option will make 2 ajax requests one for images dir and one for thumbs
 		}
 	},
+	imgString:[],
 	images:{},
 	thumbs:{
-        width:0,
-        height:0
+        width:140,
+        height:90
     },
 	loaderGif: 'img/ajax-loader.gif' //image loader before everything it's loaded
 };
@@ -153,15 +154,15 @@ function praseFiles(cGet, images, fLoaded){
 			//remove the thumb_ from cookie name that it's set into php|JS
 			var matchT = c[i].match(/thumb_/),
 				replaceT = c[i].replace(matchT, ''),
-				concatImgs = [];
-			
-			images[replaceT] = new Image();
+				stringImg = [];
 			
 			if(matchT){
-				concatImgs += (mainObjSettings.thumbdir + replaceT);
+				stringImg += (mainObjSettings.thumbdir + replaceT);
 			}else{
-				concatImgs += (mainObjSettings.imagesdir + replaceT);
+				stringImg += (mainObjSettings.imagesdir + replaceT);
 			}
+			
+			images[replaceT] = new Image();
 			
 			images[replaceT].onload = function(){
 				//check if images status
@@ -175,7 +176,9 @@ function praseFiles(cGet, images, fLoaded){
 				}
 			}
 			//add source to img
-			images[replaceT].src = concatImgs;
+			images[replaceT].src = stringImg;
+			mainObj.imgString.push(stringImg);
 		}
+		
 	}
 }
