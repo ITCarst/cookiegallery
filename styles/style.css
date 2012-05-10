@@ -29,4 +29,19 @@ ul, li {
 	width:660px;
 	margin:0 auto;
 	text-align:center;
+	overflow:hidden;
+}
+
+#thumbH {
+	position:absolute;
+	width:660px;
+	overflow:hidden;
+}
+#thumbH ul {
+	position:relative;
+	width:1500px;
+}
+#thumbH ul li {
+	float:left;
+	display:block;
 }
