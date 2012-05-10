@@ -33,8 +33,8 @@ function buildList(){
 				
 				//created HTML elems append them to the proper elems
 				mainHolder.appendChild(imgHolder);
-				mainHolder.appendChild(thumbH);
 				mainHolder.appendChild(infoH);
+				mainHolder.appendChild(thumbH);
 				imgHolder.appendChild(gControl);
 				imgHolder.appendChild(imgIn);
 				infoH.appendChild(prev);
@@ -42,13 +42,43 @@ function buildList(){
 				infoH.appendChild(next);
 				thumbH.appendChild(ulList);
 				
-				console.log(images)
+				var returnedImages = mainObj.imgString;
+				var thumbs = [];
+				var bigImgs = [];
+				var matchUrl = /\/thumbs/i;
 				
-				imgIn.innerHTML = images['Biolab+Disaster300X135.png'].outerHTML;
+				var tWidth = mainObj.thumbs.width;
+				var tHeight = mainObj.thumbs.height;
 				
+				//return separatly the thumbs and big images
+				for(var i = 0; i < returnedImages.length; i++){
+					//get the thumbs and palce them in the list
+					if(returnedImages[i].match(matchUrl)){
+						thumbs.push(returnedImages[i]);
+					}else{
+						bigImgs.push(returnedImages[i]);
+					}
+				}
+				for(var x = 0; x < thumbs.length; x++){
+					var createImgT = new Image();
+					var liList = document.createElement('li');
+					
+					createImgT.width = tWidth;
+					createImgT.height = tHeight;
+					
+					createImgT.src = thumbs[x];
+					ulList.appendChild(liList);
+					
+
+					ulList.appendChild(liList);
+					liList.appendChild(createImgT);
+				}
 				
-				
-				
+				for(var z = 0; z < bigImgs.length; z++){
+					var createImg = new Image();
+					createImg.src = bigImgs[z];
+					imgIn.appendChild(createImg);
+				}
 				
 			}
 		}

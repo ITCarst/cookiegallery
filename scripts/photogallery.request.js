@@ -28,7 +28,6 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 		_xhr.onreadystatechange = function(){
 			if(_xhr.readyState == 4){
 				if (_xhr.status == 200) {
-					
 					var responeTxt = _xhr.responseText,
 						matchExtension = responeTxt.match(filetype);
 
