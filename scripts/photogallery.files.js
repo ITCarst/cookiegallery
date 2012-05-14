@@ -1,4 +1,4 @@
-CookieGallery.files = new files();
+//_CG.files = new files();
 
 function files(){
 	
@@ -7,8 +7,8 @@ function files(){
 	 * create function that makes the ajax call in the folders
 	 * ---------------------------------------- */
 	this._options = {
-		imageUrl: CookieGallery._settings.imagesdir,
-		thumbUrl: CookieGallery._settings.thumbdir,
+		imageUrl: _CG._settings.imagesdir,
+		thumbUrl: _CG._settings.thumbdir,
 		fileTypes: /(.jpg)|(.gif)|(.png)|(.bmp)$/g,
 		splitArray: /<li>|<a .*?>|<\/a>|<\/li>/ig //regex for removing unsed tags that are received from xml call through localhost ajax
 	}

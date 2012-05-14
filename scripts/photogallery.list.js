@@ -1,10 +1,10 @@
 function buildList(){
 	var _list = this;
 	
-	if(mainObjSettings.placeTarget != ''){
-		var mainHolder = document.getElementById(mainObjSettings.placeTarget);
-		var cookieGet = CookieGallery.cookie.get(mainObjSettings.setCookieName);
-		var images = mainObj.images;
+	if(CGSettings.placeTarget != ''){
+		var mainHolder = document.getElementById(CGSettings.placeTarget);
+		var cookieGet = _CG.cookie.get(CGSettings.setCookieName);
+		var images = _CG.images;
 		
 		if(mainHolder){
 	
@@ -42,13 +42,13 @@ function buildList(){
 				infoH.appendChild(next);
 				thumbH.appendChild(ulList);
 				
-				var returnedImages = mainObj.imgString;
+				var returnedImages = _CG.imgString;
 				var thumbs = [];
 				var bigImgs = [];
 				var matchUrl = /\/thumbs/i;
 				
-				var tWidth = mainObj.thumbs.width;
-				var tHeight = mainObj.thumbs.height;
+				var tWidth = _CG.thumbs.width;
+				var tHeight = _CG.thumbs.height;
 				
 				//return separatly the thumbs and big images
 				for(var i = 0; i < returnedImages.length; i++){
@@ -77,8 +77,8 @@ function buildList(){
 				for(var z = 0; z < bigImgs.length; z++){
 					var createImg = new Image();
 					createImg.src = bigImgs[z];
-					imgIn.appendChild(createImg);
 				}
+				imgIn.appendChild(createImg);
 				
 			}
 		}

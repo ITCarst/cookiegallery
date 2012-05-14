@@ -12,8 +12,8 @@
 if(!window.CookieGallery) {
     window.CookieGallery = {};
 }
-
-CookieGallery = {
+//Cookie Gallery
+_CG = {
 	preload:true,
 	autoplay:{
         buttons:{
@@ -37,7 +37,7 @@ CookieGallery = {
 		}
     },	
 	_settings: {
-		placeTarget		: 'gallery-module', //main target wichi is required in the html
+		placeTarget		: 'CGallery', //main target wichi is required in the html
 		imagesdir		: 'gallery-images/', //folder of the big images -- 
 		thumbdir		: 'gallery-images/thumbs/', //name and path of the thumbs folder
 		readFiles		: 'readfiles.php', //php file wich opens|reads the files from folders
@@ -46,13 +46,15 @@ CookieGallery = {
 		readFileType	: { //setting for enableing either php reading file or JS reading dir through ajax
 			rFServer	: true, 
 			rFClient	: false //this option will make 2 ajax requests one for images dir and one for thumbs
-		}
+		},
+		fileTypes: /(.jpg)|(.gif)|(.png)|(.bmp)$/g,
+		splitArray: /<li>|<a .*?>|<\/a>|<\/li>/ig //regex for removing unsed tags that are received from xml call through localhost ajax
 	},
 	imgString:[],
 	images:{},
 	thumbs:{
-        width:140,
-        height:90
+        width:114,
+        height:72
     },
 	loaderGif: 'img/ajax-loader.gif' //image loader before everything it's loaded
 };
@@ -62,8 +64,7 @@ window.onload = function(){
 	init();
 }
 
-var mainObj = CookieGallery,
-	mainObjSettings = CookieGallery._settings,
+var CGSettings = _CG._settings,
 	checkRequest = false,
 	doneLoading = false;
 	numResourcesLoaded = 0;
@@ -72,46 +73,47 @@ var mainObj = CookieGallery,
 //image/cookie/requests preloader
 function init (){
 	
-	if(mainObjSettings.placeTarget != ''){
+	if(CGSettings.placeTarget != ''){
 		
-		var mainHolder = document.getElementById(mainObjSettings.placeTarget);
+		var mainHolder = document.getElementById(CGSettings.placeTarget);
 		//check if gallery-module exisits
 		if(mainHolder){
-			var images = mainObj.images,
+			var images = _CG.images,
 				preloadMsg = document.createElement('div');
 				
-				
 			var date = new Date().getTime(),
-				imagesPath = CookieGallery.files._options.imageUrl,
-				thumbPath = CookieGallery.files._options.thumbUrl,
-				fileTypes = CookieGallery.files._options.fileTypes,
-				splitArr = CookieGallery.files._options.splitArray,
+				imagesPath = CGSettings.imagesdir,
+				thumbPath = CGSettings.thumbdir,
+				fileTypes = CGSettings.fileTypes,
+				splitArr = CGSettings.splitArray,
 				requestImages = '',
 				requestThumbs = '';
-				
+			
+			console.log()
+			
 			preloadMsg.setAttribute('id', 'preloadMsg');
-			preloadMsg.innerHTML = '<img src="' + mainObj.loaderGif + '" border="0">';
+			preloadMsg.innerHTML = '<img src="' + _CG.loaderGif + '" border="0">';
 			// <br/>'+'Loading... (' + ( 100 / 13 ) * numResourcesLoaded + '%)
 			mainHolder.appendChild(preloadMsg);
 	
 			//request images from the img folder
 			if(imagesPath && thumbPath){
 				
-				if(mainObjSettings.readFileType.rFServer === true){
+				if(CGSettings.readFileType.rFServer === true){
 					
 					httpRequest(requestImages, imagesPath, fileTypes, splitArr, function(){
-						var cookieGet = CookieGallery.cookie.get(mainObjSettings.setCookieName);
+						var cookieGet = _CG.cookie.get(CGSettings.setCookieName);
 
 						if(checkRequest === true){
 							//test purpose only
 							setTimeout(function(){
 								praseFiles(cookieGet, images, numResourcesLoaded);
-								CookieGallery.buildList = new buildList();
+								_CG.buildList = new buildList();
 							},100)	
 						}
 					});
 					
-				}else if(mainObjSettings.readFileType.rFClient === true){
+				}else if(CGSettings.readFileType.rFClient === true){
 					httpRequest(requestImages, imagesPath, fileTypes, splitArr);
 					httpRequest(requestImages, thumbPath, fileTypes, splitArr);
 				}
@@ -132,12 +134,12 @@ function praseFiles(cGet, images, fLoaded){
 		doneLoading = true;
 	}else{
 		if(document.cookie.length > 0 || document.cookie != ''){
-			var c_start = document.cookie.indexOf(CookieGallery._settings.setCookieName + "="),
+			var c_start = document.cookie.indexOf(_CG._settings.setCookieName + "="),
 				c_end = document.cookie.indexOf(";" , c_start);
 				
 			if(c_start != -1){
-				var getIndexes = CookieGallery.cookie.getCIndexes(c_start, c_end);
-				var cookieName = CookieGallery._settings.setCookieName + '=',
+				var getIndexes = _CG.cookie.getCIndexes(c_start, c_end);
+				var cookieName = _CG._settings.setCookieName + '=',
 					splitCookies = getIndexes.split(/,/),
 					i = 0,
 					c = [];
@@ -157,9 +159,9 @@ function praseFiles(cGet, images, fLoaded){
 				stringImg = [];
 			
 			if(matchT){
-				stringImg += (mainObjSettings.thumbdir + replaceT);
+				stringImg += (CGSettings.thumbdir + replaceT);
 			}else{
-				stringImg += (mainObjSettings.imagesdir + replaceT);
+				stringImg += (CGSettings.imagesdir + replaceT);
 			}
 			
 			images[replaceT] = new Image();
@@ -169,7 +171,7 @@ function praseFiles(cGet, images, fLoaded){
 				if(this.complete === true){
 					//add +1 to counter
 					fLoaded += 1;
-					if(13 === fLoaded){
+					if(6 === fLoaded){
 						//if counter its = with all images then hide loading msg
 						preloadMsg.style.display = 'none';
 					}
@@ -177,7 +179,7 @@ function praseFiles(cGet, images, fLoaded){
 			}
 			//add source to img
 			images[replaceT].src = stringImg;
-			mainObj.imgString.push(stringImg);
+			_CG.imgString.push(stringImg);
 		}
 		
 	}
