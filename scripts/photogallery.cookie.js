@@ -1,8 +1,8 @@
-CookieGallery.cookie = new cookie();
+_CG.cookie = new cookie();
 
 function cookie(){
 	var _cookie = this,
-		cookieName = CookieGallery._settings.setCookieName,
+		cookieName = CGSettings.setCookieName,
 		c_start = document.cookie.indexOf(cookieName + "="),
 		c_end = document.cookie.indexOf(";" , c_start);
 
@@ -50,7 +50,7 @@ function cookie(){
 		if(returnThumb != false){
 			var cName = 'CookieGalleryThumbs';
 			_cookie.checkCGal(returnThumb, cName);
-			CookieGallery.cookie.set(cName, returnThumb, CookieGallery._settings.expireTime);
+			_CG.cookie.set(cName, returnThumb, _CG._settings.expireTime);
 		}else{
 			//if its php request do the checking for cookie and set it
 			_cookie.checkCGal(returnImg, cookieName);
@@ -66,7 +66,7 @@ function cookie(){
 			//if there are no cookies then set our cookie
 			if(document.cookie === '' || document.cookie.length <= 0 ){
 				//set the cookies if there are not there
-				CookieGallery.cookie.set(cName, _returnImgs, CookieGallery._settings.expireTime);
+				_CG.cookie.set(cName, _returnImgs, _CG._settings.expireTime);
 			}else{
 				//get the start and end of your cookie appling expecialy of server has multiple cookies
 				_cookie.getCIndexes(c_start, c_end, _returnImgs);
@@ -83,7 +83,7 @@ function cookie(){
 			}
 			return unescape(document.cookie.substring(startVal, endVal));
 		}else{
-			CookieGallery.cookie.set(cookieName, receivedImg, CookieGallery._settings.expireTime);
+			_CG.cookie.set(cookieName, receivedImg, _CG._settings.expireTime);
 		}
 		
 	}
