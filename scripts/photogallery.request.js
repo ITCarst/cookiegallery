@@ -5,7 +5,7 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 		returnImageThumb = '',
 		count = 0,
 		total = 0,
-		sendUrl = mainObjSettings.readFiles + '?path=' + path; //url for read file server side
+		sendUrl = CGSettings.readFiles + '?path=' + path; //url for read file server side
 	
 	if(window.XMLHttpRequest) {
 		_xhr = new XMLHttpRequest();
@@ -34,7 +34,7 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 					//check for images extenstions and if the response it's bigger then 0	
 					if(matchExtension && responeTxt.length > 0 && responeTxt.length != '' ){
 							
-						if(mainObjSettings.readFileType.rFServer === true){
+						if(CGSettings.readFileType.rFServer === true){
 							
 							/* ---------------------------------
 							 * PHP JSON RESPONSE
@@ -49,10 +49,10 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 								}
 							}
 							if(retrunImageFiles != ''){
-								callback(CookieGallery.cookie.checkCookies(retrunImageFiles, false));
+								callback(_CG.cookie.checkCookies(retrunImageFiles, false));
 							}
 							
-						}else if(mainObjSettings.readFileType.rFClient === true){
+						}else if(CGSettings.readFileType.rFClient === true){
 
 							/* -------------------------------
 							 * LOCAL HOST REQUEST AND PARSE
@@ -89,10 +89,10 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 				}
 			}
 		}
-		if(mainObjSettings.readFileType.rFServer === true){
+		if(CGSettings.readFileType.rFServer === true){
 			//php get requst
 			_xhr.open("GET", sendUrl, true);
-		}else if(mainObjSettings.readFileType.rFClient === true){
+		}else if(CGSettings.readFileType.rFClient === true){
 			//localhost request returing 
 			_xhr.open("GET", path, true);
 		}

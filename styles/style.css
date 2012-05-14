@@ -25,23 +25,26 @@ ul, li {
 /* -----------------------------------------------------------------------------
  * CONTENT
  * ----------------------------------------------------------------------------- */
-#wrapper {
-	width:660px;
+#CGallery {
+    position:relative;
+    width: 660px;
 	margin:0 auto;
-	text-align:center;
-	overflow:hidden;
 }
-
+#imgHolder {
+	
+}
+#CGallery #infoH {
+    width:243px;
+    height:80px;
+}
 #thumbH {
-	position:absolute;
-	width:660px;
+    width:660px;
 	overflow:hidden;
 }
 #thumbH ul {
-	position:relative;
 	width:1500px;
 }
-#thumbH ul li {
+#thumbH ul li{
 	float:left;
-	display:block;
+	margin-left:5px;
 }
