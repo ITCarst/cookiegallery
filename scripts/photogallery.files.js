@@ -1,4 +1,4 @@
-//_CG.files = new files();
+_CG.files = new files();
 
 function files(){
 	

@@ -75,14 +75,34 @@ function buildList(){
 				}
 				
 				for(var z = 0; z < bigImgs.length; z++){
-					var createImg = new Image();
+					var createImg = new Image(),
+						galleryImage = document.createElement('div');
+					
 					createImg.src = bigImgs[z];
+					
+					galleryImage.setAttribute('class', 'gallery-image');
+					
+
+					galleryImage.appendChild(createImg);
+					
+					imgIn.appendChild(galleryImage);
+
+
+					var _options = {
+						index : i,
+						id: imageObjects[i].id,
+						thumb : img.getElements('img')[0].src,
+						caption : img.getElements('.dg-image-gallery-caption')[0].get('html').trim(),
+						src : img.getElements('.dg-image-gallery-large-image-path')[0].get('html').trim(),
+						href : href
+					};
+
 				}
-				imgIn.appendChild(createImg);
 				
 			}
 		}
 	}
+
 }
 
 /*
@@ -90,7 +110,11 @@ GALL STRUCTURE
 
 <div id="imgHolder">
 	<div id="controlls"> Controlls: Reset | Pause | Save </div>
-	<div id="imgIn"> Big Image	</div>
+	<div id="imgIn">
+		<div class="gallery-image">
+			<img src="image">
+		</div>
+	</div>
 </div>
 
 <div id="infoH">
