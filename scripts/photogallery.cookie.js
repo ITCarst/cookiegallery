@@ -12,6 +12,7 @@ function cookie(){
 			var date = new Date();
 			date.setTime(date.getTime()+(time * 24 * 60 * 60 * 1000));
 			var expires = "; expires=" + date.toGMTString();
+			console.log(date.getTime());
 		}else{
 			var expires = "";
 		}

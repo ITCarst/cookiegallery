@@ -61,7 +61,7 @@ _CG = {
 
 //window load show preloader
 window.onload = function(){
-	init();
+	_CG.init = new init();
 }
 
 var CGSettings = _CG._settings,
@@ -71,7 +71,7 @@ var CGSettings = _CG._settings,
 
 
 //image/cookie/requests preloader
-function init (){
+var init = function(){
 	
 	if(CGSettings.placeTarget != ''){
 		
