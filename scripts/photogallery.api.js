@@ -30,7 +30,7 @@ _CG = {
                 enabled:true
             }
         },
-		fadeduration: 10000,
+		fadeduration: 1000,
 		autorotate:{
 			enabled:true,
 			duration:3000
