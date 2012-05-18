@@ -1,3 +1,5 @@
+var ci;
+
 function buildList(){
 	var _list = this;
 	
@@ -42,61 +44,48 @@ function buildList(){
 				infoH.appendChild(next);
 				thumbH.appendChild(ulList);
 				
-				var returnedImages = _CG.imgString;
+				var cookieGet = _CG.cookie.get(CGSettings.setCookieName);
+				
 				var thumbs = [];
 				var bigImgs = [];
-				var matchUrl = /\/thumbs/i;
+				var matchUrl = /thumb_|thumb/i;
 				
 				var tWidth = _CG.thumbs.width;
 				var tHeight = _CG.thumbs.height;
 				
 				//return separatly the thumbs and big images
-				for(var i = 0; i < returnedImages.length; i++){
+				for(var i = 0; i < cookieGet.length; i++){
 					//get the thumbs and palce them in the list
-					if(returnedImages[i].match(matchUrl)){
-						thumbs.push(returnedImages[i]);
+					if(cookieGet[i].match(matchUrl)){
+						thumbs.push(cookieGet[i]);
 					}else{
-						bigImgs.push(returnedImages[i]);
+						bigImgs.push(cookieGet[i]);
 					}
 				}
-				for(var x = 0; x < thumbs.length; x++){
-					var createImgT = new Image();
-					var liList = document.createElement('li');
-					
-					createImgT.width = tWidth;
-					createImgT.height = tHeight;
-					
-					createImgT.src = thumbs[x];
-					ulList.appendChild(liList);
-					
-
-					ulList.appendChild(liList);
-					liList.appendChild(createImgT);
+					var img;
+				for(var x = 0; x < bigImgs.length; x++){
+					img = bigImgs[x];
 				}
+				console.log(img);
 				
-				for(var z = 0; z < bigImgs.length; z++){
-					var createImg = new Image(),
-						galleryImage = document.createElement('div');
+				for(var i = 0; i < thumbs.length; i++){
+					var liList = document.createElement('li');
+					var replaceT = thumbs[i].replace(matchUrl, '');
+					ci = true;
 					
-					createImg.src = bigImgs[z];
+					liList.setAttribute('value', i);
+					ulList.appendChild(liList);
 					
-					galleryImage.setAttribute('class', 'gallery-image');
+					var id = liList.value;
+					createThumb(id, liList, replaceT);
+
+					liList.onclick = function(){
+						console.log('click')
+						createBigImg(img, imgIn, id);
+					}
 					
-
-					galleryImage.appendChild(createImg);
 					
-					imgIn.appendChild(galleryImage);
-
-
-					var _options = {
-						index : i,
-						id: imageObjects[i].id,
-						thumb : img.getElements('img')[0].src,
-						caption : img.getElements('.dg-image-gallery-caption')[0].get('html').trim(),
-						src : img.getElements('.dg-image-gallery-large-image-path')[0].get('html').trim(),
-						href : href
-					};
-
+					if(i==0){createThumb(id, liList, replaceT)}
 				}
 				
 			}
@@ -104,7 +93,42 @@ function buildList(){
 	}
 
 }
+function createThumb(id, list, imgT){
+	if(id){
+		var createImg = document.createElement('img');
+		createImg.id = id;
+		createImg.setAttribute('width', _CG.thumbs.width);
+		createImg.setAttribute('height', _CG.thumbs.height);
+		
+		//createImg.style.opacity = 0;
+		//createImg.style.filter='alpha(opacity=0)';
+		createImg.src = CGSettings.thumbdir + imgT;
+		list.appendChild(createImg);
+	}
+}
+function createBigImg(bigImg, holder, id){
+	if(document.getElementById(id)){
+		var createImg;
+		createImg = document.createElement('img');
+		createImg.src = CGSettings.imagesdir + bigImg;
+		createImg.id = id;
+		//createImg.style.display = 'none';
+		holder.appendChild(createImg);
+	}else{
+		
+	}
+}
 
+
+function fdin(i){
+	if(i.complete){i.av=i.av+fs; i.style.opacity=i.av/100; i.style.filter='alpha(opacity='+i.av+')'}
+	if(i.av>=100){if(auto){this.auto()}; clearInterval(i.timer); ci=i}
+}
+function fdout(i){
+	i.av=i.av-fs; i.style.opacity=i.av/100;
+	i.style.filter='alpha(opacity='+i.av+')';
+	if(i.av<=0){clearInterval(i.timer); if(i.parentNode){i.parentNode.removeChild(i)}}
+}
 /*
 GALL STRUCTURE
 
