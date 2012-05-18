@@ -1,5 +1,3 @@
-var ci;
-
 function buildList(){
 	var _list = this;
 	
@@ -7,23 +5,23 @@ function buildList(){
 		var mainHolder = document.getElementById(CGSettings.placeTarget);
 		var cookieGet = _CG.cookie.get(CGSettings.setCookieName);
 		var images = _CG.images;
-		
-		if(mainHolder){
 	
+		if(mainHolder){
+		
 			if(doneLoading === true){
-				
+		
 				//create html elements for layout
 				var imgHolder = document.createElement('div'),
-					gControl = document.createElement('div'),
-					imgIn = document.createElement('div'),
-					infoH = document.createElement('div'),
-					prev = document.createElement('div'),
-					photoName = document.createElement('div'),
-					next = document.createElement('div'),
-					thumbH = document.createElement('div'),
-					ulList = document.createElement('ul');
-					
-				//add individual ID's to each elem creted	
+				gControl = document.createElement('div'),
+				imgIn = document.createElement('div'),
+				infoH = document.createElement('div'),
+				prev = document.createElement('div'),
+				photoName = document.createElement('div'),
+				next = document.createElement('div'),
+				thumbH = document.createElement('div'),
+				ulList = document.createElement('ul');
+				
+				//add individual ID's to each elem creted
 				imgHolder.setAttribute('id', 'imgHolder');
 				gControl.setAttribute('id', 'controlls');
 				imgIn.setAttribute('id', 'imgIn');
@@ -44,78 +42,59 @@ function buildList(){
 				infoH.appendChild(next);
 				thumbH.appendChild(ulList);
 				
-				var cookieGet = _CG.cookie.get(CGSettings.setCookieName);
-				
+				var returnedImages = _CG.imgString;
 				var thumbs = [];
 				var bigImgs = [];
-				var matchUrl = /thumb_|thumb/i;
+				var matchUrl = /\/thumbs/i;
 				
 				var tWidth = _CG.thumbs.width;
 				var tHeight = _CG.thumbs.height;
 				
 				//return separatly the thumbs and big images
-				for(var i = 0; i < cookieGet.length; i++){
+				for(var i = 0; i < returnedImages.length; i++){
 					//get the thumbs and palce them in the list
-					if(cookieGet[i].match(matchUrl)){
-						thumbs.push(cookieGet[i]);
+					if(returnedImages[i].match(matchUrl)){
+						thumbs.push(returnedImages[i]);
 					}else{
-						bigImgs.push(cookieGet[i]);
+						bigImgs.push(returnedImages[i]);
 					}
 				}
-					var img;
-				for(var x = 0; x < bigImgs.length; x++){
-					img = bigImgs[x];
-				}
-				console.log(img);
 				
-				for(var i = 0; i < thumbs.length; i++){
+				for(var x = 0, max = thumbs.length; x < max; x++){
 					var liList = document.createElement('li');
-					var replaceT = thumbs[i].replace(matchUrl, '');
-					ci = true;
-					
-					liList.setAttribute('value', i);
+
+					liList.setAttribute('value', x);
 					ulList.appendChild(liList);
 					
 					var id = liList.value;
-					createThumb(id, liList, replaceT);
-
-					liList.onclick = function(){
-						console.log('click')
-						createBigImg(img, imgIn, id);
+					createThumb(id, liList, thumbs[x]);
+					
+					liList.onclick = function(e){
+						var value = this.getAttribute('value');
+						createBigImg(imgIn, value, bigImgs[value]);
 					}
-					
-					
-					if(i==0){createThumb(id, liList, replaceT)}
 				}
-				
 			}
 		}
 	}
-
 }
-function createThumb(id, list, imgT){
-	if(id){
+
+function createThumb(id, list, thumbI){
+	if(id != null){
 		var createImg = document.createElement('img');
-		createImg.id = id;
+		createImg.id = 'thumb_'+id;
 		createImg.setAttribute('width', _CG.thumbs.width);
 		createImg.setAttribute('height', _CG.thumbs.height);
-		
-		//createImg.style.opacity = 0;
-		//createImg.style.filter='alpha(opacity=0)';
-		createImg.src = CGSettings.thumbdir + imgT;
+		createImg.src = thumbI;
 		list.appendChild(createImg);
 	}
 }
-function createBigImg(bigImg, holder, id){
-	if(document.getElementById(id)){
+function createBigImg(holder, id, bigImgs){
+	if(id){
 		var createImg;
 		createImg = document.createElement('img');
-		createImg.src = CGSettings.imagesdir + bigImg;
-		createImg.id = id;
-		//createImg.style.display = 'none';
+		createImg.src = bigImgs;
 		holder.appendChild(createImg);
-	}else{
-		
 	}
 }
 

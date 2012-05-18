@@ -147,9 +147,9 @@ function praseFiles(cGet, images, fLoaded){
 					c.push(splitCookies[i]);
 				}				
 				setImages(c);
+				doneLoading = true;
 			}
 		}
-		doneLoading = true;
 	}
 	function setImages(c){
 		for(var i=0; i < c.length; i++){
