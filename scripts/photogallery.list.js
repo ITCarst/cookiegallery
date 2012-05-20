@@ -69,8 +69,13 @@ function buildList(){
 					var id = liList.value;
 					createThumb(id, liList, thumbs[x]);
 					
+					var value = 0;
+					
 					liList.onclick = function(e){
 						var value = this.getAttribute('value');
+						createBigImg(imgIn, value, bigImgs[value]);
+					}
+					if(x == 0){
 						createBigImg(imgIn, value, bigImgs[value]);
 					}
 				}
@@ -78,6 +83,7 @@ function buildList(){
 		}
 	}
 }
+var fs = 0.5;
 
 function createThumb(id, list, thumbI){
 	if(id != null){
@@ -90,23 +96,68 @@ function createThumb(id, list, thumbI){
 	}
 }
 function createBigImg(holder, id, bigImgs){
-	if(id){
-		var createImg;
-		createImg = document.createElement('img');
-		createImg.src = bigImgs;
-		holder.appendChild(createImg);
+	if(id != null){
+		var foundId = document.getElementById(id),
+			createImg;
+		
+		if(!foundId){
+			createImg = document.createElement('img');
+			createImg.src = bigImgs;
+			createImg.id = id;
+			createImg.av = 0;
+			createImg.style.opacity = 0;
+			createImg.style.filter = 'alpha(opacity=0)';
+			holder.appendChild(createImg);
+			
+		}else{
+			var ts,
+				tsl,
+				x;
+			ts = holder.getElementsByTagName('img');
+			tsl = ts.length;
+			x = 0;
+			
+			for(x; x < tsl; x++){
+				
+				console.log(tsl[x])
+				
+				if(createImg.id != id){
+					var o = ts[x];
+					clearInterval(o.timer);
+					o.timer=setInterval(function(){
+						fdout(o)
+					},fs)
+				}
+			}
+		}
+		createImg.timer = setInterval(function(){fdin(createImg)},fs);
 	}
 }
-
-
 function fdin(i){
-	if(i.complete){i.av=i.av+fs; i.style.opacity=i.av/100; i.style.filter='alpha(opacity='+i.av+')'}
-	if(i.av>=100){if(auto){this.auto()}; clearInterval(i.timer); ci=i}
+	if(i.complete){
+		i.av = i.av + fs;
+		i.style.opacity = i.av / 100;
+		i.style.filter = 'alpha(opacity='+i.av+')';
+		console.log(i)
+	}
+	if(i.av >= 100){
+		console.log('goes here')
+		i.style.opacity = 1;
+		i.style.filter = 'alpha(opacity=100)';
+		clearInterval(i.timer); ci=i
+	}
 }
 function fdout(i){
-	i.av=i.av-fs; i.style.opacity=i.av/100;
-	i.style.filter='alpha(opacity='+i.av+')';
-	if(i.av<=0){clearInterval(i.timer); if(i.parentNode){i.parentNode.removeChild(i)}}
+	i.av = i.av-fs;
+	i.style.opacity = i.av / 100;
+	i.style.filter = 'alpha(opacity='+i.av+')';
+	
+	if(i.av <= 0){
+		clearInterval(i.timer);
+		if(i.parentNode){
+			i.parentNode.removeChild(i)
+		}
+	}
 }
 /*
 GALL STRUCTURE
