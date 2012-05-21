@@ -30,7 +30,7 @@ _CG = {
                 enabled:true
             }
         },
-		fadeduration: 1000,
+		fadeduration: 0.5, //fade in and fade out of the images change
 		autorotate:{
 			enabled:true,
 			duration:3000
