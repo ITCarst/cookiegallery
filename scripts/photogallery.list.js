@@ -70,7 +70,6 @@ function buildList(){
 					createThumb(id, liList, thumbs[x]);
 					
 					var value = 0;
-					
 					liList.onclick = function(e){
 						var value = this.getAttribute('value');
 						createBigImg(imgIn, value, bigImgs[value]);
@@ -83,23 +82,53 @@ function buildList(){
 		}
 	}
 }
-var fs = 0.5;
 
+var ci;
+var ia;
+var auto = true;
+var autodelay = 5;
+
+//ia = document.getElementById(imgid);
+
+//create thumbs annd apend them
 function createThumb(id, list, thumbI){
 	if(id != null){
-		var createImg = document.createElement('img');
-		createImg.id = 'thumb_'+id;
-		createImg.setAttribute('width', _CG.thumbs.width);
-		createImg.setAttribute('height', _CG.thumbs.height);
-		createImg.src = thumbI;
-		list.appendChild(createImg);
+		var createT = document.createElement('img');
+		createT.id = 'thumb_'+id;
+		createT.setAttribute('width', _CG.thumbs.width);
+		createT.setAttribute('height', _CG.thumbs.height);
+		createT.src = thumbI;
+		list.appendChild(createT);
 	}
 }
+//add big image to the given id
 function createBigImg(holder, id, bigImgs){
+	
 	if(id != null){
+		
 		var foundId = document.getElementById(id),
 			createImg;
 		
+		if(ci != null){
+			var ts,
+				tsl,
+				x;
+			ts = holder.getElementsByTagName('img');
+			tsl = ts.length;
+			x=0;
+			
+			for(x; x < tsl; x++){
+				if(ci.id!=id){
+					var o = ts[x];
+					clearInterval(o.timer);
+					o.timer = setInterval(function(){
+						fdout(o)
+					},_CG.autoplay.fadeduration)}
+			}
+		}
+
+			
+		//if the holder has no image then create the first image	
 		if(!foundId){
 			createImg = document.createElement('img');
 			createImg.src = bigImgs;
@@ -110,55 +139,67 @@ function createBigImg(holder, id, bigImgs){
 			holder.appendChild(createImg);
 			
 		}else{
-			var ts,
-				tsl,
-				x;
-			ts = holder.getElementsByTagName('img');
-			tsl = ts.length;
-			x = 0;
-			
-			for(x; x < tsl; x++){
-				
-				console.log(tsl[x])
-				
-				if(createImg.id != id){
-					var o = ts[x];
-					clearInterval(o.timer);
-					o.timer=setInterval(function(){
-						fdout(o)
-					},fs)
-				}
-			}
+			createImg = document.getElementById(id);
+			clearInterval(createImg.timer);
 		}
-		createImg.timer = setInterval(function(){fdin(createImg)},fs);
+
+		if(auto){
+			console.log(auto);
+			clearTimeout(createImg.timer);
+		}
+		createImg.timer = setInterval(function(){
+			fdin(createImg);
+		}, _CG.autoplay.fadeduration);
+
 	}
 }
-function fdin(i){
-	if(i.complete){
-		i.av = i.av + fs;
-		i.style.opacity = i.av / 100;
-		i.style.filter = 'alpha(opacity='+i.av+')';
-		console.log(i)
+function fdin(image){
+	if(image.complete){
+		image.av = image.av + _CG.autoplay.fadeduration;
+		image.style.opacity = image.av / 100;
+		image.style.filter = 'alpha(opacity=' + image.av + ')';
 	}
-	if(i.av >= 100){
-		console.log('goes here')
-		i.style.opacity = 1;
-		i.style.filter = 'alpha(opacity=100)';
-		clearInterval(i.timer); ci=i
+	if(image.av >= 100){
+		image.style.opacity = 1;
+		image.style.filter = 'alpha(opacity=100)';
+
+		if(auto){
+			//autoF(image);
+			console.log('auto')
+		};
+		clearInterval(image.timer);
+		ci = image;
 	}
-}
-function fdout(i){
-	i.av = i.av-fs;
-	i.style.opacity = i.av / 100;
-	i.style.filter = 'alpha(opacity='+i.av+')';
+
 	
-	if(i.av <= 0){
-		clearInterval(i.timer);
-		if(i.parentNode){
-			i.parentNode.removeChild(i)
-		}
-	}
 }
+function fdout(image){
+	image.av = image.av - _CG.autoplay.fadeduration;
+	image.style.opacity = image.av / 100;
+	image.style.filter = 'alpha(opacity=' + image.av + ')';
+	
+	if(image.av <= 0){
+		clearInterval(image.timer);
+		
+		if(image.parentNode){
+			image.parentNode.removeChild(image)
+		}
+		
+	}
+	
+	
+}
+function autoF(image){
+	image.timer = setInterval(function(){
+		nav(1);
+		console.log('test')
+	}, autodelay * 1000)
+}
+
+function nav(d){
+
+}
+
 /*
 GALL STRUCTURE
 
