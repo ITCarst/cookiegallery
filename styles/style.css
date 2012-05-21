@@ -40,9 +40,13 @@ ul, li {
 #thumbH {
     width:660px;
 	overflow:hidden;
+	position:relative;
+	height:100px;
 }
 #thumbH ul {
+	position:absolute;
 	width:1500px;
+	height:72px;
 }
 #thumbH ul li{
 	float:left;

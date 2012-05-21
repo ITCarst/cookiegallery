@@ -78,6 +78,16 @@ function buildList(){
 						createBigImg(imgIn, value, bigImgs[value]);
 					}
 				}
+				ulList.onmouseover = function(){
+					var counter = 0;
+					ulList.timer = setInterval(function(){
+						counter++;
+						move(ulList,counter);
+					},3)
+				};
+				ulList.onmouseout = function(){
+					clearInterval(ulList.timer);
+				}
 			}
 		}
 	}
@@ -87,7 +97,7 @@ var ci;
 var ia;
 var auto = true;
 var autodelay = 5;
-
+var ie=document.all ? true : false;
 //ia = document.getElementById(imgid);
 
 //create thumbs annd apend them
@@ -103,12 +113,9 @@ function createThumb(id, list, thumbI){
 }
 //add big image to the given id
 function createBigImg(holder, id, bigImgs){
-	
 	if(id != null){
-		
 		var foundId = document.getElementById(id),
 			createImg;
-		
 		if(ci != null){
 			var ts,
 				tsl,
@@ -162,16 +169,9 @@ function fdin(image){
 	if(image.av >= 100){
 		image.style.opacity = 1;
 		image.style.filter = 'alpha(opacity=100)';
-
-		if(auto){
-			//autoF(image);
-			console.log('auto')
-		};
 		clearInterval(image.timer);
 		ci = image;
 	}
-
-	
 }
 function fdout(image){
 	image.av = image.av - _CG.autoplay.fadeduration;
@@ -180,23 +180,34 @@ function fdout(image){
 	
 	if(image.av <= 0){
 		clearInterval(image.timer);
-		
 		if(image.parentNode){
 			image.parentNode.removeChild(image)
 		}
 		
 	}
-	
-	
 }
 function autoF(image){
 	image.timer = setInterval(function(){
 		nav(1);
-		console.log('test')
 	}, autodelay * 1000)
 }
+function move(ulH, counter){
+	var ulWidth = ulH.offsetWidth;
+	var getLi = ulH.getElementsByTagName('li');
+	var liWidth = 0;
 
-function nav(d){
+	for(var x = 0; x < getLi.length; x++){
+		liWidth = getLi[x].offsetWidth;
+	}
+	
+	counter += liWidth;
+	
+	if(counter >= (ulWidth -114) ){
+		ulH.style.left = '-' + counter  + 'px';
+		clearInterval(ulH.timer);
+	}else{
+		ulH.style.left = '-' + counter  + 'px';
+	}
 
 }
 
