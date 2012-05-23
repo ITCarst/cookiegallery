@@ -172,6 +172,7 @@ function praseFiles(cGet, images, fLoaded){
 					//add +1 to counter
 					fLoaded += 1;
 					if(6 === fLoaded){
+						console.log('loaded')
 						//if counter its = with all images then hide loading msg
 						preloadMsg.style.display = 'none';
 					}
