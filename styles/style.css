@@ -34,9 +34,12 @@ ul, li {
 	
 }
 #CGallery #infoH {
-    width:243px;
     height:80px;
 }
+	#infoH #prev {float:left;}
+	#infoH #next {float:right;}
+
+
 #thumbH {
     width:660px;
 	overflow:hidden;
@@ -45,7 +48,6 @@ ul, li {
 }
 #thumbH ul {
 	position:absolute;
-	width:1500px;
 	height:72px;
 }
 #thumbH ul li{
