@@ -4,21 +4,16 @@ function buildList(){
 	if(CGSettings.placeTarget != ''){
 		var cookieGet = _CG.cookie.get(CGSettings.setCookieName);
 		var images = _CG.images;
-	
-		if(mainHolder){
+		var mainHolder = document.getElementById(CGSettings.placeTarget);
 		
+		if(mainHolder){
 			if(doneLoading === true){
-				buildList();
-				
-				/*
-				//return separatly the thumbs and big images
-				
-				*/
+				buildHTML();
 			}
 		}
 	}
 }
-function buildList(){
+function buildHTML(){
 	var mainHolder = document.getElementById(CGSettings.placeTarget);
 	//create html elements for layout
 	var imgHolder = document.createElement('div'),
@@ -40,6 +35,7 @@ function buildList(){
 	next.setAttribute('id','next');
 	photoName.setAttribute('id','photName');
 	thumbH.setAttribute('id','thumbH');
+	ulList.setAttribute('id', 'listH')
 	
 	//created HTML elems append them to the proper elems
 	mainHolder.appendChild(imgHolder);
@@ -52,8 +48,6 @@ function buildList(){
 	infoH.appendChild(next);
 	thumbH.appendChild(ulList);
 	
-	
-
 	
 	var returnedImages = _CG.imgString;
 	var thumbs = [];
@@ -93,56 +87,63 @@ function buildList(){
 	next.innerHTML = 'Next';
 	setup();
 	
+	//begin();
+	
 }
 var speed = 300;
 var delay = 0;
 
 function setup(){
-	// get and measure amt of slides
-	var thumbH = document.getElementById('thumbH');
-	var ulList = thumbH.getElementsByTagName('ul')[0];
-	var index = 0;
-    var slides = ulList.children;
-    var length = slides.length;
+	var thumbH = document.getElementById('thumbH'),
+		ulList = document.getElementById('listH'),
+		slides = ulList.getElementsByTagName('li'),
+		length = slides.length,
+		getCWidth,
+		el;
 	
     // return immediately if their are less than two slides
     if(length < 2) return null;
 
+	// hide slider element but keep positioning during setup
+    thumbH.style.visiblilty = 'hidden';
+	
     thumbH.width = thumbH.getBoundingClientRect().width;
-
 	if(!thumbH.width) return null;
-
-    // hide slider element but keep positioning during setup
-    ulList.style.visibility = 'hidden';
 	
-    // dynamic css
-    ulList.style.width = (length * thumbH.width) + 'px';
+	for(var x = 0; x < slides.length; x++){
+		getCWidth = slides[x].offsetWidth + 10;
+	}
 	
-    while(length--) {
-      var el = slides[length];
-      el.style.width = el.offsetWidth + 'px';
+	// dynamic css
+    ulList.style.width = (length * getCWidth) + 'px';
+	
+	var index = length;
+	//set width to each li
+    while(index--) {
+		el = slides[index];
     }
-    // set start position and force translate to remove initial flickering
-    slide(index, 0, ulList, slides); 
-
-    // show slider element
-    ulList.style.visibility = 'visible';
 	
-	next.onclick = nextT(2);
+	if(ulList.style.width){
+		thumbH.style.visiblilty = 'visible';
+	}
+
+    slide(index, 0, ulList, slides); 
 	
 }
 function slide(index, duration, ulList, liList) {
-    var style = ulList.style;
-	var liListW;
-	var getWidth;
+    var style = ulList.style,
+		liListW,
+		getWidth;
+	
 	for(var x = 0; x < liList.length; x++){
 		liListW = liList[x].style.width;
 	}
 	getWidth = liListW.replace('px','');
-    style.webkitTransitionDuration = style.MozTransitionDuration = style.msTransitionDuration = style.OTransitionDuration = style.transitionDuration = speed + 'ms';
+	
+    style.webkitTransitionDuration = style.MozTransitionDuration = speed + 'ms';
+	style.msTransitionDuration = style.OTransitionDuration = style.transitionDuration = speed + 'ms';
 
-	style.left = '-' + (index * getWidth) + 'px';    
-	//style.left = '0px';
+	style.left = -(index * getWidth) + 'px';
 	
 	ulList.onmouseover = function(evnt){
 		onHoverStart(evnt, ulList, index, getWidth, liList);
@@ -152,23 +153,81 @@ function slide(index, duration, ulList, liList) {
 function onHoverStart(e, ulList, index, width, liList) {
 	index = -1;
 	var deltaX = e.pageX;
-	deltaX =  deltaX / ( (!index && deltaX > 0 || index == liList.length - 1 && deltaX < 0 ) ? ( Math.abs(deltaX) / width + 1 ) : 1 );
-	ulList.style.left = '-' + (deltaX - index * width) + 'px';
-}
-
-function nextT(delay){
-	if(index < list.length - 1){
-		slide(index + 1, speed, ulList, slides);
+	console.log(deltaX);
+	
+	
+	//deltaX =  deltaX / ( (!index && deltaX > 0 || index == liList.length - 1 && deltaX < 0 ) ? ( Math.abs(deltaX) / width + 1 ) : 1 );
+	
+	if(!index && deltaX > 0){
+		
+		deltaX = deltaX / (Math.abs(deltaX) / width + 1);
+		
+		console.log('goes here')
+		
+	}else if(index == liList.length - 1 && deltaX < 0){
+		
+		console.log('goes here')
+		
+		deltaX = deltaX / (Math.abs(deltaX) / width + 1);
+		
 	}else{
-		slide(index, 0, ulList, slides); 
-	} 
-}
-function prevT(delay) {
-    if(index){
-		slide(index - 1, speed, ulList, slides);
+		
+		deltaX = deltaX / 1;
+		
+		console.log(deltaX)
 	}
 	
+	
+	ulList.style.left = - (deltaX - index * width) + 'px';
 }
+
+function nextT(delay, index, list){
+	var thumbH = document.getElementById('thumbH'),
+		ulList = thumbH.getElementsByTagName('ul')[0],
+		slides = ulList.children;
+	
+	if(index < list.length - 1){
+		
+		slide(index + 1, speed, ulList, slides);
+		
+	}else{
+		
+		slide(index, 0, ulList, slides);
+		
+	}
+}
+function prevT(delay, index, list) {
+	var thumbH = document.getElementById('thumbH'),
+		ulList = thumbH.getElementsByTagName('ul')[0],
+		slides = ulList.children;
+	
+	console.log(index);
+
+    if(index){
+		console.log('console index');
+		
+		slide(index - 1, speed, ulList, slides);
+	}
+}
+
+
+function begin() {
+	var thumbH = document.getElementById('thumbH'),
+		ulList = thumbH.getElementsByTagName('ul')[0],
+		slides = ulList.children,
+		index = 0;
+	
+	var interval = setTimeout(function() {
+		nextT(2, index, slides);
+	}, _CG.autoplay.autorotate.duration);
+	
+	console.log(interval)
+	return interval;
+}
+
+
+
+
 var ci;
 var ia;
 var auto = true;
@@ -227,7 +286,6 @@ function createBigImg(holder, id, bigImgs){
 		}
 
 		if(auto){
-			console.log(auto);
 			clearTimeout(createImg.timer);
 		}
 		createImg.timer = setInterval(function(){
@@ -260,11 +318,6 @@ function fdout(image){
 			image.parentNode.removeChild(image)
 		}
 	}
-}
-function autoF(image){
-	image.timer = setInterval(function(){
-		nav(1);
-	}, autodelay * 1000)
 }
 
 
