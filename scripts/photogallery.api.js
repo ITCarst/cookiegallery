@@ -33,7 +33,7 @@ _CG = {
 		fadeduration: 0.5, //fade in and fade out of the images change
 		autorotate:{
 			enabled:true,
-			duration:3000
+			duration:1000
 		}
     },	
 	_settings: {
@@ -106,10 +106,8 @@ var init = function(){
 
 						if(checkRequest === true){
 							//test purpose only
-							setTimeout(function(){
-								praseFiles(cookieGet, images, numResourcesLoaded);
-								_CG.buildList = new buildList();
-							},100)	
+							praseFiles(cookieGet, images, numResourcesLoaded);
+							_CG.buildList = new buildList();
 						}
 					});
 					

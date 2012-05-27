@@ -49,6 +49,7 @@ ul, li {
 #thumbH ul {
 	position:absolute;
 	height:72px;
+	width:1500px;
 }
 #thumbH ul li{
 	float:left;
