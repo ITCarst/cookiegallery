@@ -86,10 +86,8 @@ function buildHTML(){
 	prev.innerHTML = 'Prev';
 	next.innerHTML = 'Next';
 	setup();
-	begin(next, prev);
-	
-
 }
+
 var speed = 300;
 var delay = 0;
 
@@ -125,7 +123,10 @@ function setup(){
 	if(ulList.style.width){
 		thumbH.style.visiblilty = 'visible';
 	}
-    slide(index, 0, ulList, slides); 
+    slide(index, 0, ulList, slides);
+	
+	begin(next, prev);
+
 	
 }
 function slide(index, duration, ulList, liList) {
@@ -133,7 +134,7 @@ function slide(index, duration, ulList, liList) {
 		liListW;
 		
 	for(var x = 0; x < liList.length; x++){
-		liListW = liList[x].offsetWidth + 10;
+		liListW = liList[x].offsetWidth + 15;
 	}
 	
     style.webkitTransitionDuration = style.MozTransitionDuration = speed + 'ms';
@@ -148,12 +149,11 @@ function onHoverStart(e, ulList, index, width, liList) {
 	var deltaX = getPosition(thumbH);
 	var scrollX;
 	deltaX = e.pageX - deltaX.x;
-	
+
 	//user starts to scroll right
 	if(deltaX > width){
 		deltaX = deltaX / 1;
 		scrollX = - (deltaX - index * width) + 'px';
-		
 	}else if(deltaX <= width){
 		deltaX = 0;
 		scrollX = - (deltaX - index) + 'px';
@@ -161,33 +161,22 @@ function onHoverStart(e, ulList, index, width, liList) {
 	ulList.style.left = scrollX;
 }
 
-function nextT(delay, index, list){
+function nextT(index, list, moveRight){
 	var thumbH = document.getElementById('thumbH'),
-		ulList = thumbH.getElementsByTagName('ul')[0],
-		slides = ulList.children,
-		liListW;
-	
-	for(var x = 0; x < list.length; x++){
-		liListW = list[x].offsetWidth + 10;
-	}
+		ulList = thumbH.getElementsByTagName('ul')[0];
 	
 	if(index < list.length - 1){
-		ulList.style.left =  - (liListW) + 'px';
+		ulList.style.left = -(moveRight) + 'px';
 	}else{
-		ulList.style.left =  (liListW) + 'px';
+		ulList.style.left =  (moveRight) + 'px';
 	}
-	
-	
 	
 }
-function prevT(delay, index, list) {
+function prevT(index, list, moveLeft){
 	var thumbH = document.getElementById('thumbH'),
-		ulList = thumbH.getElementsByTagName('ul')[0],
-		slides = ulList.children;
-	
-    if(index){
-		slide(index - 1, speed, ulList, slides);
-	}
+		ulList = thumbH.getElementsByTagName('ul')[0];
+    
+	ulList.style.left = (moveLeft) + 'px';
 }
 
 
@@ -195,16 +184,57 @@ function begin(nextB, prevB) {
 	var thumbH = document.getElementById('thumbH'),
 		ulList = thumbH.getElementsByTagName('ul')[0],
 		slides = ulList.children,
-		index = 0;
-		
-	setTimeout(function() {
-		nextT(2, index, slides);
-	}, _CG.autoplay.autorotate.duration);
+		index = 0,
+		liListW,
+		moveRight = 0,
+		moveLeft = 0;
 	
+	thumbH.width = thumbH.getBoundingClientRect().width;
 	
+	for(var x = 0; x < slides.length; x++){
+		liListW = slides[x].offsetWidth;
+		slides[x].style.width = liListW + 'px';
+	}
+	
+	var getMaxScroll = (liListW * slides.length) - thumbH.width;
+	
+	//make auto scroll
+	ulList.timer = setInterval(function(){
+		/*moveRight += liListW;
+		if(moveRight >= getMaxScroll){
+			moveRight = 0;
+			nextT(index, slides, moveRight);
+		}else{
+			nextT(index, slides, moveRight);
+		}*/
+	}, _CG.autoplay.autorotate.duration)
+
+	//on click go to next slide
 	nextB.onclick = function(){
-		nextT(2, index, slides);
+		moveRight += liListW;
+		if(moveRight >= getMaxScroll){
+			moveRight = 0;
+			nextT(index, slides, moveRight);
+		}else{
+			nextT(index, slides, moveRight);
+		}
 	}	
+
+	prevB.onclick = function(){
+		moveLeft += liListW;
+		
+		if(moveRight <= 0){
+			moveLeft = 0;
+			prevT(index, slides, moveLeft);
+		}else{
+			moveLeft -= moveRight;
+			console.log('move left' + moveLeft);
+			console.log('move right ' + moveRight)
+			prevT(index, slides, moveLeft);
+		}
+		
+	}	
+
 }
 
 
