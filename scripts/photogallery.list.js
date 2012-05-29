@@ -86,9 +86,9 @@ function buildHTML(){
 	prev.innerHTML = 'Prev';
 	next.innerHTML = 'Next';
 	setup();
+	begin(next, prev);
 	
-	//begin();
-	
+
 }
 var speed = 300;
 var delay = 0;
@@ -98,6 +98,7 @@ function setup(){
 		ulList = document.getElementById('listH'),
 		slides = ulList.getElementsByTagName('li'),
 		length = slides.length,
+		index = length,
 		getCWidth,
 		el;
 	
@@ -106,127 +107,118 @@ function setup(){
 
 	// hide slider element but keep positioning during setup
     thumbH.style.visiblilty = 'hidden';
-	
     thumbH.width = thumbH.getBoundingClientRect().width;
+
 	if(!thumbH.width) return null;
 	
 	for(var x = 0; x < slides.length; x++){
 		getCWidth = slides[x].offsetWidth + 10;
 	}
-	
 	// dynamic css
     ulList.style.width = (length * getCWidth) + 'px';
 	
-	var index = length;
 	//set width to each li
     while(index--) {
 		el = slides[index];
     }
-	
+	//if the width has been set then show the ul
 	if(ulList.style.width){
 		thumbH.style.visiblilty = 'visible';
 	}
-
     slide(index, 0, ulList, slides); 
 	
 }
 function slide(index, duration, ulList, liList) {
     var style = ulList.style,
-		liListW,
-		getWidth;
-	
+		liListW;
+		
 	for(var x = 0; x < liList.length; x++){
-		liListW = liList[x].style.width;
+		liListW = liList[x].offsetWidth + 10;
 	}
-	getWidth = liListW.replace('px','');
 	
     style.webkitTransitionDuration = style.MozTransitionDuration = speed + 'ms';
 	style.msTransitionDuration = style.OTransitionDuration = style.transitionDuration = speed + 'ms';
-
-	style.left = -(index * getWidth) + 'px';
 	
 	ulList.onmouseover = function(evnt){
-		onHoverStart(evnt, ulList, index, getWidth, liList);
+		onHoverStart(evnt, ulList, index, liListW, liList);
 	}
 }
 
 function onHoverStart(e, ulList, index, width, liList) {
-	index = -1;
-	var deltaX = e.pageX;
-	console.log(deltaX);
+	var deltaX = getPosition(thumbH);
+	var scrollX;
+	deltaX = e.pageX - deltaX.x;
 	
-	
-	//deltaX =  deltaX / ( (!index && deltaX > 0 || index == liList.length - 1 && deltaX < 0 ) ? ( Math.abs(deltaX) / width + 1 ) : 1 );
-	
-	if(!index && deltaX > 0){
-		
-		deltaX = deltaX / (Math.abs(deltaX) / width + 1);
-		
-		console.log('goes here')
-		
-	}else if(index == liList.length - 1 && deltaX < 0){
-		
-		console.log('goes here')
-		
-		deltaX = deltaX / (Math.abs(deltaX) / width + 1);
-		
-	}else{
-		
+	//user starts to scroll right
+	if(deltaX > width){
 		deltaX = deltaX / 1;
+		scrollX = - (deltaX - index * width) + 'px';
 		
-		console.log(deltaX)
+	}else if(deltaX <= width){
+		deltaX = 0;
+		scrollX = - (deltaX - index) + 'px';
 	}
-	
-	
-	ulList.style.left = - (deltaX - index * width) + 'px';
+	ulList.style.left = scrollX;
 }
 
 function nextT(delay, index, list){
 	var thumbH = document.getElementById('thumbH'),
 		ulList = thumbH.getElementsByTagName('ul')[0],
-		slides = ulList.children;
+		slides = ulList.children,
+		liListW;
+	
+	for(var x = 0; x < list.length; x++){
+		liListW = list[x].offsetWidth + 10;
+	}
 	
 	if(index < list.length - 1){
-		
-		slide(index + 1, speed, ulList, slides);
-		
+		ulList.style.left =  - (liListW) + 'px';
 	}else{
-		
-		slide(index, 0, ulList, slides);
-		
+		ulList.style.left =  (liListW) + 'px';
 	}
+	
+	
+	
 }
 function prevT(delay, index, list) {
 	var thumbH = document.getElementById('thumbH'),
 		ulList = thumbH.getElementsByTagName('ul')[0],
 		slides = ulList.children;
 	
-	console.log(index);
-
     if(index){
-		console.log('console index');
-		
 		slide(index - 1, speed, ulList, slides);
 	}
 }
 
 
-function begin() {
+function begin(nextB, prevB) {
 	var thumbH = document.getElementById('thumbH'),
 		ulList = thumbH.getElementsByTagName('ul')[0],
 		slides = ulList.children,
 		index = 0;
-	
-	var interval = setTimeout(function() {
+		
+	setTimeout(function() {
 		nextT(2, index, slides);
 	}, _CG.autoplay.autorotate.duration);
 	
-	console.log(interval)
-	return interval;
+	
+	nextB.onclick = function(){
+		nextT(2, index, slides);
+	}	
 }
 
 
-
+function getPosition(element) {
+	var xPosition = 0;
+	var yPosition = 0;
+	 
+	while(element) {
+		xPosition += (element.offsetLeft - element.scrollLeft + element.clientLeft);
+		yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
+		element = element.offsetParent;
+	}
+	return { x: xPosition, y: yPosition };
+}
 
 var ci;
 var ia;

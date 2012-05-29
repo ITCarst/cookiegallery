@@ -33,7 +33,7 @@ _CG = {
 		fadeduration: 0.5, //fade in and fade out of the images change
 		autorotate:{
 			enabled:true,
-			duration:1000
+			duration:2000
 		}
     },	
 	_settings: {
