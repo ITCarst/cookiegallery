@@ -55,3 +55,10 @@ ul, li {
 	float:left;
 	/*margin-left:5px;*/
 }
+#thumbH ul li {
+	opacity:0.5;
+}
+#thumbH ul li.active,
+#thumbH ul li:hover{
+	opacity:1;
+}
