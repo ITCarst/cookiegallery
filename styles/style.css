@@ -33,11 +33,11 @@ ul, li {
 #imgHolder {
 	
 }
-#CGallery #infoH {
+#CGallery #infoH {	
     height:80px;
 }
-	#infoH #prev {float:left;}
-	#infoH #next {float:right;}
+#infoH #prev {float:left;}
+#infoH #next {float:right;}
 
 
 #thumbH {
@@ -53,5 +53,5 @@ ul, li {
 }
 #thumbH ul li{
 	float:left;
-	margin-left:5px;
+	/*margin-left:5px;*/
 }
