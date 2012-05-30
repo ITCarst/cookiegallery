@@ -9,8 +9,7 @@ var buildList = function(){
 		matchUrl = /\/thumbs/i,
 		tWidth = _CG.thumbs.width,
 		tHeight = _CG.thumbs.height;
-
-
+	
 	var speed = 300;
 	var delay = 0;
 	var ci;
@@ -18,7 +17,9 @@ var buildList = function(){
 	var auto = true;
 	var autodelay = 5;
 	var ie=document.all ? true : false;
-	
+	var setThumbA = 0;
+	var value = 0;
+
 	this.buildHTML = function(){
 		var imgHolder = document.createElement('div'),
 			gControl = document.createElement('div'),
@@ -52,47 +53,87 @@ var buildList = function(){
 		infoH.appendChild(next);
 		thumbH.appendChild(ulList);
 		
+		prev.innerHTML = 'Prev';
+		next.innerHTML = 'Next';
 		
+		/* loop through images that are saved into the array
+			separate the thumbs from big images
+			build object with id, index src etc for each img
+		*/
 		for(var i = 0; i < returnedImages.length; i++){
-			//get the thumbs and palce them in the list
+			//separate thumbs
 			if(returnedImages[i].match(matchUrl)){
-				thumbs.push(returnedImages[i]);
+				//build with object with new values for identifing
+				thumbs.push(
+					_list.addImageToGallery({
+						index : i,
+						id : i,
+						thumb : returnedImages[i],
+						caption : 'title',
+						src : returnedImages[i]
+					})
+				);
 			}else{
-				bigImgs.push(returnedImages[i]);
+				bigImgs.push(
+					_list.addImageToGallery({
+						index : i,
+						id : i,
+						thumb : returnedImages[i],
+						caption : 'title',
+						src : returnedImages[i]
+					})			
+				)
 			}
 		}
+		_list.setThumbs(ulList);
+		
+	};
+	//once the object thubms it's set apply id and value for identifing the images
+	this.setThumbs = function(ulHolder){
 		for(var x = 0, max = thumbs.length; x < max; x++){
-			var liList = document.createElement('li');
-			liList.setAttribute('value', x);
-			ulList.appendChild(liList);
-			var id = liList.value;
-			_list.createThumb(id, liList, thumbs[x]);
-			var value = 0;
+			var liList = document.createElement('li'),
+				id = thumbs[x].id;
+			liList.setAttribute('value', id);
+			ulHolder.appendChild(liList);
+			
+			//create thumb images and append them to each li
+			_list.createThumb(id, liList, thumbs[x].src);
+			
+			//on click switch the big image assigned to thumb
 			liList.onclick = function(e){
-				var value = this.getAttribute('value');
+				id = this.getAttribute('value');
+				console.log(id)
 				//_list.createBigImg(imgIn, value, bigImgs[value]);
 			}
 			if(x == 0){
 				//_list.createBigImg(imgIn, value, bigImgs[value]);
 			}
 		};
-		
-		
-		prev.innerHTML = 'Prev';
-		next.innerHTML = 'Next';
-		_list.setup();
-	};
+	}
 	//create thumbs annd apend them
 	this.createThumb = function(id, list, thumbI){
 		if(id != null){
 			var createT = document.createElement('img');
-			createT.id = 'thumb_'+id;
+			createT.id = 'thumb_' + id;
 			createT.setAttribute('width', _CG.thumbs.width);
 			createT.setAttribute('height', _CG.thumbs.height);
 			createT.src = thumbI;
 			list.appendChild(createT);
 		}
+		
 	};
+    this.addImageToGallery = function(imageConfig){
+        imageConfig  = {
+            index : _CG.imgString.length,
+            id : imageConfig.id,
+            thumb : imageConfig.thumb,
+            caption : imageConfig.caption,
+            src : imageConfig.src,
+            href : imageConfig.href || null
+        };
+		return imageConfig;
+    }
+	/*
 	//add big image to the given id
 	this.createBigImg = function(holder, id, bigImgs){
 		if(id != null){
@@ -198,6 +239,7 @@ var buildList = function(){
 		}
 		_list.slide(index, 0, ulList, slides);
 		_list.begin(next, prev);
+
 	};
 	this.slide = function(index, duration, ulList, liList) {
 		var style = ulList.style,
@@ -230,25 +272,24 @@ var buildList = function(){
 			liListW = slides[x].offsetWidth;
 			slides[x].style.width = liListW + 'px';
 		}
-		
 		var getMaxScroll = (liListW * slides.length) - thumbH.width;
 		
 		//make auto scroll
 		ulList.timer = setInterval(function(){
-			/*moveRight += liListW;
+			moveRight += liListW;
 			if(moveRight >= getMaxScroll){
 				moveRight = 0;
 				nextT(index, slides, moveRight);
 			}else{
 				nextT(index, slides, moveRight);
-			}*/
+			}
 		}, _CG.autoplay.autorotate.duration)
-	
+
 		//on click go to next slide
 		nextB.onclick = function(){
-			//clearInterval(ulList.timer);
-			setActive++
-			moveRight += liListW;
+			_list.nextT(index, slides);
+			
+			//moveRight += liListW;
 			if(moveRight >= getMaxScroll){
 				moveRight = 0;
 				_list.nextT(index, slides, moveRight, setActive);
@@ -274,11 +315,23 @@ var buildList = function(){
 		}
 		ulList.style.left = scrollX;
 	};
-	this.nextT = function(index, list, moveRight, setActive){
+	this.nextT = function(index, list){
+		setThumbA = _list.getCurrentIndex() + 1;
+		
 		var thumbH = document.getElementById('thumbH'),
 			ulList = thumbH.getElementsByTagName('ul')[0],
 			liChild = listH.getElementsByTagName('li');
+			
+		if(setThumbA === liChild.length){
+			setThumbA = 0;
+		}
+		_list.getIdByIndex(setThumbA);
 		
+		
+		
+		
+		
+		 
 		for(var x = 0; x < liChild.length; x++){
 			if(setActive){
 				liChild[0 + setActive].style.opacity = '1';
@@ -286,7 +339,8 @@ var buildList = function(){
 				setActive = 0;
 			}
 		}
-		if(index < list.length - 1){
+		
+		/*if(index < list.length - 1){
 			ulList.style.left = -(moveRight) + 'px';
 		}else{
 			ulList.style.left =  (moveRight) + 'px';
@@ -298,10 +352,10 @@ var buildList = function(){
 			ulList = thumbH.getElementsByTagName('ul')[0];
 		ulList.style.left = (moveLeft) + 'px';
 	};
-	this.highlightT = function(){
-		var listH = document.getElementById('listH');
-			
+	this.highlightT = function(element){
+		element.setAttribute('class', 'active');
 	};
+	//get element coordinates for hover left right of thumbs
 	this.getPosition = function(element) {
 		var xPosition = 0;
 		var yPosition = 0;
@@ -311,7 +365,23 @@ var buildList = function(){
 			element = element.offsetParent;
 		}
 		return { x: xPosition, y: yPosition };
-	}	
+	}
+    this.getCurrentIndex = function (){
+        return _CG.startIndex;
+    };
+    this.getIdByIndex = function(index) {
+		console.log(thumbs)
+        return thumbs.id;
+    };
+    this.getImageDataById = function (id) {
+        var countImages = this.images.length;
+        for (var i = 0; i < countImages; i++) {
+            if (this.images[i].id == id) {
+                return this.images[i];
+            }
+        }
+    }*/
+		
 	if(CGSettings.placeTarget != ''){
 		if(mainHolder){
 			if(doneLoading === true){
