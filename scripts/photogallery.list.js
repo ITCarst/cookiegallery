@@ -110,7 +110,7 @@ function setup(){
 	if(!thumbH.width) return null;
 	
 	for(var x = 0; x < slides.length; x++){
-		getCWidth = slides[x].offsetWidth + 10;
+		getCWidth = slides[x].offsetWidth;
 	}
 	// dynamic css
     ulList.style.width = (length * getCWidth) + 'px';
@@ -134,7 +134,7 @@ function slide(index, duration, ulList, liList) {
 		liListW;
 		
 	for(var x = 0; x < liList.length; x++){
-		liListW = liList[x].offsetWidth + 15;
+		liListW = liList[x].offsetWidth;
 	}
 	
     style.webkitTransitionDuration = style.MozTransitionDuration = speed + 'ms';
@@ -161,15 +161,25 @@ function onHoverStart(e, ulList, index, width, liList) {
 	ulList.style.left = scrollX;
 }
 
-function nextT(index, list, moveRight){
+function nextT(index, list, moveRight, setActive){
 	var thumbH = document.getElementById('thumbH'),
-		ulList = thumbH.getElementsByTagName('ul')[0];
+		ulList = thumbH.getElementsByTagName('ul')[0],
+		liChild = listH.getElementsByTagName('li');
 	
-	if(index < list.length - 1){
+	for(var x = 0; x < liChild.length; x++){
+		if(setActive){
+			liChild[0 + setActive].style.opacity = '1';
+		}else if(setActive === liChild.length){
+			setActive = 0;
+		}
+		console.log(setActive)
+	}
+	
+	/*if(index < list.length - 1){
 		ulList.style.left = -(moveRight) + 'px';
 	}else{
 		ulList.style.left =  (moveRight) + 'px';
-	}
+	}*/
 	
 }
 function prevT(index, list, moveLeft){
@@ -187,7 +197,8 @@ function begin(nextB, prevB) {
 		index = 0,
 		liListW,
 		moveRight = 0,
-		moveLeft = 0;
+		moveLeft = 0,
+		setActive = -1;
 	
 	thumbH.width = thumbH.getBoundingClientRect().width;
 	
@@ -211,33 +222,45 @@ function begin(nextB, prevB) {
 
 	//on click go to next slide
 	nextB.onclick = function(){
+		//clearInterval(ulList.timer);
+		setActive++
+		
 		moveRight += liListW;
+		
 		if(moveRight >= getMaxScroll){
+			
 			moveRight = 0;
-			nextT(index, slides, moveRight);
+			nextT(index, slides, moveRight, setActive);
+			
 		}else{
-			nextT(index, slides, moveRight);
+			nextT(index, slides, moveRight, setActive);
 		}
 	}	
 
 	prevB.onclick = function(){
-		moveLeft += liListW;
+		/*moveLeft += liListW;
 		
 		if(moveRight <= 0){
+			
 			moveLeft = 0;
 			prevT(index, slides, moveLeft);
+			
 		}else{
-			moveLeft -= moveRight;
+			
+			moveLeft = moveRight - liListW;
+			
 			console.log('move left' + moveLeft);
 			console.log('move right ' + moveRight)
 			prevT(index, slides, moveLeft);
-		}
+		}*/
 		
 	}	
-
+	
 }
-
-
+function highlightT(){
+	var listH = document.getElementById('listH');
+		
+}
 function getPosition(element) {
 	var xPosition = 0;
 	var yPosition = 0;
