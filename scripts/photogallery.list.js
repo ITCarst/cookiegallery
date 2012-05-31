@@ -8,7 +8,10 @@ var buildList = function(){
 		bigImgs = [],
 		matchUrl = /\/thumbs/i,
 		tWidth = _CG.thumbs.width,
-		tHeight = _CG.thumbs.height;
+		tHeight = _CG.thumbs.height,
+		objThumb = [],
+		objImg = [],
+		mObjs = [];
 	
 	var speed = 300;
 	var delay = 0;
@@ -64,49 +67,93 @@ var buildList = function(){
 			//separate thumbs
 			if(returnedImages[i].match(matchUrl)){
 				//build with object with new values for identifing
-				thumbs.push(
-					_list.addImageToGallery({
-						index : i,
-						id : i,
-						thumb : returnedImages[i],
-						caption : 'title',
-						src : returnedImages[i]
-					})
-				);
+				thumbs.push(returnedImages[i])
 			}else{
-				bigImgs.push(
-					_list.addImageToGallery({
-						index : i,
-						id : i,
-						thumb : returnedImages[i],
-						caption : 'title',
-						src : returnedImages[i]
-					})			
-				)
+				bigImgs.push(returnedImages[i])			
 			}
 		}
-		_list.setThumbs(ulList);
+		
+		_list.mergeObjs(objThumb, objImg);
+		
+		console.log(mObjs);
 		
 	};
+    this.addImageToGallery = function(imageConfig){
+        imageConfig  = {
+            index : imageConfig.index,
+            id : imageConfig.id,
+            thumb : imageConfig.thumb,
+            caption : imageConfig.caption,
+            src : imageConfig.src
+        };
+		return imageConfig;
+    }
+	this.setThumbObj = function(thumb){
+		for(var x = 0; x < thumb.length; x++){
+			objThumb.push(
+				_list.addImageToGallery({
+					index : x,
+					id : x,
+					thumb : thumb[x],
+					caption : 'title',
+					src : thumb[x]
+				})			
+			)		
+		}
+	}
+	this.setImgObj = function(bigImgs){
+		for(var x = 0; x < bigImgs.length; x++){
+			objImg.push(
+				_list.addImageToGallery({
+					index : x,
+					id : x,
+					thumb : bigImgs[x],
+					caption : 'title',
+					src : bigImgs[x]
+				})			
+			)		
+		}
+	}
+	this.mergeObjs = function(smallImg, largeImg){
+		_list.setThumbObj(thumbs);
+		_list.setImgObj(bigImgs);
+		
+		for(var p in smallImg){
+			for(var o in largeImg){
+				mObjs[p] = {
+					index : smallImg[p].index,
+					id : smallImg[p].id,
+					thumb : smallImg[p].thumb,
+					caption : 'title',
+					src : largeImg[p].src
+				}
+			}
+		}
+		return mObjs;
+	}
+	
+	/*
 	//once the object thubms it's set apply id and value for identifing the images
 	this.setThumbs = function(ulHolder){
-		for(var x = 0, max = thumbs.length; x < max; x++){
+		
+		for(var x = 0, max = objThumb.length; x < max; x++){
+			
 			var liList = document.createElement('li'),
-				id = thumbs[x].id;
+				id = objThumb[x].id;
+				
 			liList.setAttribute('value', id);
 			ulHolder.appendChild(liList);
 			
 			//create thumb images and append them to each li
-			_list.createThumb(id, liList, thumbs[x].src);
+			_list.createThumb(id, liList, objThumb[x].src);
 			
 			//on click switch the big image assigned to thumb
 			liList.onclick = function(e){
 				id = this.getAttribute('value');
-				console.log(id)
 				//_list.createBigImg(imgIn, value, bigImgs[value]);
 			}
 			if(x == 0){
-				//_list.createBigImg(imgIn, value, bigImgs[value]);
+				//_list.createBigImg(imgIn, id, objImg[id]);
 			}
 		};
 	}
@@ -122,17 +169,6 @@ var buildList = function(){
 		}
 		
 	};
-    this.addImageToGallery = function(imageConfig){
-        imageConfig  = {
-            index : _CG.imgString.length,
-            id : imageConfig.id,
-            thumb : imageConfig.thumb,
-            caption : imageConfig.caption,
-            src : imageConfig.src,
-            href : imageConfig.href || null
-        };
-		return imageConfig;
-    }
 	/*
 	//add big image to the given id
 	this.createBigImg = function(holder, id, bigImgs){
@@ -172,7 +208,7 @@ var buildList = function(){
 			}
 	
 			if(auto){
-				clearTimeout(createImg.timer);
+				//clearTimeout(createImg.timer);
 			}
 			createImg.timer = setInterval(function(){
 				_list.fdin(createImg);
