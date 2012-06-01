@@ -72,10 +72,7 @@ var buildList = function(){
 				bigImgs.push(returnedImages[i])			
 			}
 		}
-		
 		_list.mergeObjs(objThumb, objImg);
-		
-		console.log(mObjs);
 		
 	};
     this.addImageToGallery = function(imageConfig){
@@ -117,7 +114,6 @@ var buildList = function(){
 	this.mergeObjs = function(smallImg, largeImg){
 		_list.setThumbObj(thumbs);
 		_list.setImgObj(bigImgs);
-		
 		for(var p in smallImg){
 			for(var o in largeImg){
 				mObjs[p] = {
