@@ -2,15 +2,12 @@ var buildList = function(){
 	var _list = this,
 		mainHolder = document.getElementById(CGSettings.placeTarget),
 		cookieGet = _CG.cookie.get(CGSettings.setCookieName),
-		images = _CG.images,
 		returnedImages = _CG.imgString,
 		thumbs = [],
 		bigImgs = [],
 		matchUrl = /\/thumbs/i,
 		tWidth = _CG.thumbs.width,
 		tHeight = _CG.thumbs.height,
-		objThumb = [],
-		objImg = [],
 		mObjs = [];
 	
 	var speed = 300;
@@ -22,43 +19,27 @@ var buildList = function(){
 	var ie=document.all ? true : false;
 	var setThumbA = 0;
 	var value = 0;
-
-	this.buildHTML = function(){
-		var imgHolder = document.createElement('div'),
-			gControl = document.createElement('div'),
-			imgIn = document.createElement('div'),
-			infoH = document.createElement('div'),
-			prev = document.createElement('div'),
-			photoName = document.createElement('div'),
-			next = document.createElement('div'),
-			thumbH = document.createElement('div'),
-			ulList = document.createElement('ul');
+	
+	//calls the merged objects togheter
+	//builds the HTML list
+	//init the thumbs and imgs
+	this.initList = function(){
+		_list.splitCookies();
+		_list.createDomElements();
+		//merge the thumbs object with the big image obj
+		_list.mergeObjs();
 		
-		//add individual ID's to each elem creted
-		imgHolder.setAttribute('id', 'imgHolder');
-		gControl.setAttribute('id', 'controlls');
-		imgIn.setAttribute('id', 'imgIn');
-		infoH.setAttribute('id', 'infoH');
-		prev.setAttribute('id','prev');
-		next.setAttribute('id','next');
-		photoName.setAttribute('id','photName');
-		thumbH.setAttribute('id','thumbH');
-		ulList.setAttribute('id', 'listH')
+		var ulList = document.getElementById('listH');
+		if(ulList){
+			_list.setThumbs(ulList);
+		}
 		
-		//created HTML elems append them to the proper elems
-		mainHolder.appendChild(imgHolder);
-		mainHolder.appendChild(infoH);
-		mainHolder.appendChild(thumbH);
-		imgHolder.appendChild(gControl);
-		imgHolder.appendChild(imgIn);
-		infoH.appendChild(prev);
-		infoH.appendChild(photoName);
-		infoH.appendChild(next);
-		thumbH.appendChild(ulList);
 		
-		prev.innerHTML = 'Prev';
-		next.innerHTML = 'Next';
 		
+	};
+	//loops through cookie and splits the thumbs from big images
+	//builds 2 arrays with new values
+	this.splitCookies = function(){
 		/* loop through images that are saved into the array
 			separate the thumbs from big images
 			build object with id, index src etc for each img
@@ -72,9 +53,60 @@ var buildList = function(){
 				bigImgs.push(returnedImages[i])			
 			}
 		}
-		_list.mergeObjs(objThumb, objImg);
-		
 	};
+	//Holds only the HTML elements without actually images or thumbs
+	this.createDomElements = function(){
+		_list.createBigHolder();
+		_list.creatContorls();
+		_list.createThumbHolder();
+	};
+	//create the top part of the gal big image and controls
+	this.createBigHolder = function(){
+		var imgHolder = document.createElement('div'),
+			gControl = document.createElement('div'),
+			imgIn = document.createElement('div');
+		
+		imgHolder.setAttribute('id', 'imgHolder');
+		imgIn.setAttribute('id', 'imgIn');
+		gControl.setAttribute('id', 'controlls');
+
+		mainHolder.appendChild(imgHolder);
+		imgHolder.appendChild(imgIn);
+		imgHolder.appendChild(gControl);
+	};
+	//create controls next prev and caption
+	this.creatContorls = function(){
+		var infoH = document.createElement('div'),
+			prev = document.createElement('div'),
+			photoName = document.createElement('div'),
+			next = document.createElement('div');
+		
+		infoH.setAttribute('id', 'infoH');
+		prev.setAttribute('id','prev');
+		next.setAttribute('id','next');
+		photoName.setAttribute('id','photName');
+
+		mainHolder.appendChild(infoH);
+		infoH.appendChild(prev);
+		infoH.appendChild(photoName);
+		infoH.appendChild(next);
+
+		prev.innerHTML = 'Prev';
+		next.innerHTML = 'Next';
+	};
+	//create holder of the thumbs
+	this.createThumbHolder = function(){
+		var thumbH = document.createElement('div'),
+			ulList = document.createElement('ul');
+		
+		thumbH.setAttribute('id','thumbH');
+		ulList.setAttribute('id', 'listH')
+
+		mainHolder.appendChild(thumbH);
+		thumbH.appendChild(ulList)
+	};
+	//function to create an object with detailed information
+	//returns new object
     this.addImageToGallery = function(imageConfig){
         imageConfig  = {
             index : imageConfig.index,
@@ -84,21 +116,28 @@ var buildList = function(){
             src : imageConfig.src
         };
 		return imageConfig;
-    }
-	this.setThumbObj = function(thumb){
-		for(var x = 0; x < thumb.length; x++){
+    };
+	//once we split the cookie push into new object just the thumbs
+	//returns new object
+	this.setThumbObj = function(){
+		var objThumb = [];
+		for(var x = 0; x < thumbs.length; x++){
 			objThumb.push(
 				_list.addImageToGallery({
 					index : x,
 					id : x,
-					thumb : thumb[x],
+					thumb : thumbs[x],
 					caption : 'title',
-					src : thumb[x]
+					src : thumbs[x]
 				})			
 			)		
 		}
-	}
-	this.setImgObj = function(bigImgs){
+		return objThumb;
+	};
+	//once we split the cookie push into new object just the big images
+	//returns new object
+	this.setImgObj = function(){
+		var objImg = [];
 		for(var x = 0; x < bigImgs.length; x++){
 			objImg.push(
 				_list.addImageToGallery({
@@ -110,39 +149,46 @@ var buildList = function(){
 				})			
 			)		
 		}
-	}
-	this.mergeObjs = function(smallImg, largeImg){
-		_list.setThumbObj(thumbs);
-		_list.setImgObj(bigImgs);
-		for(var p in smallImg){
-			for(var o in largeImg){
+		return objImg;
+	};
+	//setThumbObj and setImgObj merged togheter for haveing single id or index for the same thumb and img
+	//returns new object
+	this.mergeObjs = function(){
+		var objThumb = _list.setThumbObj();
+		var objImgs = _list.setImgObj();
+		for(var p in objThumb){
+			for(var o in objImgs){
 				mObjs[p] = {
-					index : smallImg[p].index,
-					id : smallImg[p].id,
-					thumb : smallImg[p].thumb,
+					index : objThumb[p].index,
+					id : objThumb[p].id,
+					thumb : objThumb[p].thumb,
 					caption : 'title',
-					src : largeImg[p].src
+					src : objImgs[p].src
 				}
 			}
 		}
 		return mObjs;
-	}
-	
-	/*
+	};
 	//once the object thubms it's set apply id and value for identifing the images
 	this.setThumbs = function(ulHolder){
+		var x = 0, max = mObjs.length,
+			id = 0, index = 0,
+			thumb = '';
 		
-		for(var x = 0, max = objThumb.length; x < max; x++){
+		for(x; x < max; x++){
 			
-			var liList = document.createElement('li'),
-				id = objThumb[x].id;
-				
-			liList.setAttribute('value', id);
+			var liList = document.createElement('li');
+			id = mObjs[x].id;
+			index  = mObjs[x].index;
+			thumbSrc = mObjs[x].thumb;
+			
+			liList.setAttribute('value', index);
 			ulHolder.appendChild(liList);
 			
 			//create thumb images and append them to each li
-			_list.createThumb(id, liList, objThumb[x].src);
+			_list.createImgThumb(id, liList, thumbSrc);
 			
+			/*
 			//on click switch the big image assigned to thumb
 			liList.onclick = function(e){
 				id = this.getAttribute('value');
@@ -150,20 +196,19 @@ var buildList = function(){
 			}
 			if(x == 0){
 				//_list.createBigImg(imgIn, id, objImg[id]);
-			}
+			}*/
 		};
 	}
 	//create thumbs annd apend them
-	this.createThumb = function(id, list, thumbI){
-		if(id != null){
+	this.createImgThumb = function(id, list, thumbSrc){
+		if(id != null || id != ''){
 			var createT = document.createElement('img');
 			createT.id = 'thumb_' + id;
 			createT.setAttribute('width', _CG.thumbs.width);
 			createT.setAttribute('height', _CG.thumbs.height);
-			createT.src = thumbI;
+			createT.src = thumbSrc;
 			list.appendChild(createT);
 		}
-		
 	};
 	/*
 	//add big image to the given id
@@ -417,7 +462,7 @@ var buildList = function(){
 	if(CGSettings.placeTarget != ''){
 		if(mainHolder){
 			if(doneLoading === true){
-				_list.buildHTML();
+				_list.initList();
 			}
 		}
 	}	
