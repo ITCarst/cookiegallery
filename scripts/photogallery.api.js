@@ -36,12 +36,6 @@ _CG = {
 			duration:2000
 		}
     },
-	activeEnlargedImage:{
-        id:null,
-        caption:null
-    },
-	currentZIndex:0,
-    startIndex : 0,
 	_settings: {
 		placeTarget		: 'CGallery', //main target wichi is required in the html
 		imagesdir		: 'gallery-images/', //folder of the big images -- 

@@ -1,3 +1,14 @@
+/* TO DO
+  
+  on thumb click we call a function which creates the first image on x = 0
+  but when click on the thumb the image calls the thumbclick fn which returns an index --- this index it's not returning correct data
+  for next click needs to increase + 1
+  on prev click needs to decrease -1
+  on thumb click needs to select the big image based on the returing id 
+  
+*/
+
+
 var buildList = function(){
 	var _list = this,
 		mainHolder = document.getElementById(CGSettings.placeTarget),
@@ -10,8 +21,12 @@ var buildList = function(){
 		tHeight = _CG.thumbs.height,
 		mObjs = [],
 		noThumbsInView = 0,
-		startIndex = 0;
-
+		startIndex = {
+			id:null,
+            image:null,
+            caption:null			
+		};
+		thumbnailHighlight = '';
 	
 	var speed = 300;
 	var delay = 0;
@@ -27,16 +42,20 @@ var buildList = function(){
 	//builds the HTML list
 	//init the thumbs and imgs
 	this.initList = function(){
+		//split _thumbs cookie from big img cokoie
 		_list.splitCookies();
+		//create all html holders
 		_list.createDomElements();
 		//merge the thumbs object with the big image obj
 		_list.mergeObjs();
 		
 		var ulList = document.getElementById('listH');
 		if(ulList){
-			_list.storeUlWidth();
+			//add dynamic width to the ul
+			_list.storeUlWidth(ulList);
+			//create the li with img and append them to ul
 			_list.setThumbs(ulList);
-			_list.selectImage(mObjs.id);
+			
 		}
 		
 	};
@@ -96,6 +115,11 @@ var buildList = function(){
 
 		prev.innerHTML = 'Prev';
 		next.innerHTML = 'Next';
+		
+		next.onclick = function(){
+			_list.moveRight();
+		}
+		
 	};
 	//create holder of the thumbs
 	this.createThumbHolder = function(){
@@ -170,36 +194,39 @@ var buildList = function(){
 		}
 		return mObjs;
 	};
+	//set width to the ul imgs.length * the thumb width	
+	this.storeUlWidth = function(ulH){
+		var setW = (ulH.style.width = Math.round(mObjs.length * _CG.thumbs.width) + 'px');
+		return setW;
+	};
 	//once the object thubms it's set apply id and value for identifing the images
 	this.setThumbs = function(ulHolder){
-		var x = 0, max = mObjs.length,
-			id = 0, index = 0,
-			thumb = '';
-			
+		var x = 0, max = mObjs.length, id = 0, index = 0;
+
 		for(x; x < max; x++){
 			var liList = document.createElement('li');
 				id = mObjs[x].id;
 				index  = mObjs[x].index;
-				thumbSrc = mObjs[x].thumb;
-			
-			liList.setAttribute('value', index);
+				thumbSrc = mObjs[x].thumb,
+				bigSrc = mObjs[x].src;
+				
+			liList.setAttribute('id', 'list_' + id);
 			ulHolder.appendChild(liList);
-			
+ 			
 			//create thumb images and append them to each li
 			_list.createImgThumb(id, liList, thumbSrc);
 			
-			/*
 			//on click switch the big image assigned to thumb
 			liList.onclick = function(e){
-				id = this.getAttribute('value');
-				//_list.createBigImg(imgIn, value, bigImgs[value]);
+				_list.clickOnThumbnail(e);
 			}
 			if(x == 0){
-				//_list.createBigImg(imgIn, id, objImg[id]);
-			}*/
+				if(liList.hasAttribute('id', 'list_' + x)){
+					liList.setAttribute('class', 'active');
+					_list.selectImage(id);
+				}
+			}
 		};
-		
-		
 	}
 	//create thumbs annd apend them
 	this.createImgThumb = function(id, list, thumbSrc){
@@ -212,67 +239,48 @@ var buildList = function(){
 			list.appendChild(createT);
 		}
 	};
-	this.storeUlWidth = function(){
-		var containerWidth = document.getElementById('thumbH').offsetWidth;
-		var ulWidth = document.getElementById('listH');
-		var setW = (ulWidth.style.width = Math.round(containerWidth * mObjs.length) + 'px');
-		return setW;
+	//on thumbnail click get the elem li and set attrbuite active
+	this.clickOnThumbnail  = function(e) {
+        var removeId = e.target.id;
+		var id = removeId.replace('thumb_', '');
+		var parentLi = e.target.parentNode;
+		
+		//parentLi.setAttribute('class', 'active');
+		
+		
+		_list.selectImage(Number(id));
+		
+    };
+	this.moveRight = function(){
+		var index = _list.getCurrentIndex() + 1;
+		if(index >= mObjs.length) {
+            index = 0;
+        }
+		console.log(index)
+		
+        //_list.selectImage(_list.getIdByIndex(index));
 	}
-	this.selectImage = function(id) {
-        if(id == mObjs.index) {
-            //return;
-        }
-		_list.highlightAndMoveThumbnailIntoView();
+    this.getCurrentIndex = function () {
+        return startIndex.index;
+    };
+    this.getIdByIndex = function(id) {
+        return mObjs[id].id;
+    };
 
+	this.selectImage = function(id){
+		var holder = document.getElementById('imgIn');
+		var imageData = _list.getImageDataById(id);
+		var createImg;
+		
+	};
+    this.getImageDataById = function(id) {
+        var countImages = mObjs.length;
+        for (var i = 0; i < countImages; i++) {
+            if (mObjs[i].id == id) {
+                return mObjs[i];
+            }
+        }
     }
-    this.getIndexPositionOfHighlightDiv = function () {
-        var posHighlight = document.id(this.dom.thumbnailHighlight).getStyle('left').replace('px', '') / 1;
-        return Math.round(posHighlight / this.thumbs.width);
-    }
-    this.getIndexPositionOfActiveThumbnail = function () {
-
-        var pos = document.id(this.dom.activeEnlargedImage.id).getStyle('left').replace('px', '') / 1 + this.dom.thumbnailContainer.getStyle('left').replace('px', '') / 1;
-        return Math.round(pos / this.thumbs.width);
-    }
-    this.highlightAndMoveThumbnailIntoView = function () {
-
-        var indexHighlight = this.getIndexPositionOfHighlightDiv();
-        var indexThumb = this.getIndexPositionOfActiveThumbnail();
-
-        var newPosStrip = this.dom.thumbnailContainer.getStyle('left');
-        var newPosHighlight = indexThumb * this.thumbs.width;
-
-        if (this.isLocatedAtFirstImageInSlideshow()) {
-            newIndexHighlight = 0;
-        } else if (this.isLocatedAtLastImageInSlideshow()) {
-            newIndexHighlight = Math.min(this.thumbs.noThumbsInView - 1, this.images.length - 1);
-        }
-        else if (this.isLocatedBeyondRightEdgeOfView()) {
-            newIndexHighlight = this.thumbs.noThumbsInView - 1;
-        }
-        else if (this.isLocatedAtLastThumbnailInView()) {
-            newIndexHighlight = Math.min(this.thumbs.noThumbsInView - 1, indexThumb - 1);
-        }
-        else if (this.isLocatedAtFirstThumbnailInView()) {
-            newIndexHighlight = 1;
-        }
-        else {
-            newIndexHighlight = indexThumb;
-        }
-
-
-        newPosHighlight = newIndexHighlight * this.thumbs.width;
-        newPosStrip = (0 - this.getCurrentIndex() + newIndexHighlight) * this.thumbs.width
-
-        var myFx = new Fx.Tween(this.dom.thumbnailHighlight);
-        myFx.start('left', this.dom.thumbnailHighlight.getStyle('left'), newPosHighlight);
-
-        var myFx = new Fx.Tween(this.dom.thumbnailContainer);
-        myFx.start('left', this.dom.thumbnailContainer.getStyle('left'), newPosStrip);
-
-    }
-
-
 	/*
 	//add big image to the given id
 	this.createBigImg = function(holder, id, bigImgs){
@@ -320,6 +328,7 @@ var buildList = function(){
 	
 		}
 	};
+	/*
 	this.fdin = function(image){
 		if(image.complete){
 			image.av = image.av + _CG.autoplay.fadeduration;
@@ -344,7 +353,8 @@ var buildList = function(){
 				image.parentNode.removeChild(image)
 			}
 		}
-	}	
+	}
+	
 	this.setup = function(){
 		var thumbH = document.getElementById('thumbH'),
 			ulList = document.getElementById('listH'),
@@ -381,6 +391,7 @@ var buildList = function(){
 		_list.begin(next, prev);
 
 	};
+	
 	this.slide = function(index, duration, ulList, liList) {
 		var style = ulList.style,
 			liListW;
