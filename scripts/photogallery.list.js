@@ -8,7 +8,10 @@ var buildList = function(){
 		matchUrl = /\/thumbs/i,
 		tWidth = _CG.thumbs.width,
 		tHeight = _CG.thumbs.height,
-		mObjs = [];
+		mObjs = [],
+		noThumbsInView = 0,
+		startIndex = 0;
+
 	
 	var speed = 300;
 	var delay = 0;
@@ -31,10 +34,10 @@ var buildList = function(){
 		
 		var ulList = document.getElementById('listH');
 		if(ulList){
+			_list.storeUlWidth();
 			_list.setThumbs(ulList);
+			_list.selectImage(mObjs.id);
 		}
-		
-		
 		
 	};
 	//loops through cookie and splits the thumbs from big images
@@ -98,12 +101,10 @@ var buildList = function(){
 	this.createThumbHolder = function(){
 		var thumbH = document.createElement('div'),
 			ulList = document.createElement('ul');
-		
 		thumbH.setAttribute('id','thumbH');
 		ulList.setAttribute('id', 'listH')
-
 		mainHolder.appendChild(thumbH);
-		thumbH.appendChild(ulList)
+		thumbH.appendChild(ulList);
 	};
 	//function to create an object with detailed information
 	//returns new object
@@ -174,13 +175,12 @@ var buildList = function(){
 		var x = 0, max = mObjs.length,
 			id = 0, index = 0,
 			thumb = '';
-		
-		for(x; x < max; x++){
 			
+		for(x; x < max; x++){
 			var liList = document.createElement('li');
-			id = mObjs[x].id;
-			index  = mObjs[x].index;
-			thumbSrc = mObjs[x].thumb;
+				id = mObjs[x].id;
+				index  = mObjs[x].index;
+				thumbSrc = mObjs[x].thumb;
 			
 			liList.setAttribute('value', index);
 			ulHolder.appendChild(liList);
@@ -198,6 +198,8 @@ var buildList = function(){
 				//_list.createBigImg(imgIn, id, objImg[id]);
 			}*/
 		};
+		
+		
 	}
 	//create thumbs annd apend them
 	this.createImgThumb = function(id, list, thumbSrc){
@@ -210,6 +212,67 @@ var buildList = function(){
 			list.appendChild(createT);
 		}
 	};
+	this.storeUlWidth = function(){
+		var containerWidth = document.getElementById('thumbH').offsetWidth;
+		var ulWidth = document.getElementById('listH');
+		var setW = (ulWidth.style.width = Math.round(containerWidth * mObjs.length) + 'px');
+		return setW;
+	}
+	this.selectImage = function(id) {
+        if(id == mObjs.index) {
+            //return;
+        }
+		_list.highlightAndMoveThumbnailIntoView();
+
+    }
+    this.getIndexPositionOfHighlightDiv = function () {
+        var posHighlight = document.id(this.dom.thumbnailHighlight).getStyle('left').replace('px', '') / 1;
+        return Math.round(posHighlight / this.thumbs.width);
+    }
+    this.getIndexPositionOfActiveThumbnail = function () {
+
+        var pos = document.id(this.dom.activeEnlargedImage.id).getStyle('left').replace('px', '') / 1 + this.dom.thumbnailContainer.getStyle('left').replace('px', '') / 1;
+        return Math.round(pos / this.thumbs.width);
+    }
+    this.highlightAndMoveThumbnailIntoView = function () {
+
+        var indexHighlight = this.getIndexPositionOfHighlightDiv();
+        var indexThumb = this.getIndexPositionOfActiveThumbnail();
+
+        var newPosStrip = this.dom.thumbnailContainer.getStyle('left');
+        var newPosHighlight = indexThumb * this.thumbs.width;
+
+        if (this.isLocatedAtFirstImageInSlideshow()) {
+            newIndexHighlight = 0;
+        } else if (this.isLocatedAtLastImageInSlideshow()) {
+            newIndexHighlight = Math.min(this.thumbs.noThumbsInView - 1, this.images.length - 1);
+        }
+        else if (this.isLocatedBeyondRightEdgeOfView()) {
+            newIndexHighlight = this.thumbs.noThumbsInView - 1;
+        }
+        else if (this.isLocatedAtLastThumbnailInView()) {
+            newIndexHighlight = Math.min(this.thumbs.noThumbsInView - 1, indexThumb - 1);
+        }
+        else if (this.isLocatedAtFirstThumbnailInView()) {
+            newIndexHighlight = 1;
+        }
+        else {
+            newIndexHighlight = indexThumb;
+        }
+
+
+        newPosHighlight = newIndexHighlight * this.thumbs.width;
+        newPosStrip = (0 - this.getCurrentIndex() + newIndexHighlight) * this.thumbs.width
+
+        var myFx = new Fx.Tween(this.dom.thumbnailHighlight);
+        myFx.start('left', this.dom.thumbnailHighlight.getStyle('left'), newPosHighlight);
+
+        var myFx = new Fx.Tween(this.dom.thumbnailContainer);
+        myFx.start('left', this.dom.thumbnailContainer.getStyle('left'), newPosStrip);
+
+    }
+
+
 	/*
 	//add big image to the given id
 	this.createBigImg = function(holder, id, bigImgs){
