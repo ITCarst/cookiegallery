@@ -89,8 +89,6 @@ var init = function(){
 				requestImages = '',
 				requestThumbs = '';
 			
-			console.log()
-			
 			preloadMsg.setAttribute('id', 'preloadMsg');
 			preloadMsg.innerHTML = '<img src="' + _CG.loaderGif + '" border="0">';
 			// <br/>'+'Loading... (' + ( 100 / 13 ) * numResourcesLoaded + '%)
