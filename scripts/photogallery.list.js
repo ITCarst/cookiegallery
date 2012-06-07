@@ -389,45 +389,31 @@ var buildList = function(){
 		var newIndexHighlight;
 		var activeLi = _list.getActiveEl();
 		
-		console.log(activeLi);
-		
-		if(startPos == 0 ){
-			newIndexHighlight = 0;
-			
-		}else if(startPos == (mObjs.length - 1)){
-			
-			newIndexHighlight = Math.min(noThumbsInView - 1, mObjs.length - 1);
-			
-		}
-		
-		listH.style.left = (newIndexHighlight * _CG.thumbs.width) + 'px';
-		
-		
-		
-		
-		/*//get first pos 
+		//get first pos 
 		if(startPos == 0){
 			newIndexHighlight = 0;
 		//get last pos
 		}else if(startPos == (mObjs.length - 1)){
 			newIndexHighlight = Math.min(noThumbsInView - 1, mObjs.length - 1);
-			console.log(newIndexHighlight)
-		}*/
-		
+		}else if(startPos == noThumbsInView){
+			newIndexHighlight = 1;
+		}
+		console.log(noThumbsInView)
+		//listH.style.left = (newIndexHighlight * _CG.thumbs.width) + 'px';
 		
 		
 	};
+	//returns the id of the active li elem
 	this.getActiveEl = function(){
 		var getLi = listH.getElementsByTagName('li');
-		var foundActive;
+		var foundActive
 		for(var x = 0; x < getLi.length; x++){
 			if(getLi[x].className == 'active'){
-				foundActive = getLi[x];
+				foundActive = getLi[x].id.replace('list_', '');
 				break;			
 			}
 		}
-		return foundActive;
-
+		return Number(foundActive);
 	}
 	//select big image based on the id
 	this.selectImage = function(id){
