@@ -2,10 +2,9 @@
 	DONE * NEXT ---- on click switch big image and thumb
 	DONE * PREV ---- on click swith big image and thumb
 	DONE * Thumb click --- get correct image
-	* highlight once gets out of the view scroll to the right position
-		* need to get the position of active thumb
-	*
-	* 
+	DONE * highlight once gets out of the view scroll to the right position
+		DONE * need to get the position of active thumb
+		* on movement create animation effect
 	* make auto animation to switch big image and thumb
 	* Create pause btn --- will stop the animation
 	* create play btn -- will resume the animation
@@ -389,18 +388,29 @@ var buildList = function(){
 		var newIndexHighlight;
 		var activeLi = _list.getActiveEl();
 		
-		//get first pos 
-		if(startPos == 0){
-			newIndexHighlight = 0;
-		//get last pos
-		}else if(startPos == (mObjs.length - 1)){
-			newIndexHighlight = Math.min(noThumbsInView - 1, mObjs.length - 1);
-		}else if(startPos == noThumbsInView){
-			newIndexHighlight = 1;
-		}
-		console.log(noThumbsInView)
-		//listH.style.left = (newIndexHighlight * _CG.thumbs.width) + 'px';
+		//start position is 0
+		if(activeLi == 0) {
+            newIndexHighlight = 0;
+			
+		//start from end position
+        }else if(activeLi == (mObjs.length - 1)) {
+			var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
+			newIndexHighlight = -(getLast * _CG.thumbs.width);
 		
+		//if active bigger then thumbs move to right e.g. 6=6
+        }else if(activeLi > noThumbsInView) {
+            newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;
+		//if active bigger = to thumbs move right 6 >5	
+        }else if(activeLi >= (noThumbsInView - 1)) {
+			var getNew = Math.min(noThumbsInView - 1, startPos - 1);
+            newIndexHighlight = - (getNew * _CG.thumbs.width);
+        }else if(activeLi <= 0) {
+            newIndexHighlight = 1;
+        }else {
+            newIndexHighlight = startPos;
+        }		
+		
+		listH.style.left = newIndexHighlight + 'px';
 		
 	};
 	//returns the id of the active li elem
