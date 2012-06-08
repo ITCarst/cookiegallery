@@ -6,8 +6,6 @@
   GIVE SUPPROT FOR RETURNING images in JS
   
 */
-
-
 //append main obj to window obj
 if(!window.CookieGallery) {
     window.CookieGallery = {};
@@ -30,10 +28,12 @@ _CG = {
                 enabled:true
             }
         },
+		enabled:true,
 		fadeduration: 0.5, //fade in and fade out of the images change
 		autorotate:{
+			initialPause:0.2,
 			enabled:true,
-			duration:2000
+			duration:5000
 		}
     },
 	_settings: {
@@ -104,8 +104,10 @@ var init = function(){
 
 						if(checkRequest === true){
 							//test purpose only
-							praseFiles(cookieGet, images, numResourcesLoaded);
-							_CG.buildList = new buildList();
+							var doneParse = praseFiles(cookieGet, images, numResourcesLoaded);
+							if(doneParse){
+								_CG.buildList();
+							}
 						}
 					});
 					
@@ -148,6 +150,7 @@ function praseFiles(cGet, images, fLoaded){
 		}
 	}
 	function setImages(c){
+		var preloadMsg = document.getElementById('preloadMsg');
 		for(var i=0; i < c.length; i++){
 			//remove the thumb_ from cookie name that it's set into php|JS
 			var matchT = c[i].match(/thumb_/),
@@ -180,4 +183,5 @@ function praseFiles(cGet, images, fLoaded){
 		}
 		
 	}
+	return true;
 }
