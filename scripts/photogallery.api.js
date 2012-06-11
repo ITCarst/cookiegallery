@@ -3,7 +3,7 @@
   
   return the number of images dinamilcy not hardcode e.g 13
   
-  GIVE SUPPROT FOR RETURNING images in JS
+  GIVE SUPPROT FOR ONLY JS OPTION
   
 */
 //append main obj to window obj
@@ -16,24 +16,24 @@ _CG = {
 	autoplay:{
         buttons:{
             start:{
-                txt:'',
+                txt:'Play',
                 enabled:true
             },
             stop:{
-                txt:'',
+                txt:'Stop',
                 enabled:true
             },
 			remove:{
-                txt:'',
+                txt:'Remove',
                 enabled:true
             }
         },
 		enabled:true,
-		fadeduration: 0.5, //fade in and fade out of the images change
+		fadeduration: 0.7, //fade in and fade out of the images change
 		autorotate:{
 			initialPause:0.2,
 			enabled:true,
-			duration:5000
+			duration:2000
 		}
     },
 	_settings: {
@@ -56,7 +56,7 @@ _CG = {
         width:114,
         height:72
     },
-	loaderGif: 'img/ajax-loader.gif' //image loader before everything it's loaded
+	loaderGif: 'img/loader.gif' //image loader before everything it's loaded
 };
 
 //window load show preloader
