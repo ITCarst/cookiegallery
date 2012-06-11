@@ -11,11 +11,16 @@
 	DONE * Create pause btn --- will stop the animation
 	DONE * create play btn -- will resume the animation
 	* remove button - will remove the current image and thumb including from the cookies
+		* get the li big image and thumb and remove them based on the mObj.id
+		* get the cookies remove the current image from it
+		* set it again with the new values
 	* When cookies are set the list it's build but the cookies are not loaded and split it shows the html but not the cookies from images
 	* CAPTION object add image title not hardcoded text
 	* INTERNET EXPLOERE SUPORT	
 	* mouse hover left right move slider
-
+	
+	
+	* to fix the move into highlight logic
 
 	EXTRA
 	* Create horizontal gallery with option
@@ -45,7 +50,8 @@ _CG.buildList = function(){
 		countImage,
 		auto = true,
 		autodelay = 5,
-		noThumbsInView = 0;
+		noThumbsInView = 0,
+		getNew = 0;
 	
 	//calls the merged objects togheter
 	//builds the HTML list
@@ -166,26 +172,26 @@ _CG.buildList = function(){
 		mainHolder.appendChild(thumbH);
 		thumbH.appendChild(ulList);
 	};
+	//get all the buttons which has action and apply the click event on them
+	//each one calls it's functionality functions
 	this.clickActions = function(){
 		var playBtn = document.getElementById('play'),
 			stopBtn = document.getElementById('stop'),
 			nextBtn = document.getElementById('next'),
-			prevBtn = document.getElementById('prev');
+			prevBtn = document.getElementById('prev'),
+			removeBtn = document.getElementById('remove');
 			
 		if(playBtn && stopBtn){
-			console.log(playBtn)
 			playBtn.onclick = function(){
-				alert('click')
-				console.log('play')
 				_list.resetAutoPlayOnClick();
 			}
-		
 			stopBtn.onclick = function(){
-				console.log('stop')
 				_list.stopAnimation();
 			}
+			removeBtn.onclick = function(){
+				_list.removeCurrent();
+			}
 		}
-		
 		if(nextBtn && prevBtn){
 			//move slider to right
 			nextBtn.onclick = function(){
@@ -451,25 +457,30 @@ _CG.buildList = function(){
 		//start position is 0
 		if(activeLi == 0) {
             newIndexHighlight = 0;
+			getNew = 0;
 		//start from end position
         }else if(activeLi == (mObjs.length - 1)) {
 			var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
-			newIndexHighlight = -(getLast * _CG.thumbs.width);
+			newIndexHighlight = - (getLast * _CG.thumbs.width);
+			console.log(getLast)
+			
 		//if active bigger then thumbs move to right e.g. 6=6
-        }else if(activeLi > noThumbsInView) {
-            newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;
+        /*}else if(activeLi > noThumbsInView) {
+            newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;*/
 		//if active bigger = to thumbs move right 6 >5	
         }else if(activeLi >= (noThumbsInView - 1)) {
-			console.log('goes here')
 			//var getNew = Math.min(noThumbsInView - 1, startPos - 1);
             //newIndexHighlight = - (getNew * _CG.thumbs.width);
-			var getNew = Math.min(noThumbsInView - 1, startPos - 1);
-			//newIndexHighlight = - (getNew * _CG.thumbs.width);
-			console.log(getNew)
-			
+			if(getNew == 0){
+				getNew = _CG.thumbs.width;
+			}else {
+				getNew += getNew;
+			}
+			newIndexHighlight = - getNew;
         }else if(activeLi <= 0) {
             newIndexHighlight = 1;
         }else {
+			getNew = 0;
             newIndexHighlight = 0;
         }		
 		listH.style.webkitTransitionDuration = listH.style.MozTransitionDuration = speed + 'ms';
@@ -524,7 +535,28 @@ _CG.buildList = function(){
 			clearInterval(listH.timer);
 			_list.startAutoPlay(listH, _CG.autoplay.autorotate.duration);
 		}
+	};
+	this.removeCurrent = function(){
+		var getCurrentThumb = document.getElementById('thumb_' + mObjs[startPos].id),
+			getCurrentLi = document.getElementById('list_' + mObjs[startPos].id),
+			getCurrentBig = document.getElementById('img_' + mObjs[startPos].id);
+			
+
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	this.onHoverStart = function(e, ulList) {
 		var deltaX = _list.getPosition(thumbH);
 		var scrollX;
