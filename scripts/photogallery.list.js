@@ -69,13 +69,14 @@ _CG.buildList = function(){
 			if(_CG.autoplay.enabled) {
 				_list.startAutoPlay(listH, _CG.autoplay.autorotate.duration);
 			}
+			/*
 			listH.onmousemove = function(evnt){
-				_list.stopAnimation();
-				_list.onHoverStart(evnt, listH);
+				//_list.stopAnimation();
+				//_list.onHoverStart(evnt, listH);
 			}
 			listH.onmouseout = function(){
-				_list.resetAutoPlayOnClick();
-			}
+				//_list.resetAutoPlayOnClick();
+			}*/
 			
 		}
 	};
@@ -101,6 +102,8 @@ _CG.buildList = function(){
 		_list.createBigHolder();
 		_list.creatContorls();
 		_list.createThumbHolder();
+		_list.clickActions();
+		
 	};
 	//create the top part of the gal big image and controls
 	this.createBigHolder = function(){
@@ -133,13 +136,6 @@ _CG.buildList = function(){
 		cHolders.appendChild(stop);
 		cHolders.appendChild(remove);
 		
-		play.onclick = function(){
-			_list.resetAutoPlayOnClick();
-		}
-		stop.onclick = function(){
-		console.log('click')
-			_list.stopAnimation();
-		}
 	};
 	//create controls next prev and caption
 	this.creatContorls = function(){
@@ -153,25 +149,12 @@ _CG.buildList = function(){
 		next.setAttribute('id','next');
 		prev.setAttribute('class', 'moveControls');
 		next.setAttribute('class', 'moveControls');
-		
 		photoCaption.setAttribute('id','photoCaption');
-		
 
 		mainHolder.appendChild(infoH);
 		infoH.appendChild(prev);
 		infoH.appendChild(next);
 		infoH.appendChild(photoCaption);
-
-		//move slider to right
-		next.onclick = function(){
-			_list.resetAutoPlayOnClick();
-			_list.moveRight();
-		}
-		//move slider to left
-		prev.onclick = function(){
-			_list.resetAutoPlayOnClick();
-			_list.moveLeft();
-		}
 		
 	};
 	//create holder of the thumbs
@@ -183,6 +166,39 @@ _CG.buildList = function(){
 		mainHolder.appendChild(thumbH);
 		thumbH.appendChild(ulList);
 	};
+	this.clickActions = function(){
+		var playBtn = document.getElementById('play'),
+			stopBtn = document.getElementById('stop'),
+			nextBtn = document.getElementById('next'),
+			prevBtn = document.getElementById('prev');
+			
+		if(playBtn && stopBtn){
+			console.log(playBtn)
+			playBtn.onclick = function(){
+				alert('click')
+				console.log('play')
+				_list.resetAutoPlayOnClick();
+			}
+		
+			stopBtn.onclick = function(){
+				console.log('stop')
+				_list.stopAnimation();
+			}
+		}
+		
+		if(nextBtn && prevBtn){
+			//move slider to right
+			nextBtn.onclick = function(){
+				_list.resetAutoPlayOnClick();
+				_list.moveRight();
+			}
+			//move slider to left
+			prevBtn.onclick = function(){
+				_list.resetAutoPlayOnClick();
+				_list.moveLeft();
+			}
+		}		
+	}
 	//function to create an object with detailed information
 	//returns new object
     this.addImageToGallery = function(imageConfig){
@@ -444,8 +460,13 @@ _CG.buildList = function(){
             newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;
 		//if active bigger = to thumbs move right 6 >5	
         }else if(activeLi >= (noThumbsInView - 1)) {
+			console.log('goes here')
+			//var getNew = Math.min(noThumbsInView - 1, startPos - 1);
+            //newIndexHighlight = - (getNew * _CG.thumbs.width);
 			var getNew = Math.min(noThumbsInView - 1, startPos - 1);
-            newIndexHighlight = - (getNew * _CG.thumbs.width);
+			//newIndexHighlight = - (getNew * _CG.thumbs.width);
+			console.log(getNew)
+			
         }else if(activeLi <= 0) {
             newIndexHighlight = 1;
         }else {
@@ -492,12 +513,13 @@ _CG.buildList = function(){
 	this.stopAnimation = function(){
 		var listH = document.getElementById('listH')
 		if(_CG.autoplay.enabled == true){
-			console.log('stop')
 			clearInterval(listH.timer);
 		}		
 	}
 	//when clicking the next or prev stop the interval for auto rotate and reset it again to the _CG settings
 	this.resetAutoPlayOnClick = function(){
+		var listH = document.getElementById('listH');
+		console.log('reset')
 		if(_CG.autoplay.enabled == true){
 			clearInterval(listH.timer);
 			_list.startAutoPlay(listH, _CG.autoplay.autorotate.duration);
