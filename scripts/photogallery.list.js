@@ -137,6 +137,7 @@ _CG.buildList = function(){
 			_list.resetAutoPlayOnClick();
 		}
 		stop.onclick = function(){
+		console.log('click')
 			_list.stopAnimation();
 		}
 	};
