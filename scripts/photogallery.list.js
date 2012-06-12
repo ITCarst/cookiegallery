@@ -1,4 +1,5 @@
 /* TO DO
+	DONE * Make this entire object private
 	DONE * NEXT ---- on click switch big image and thumb
 	DONE * PREV ---- on click swith big image and thumb
 	DONE * Thumb click --- get correct image
@@ -10,15 +11,21 @@
 	DONE * fix the fade in and fade out effects of the big images
 	DONE * Create pause btn --- will stop the animation
 	DONE * create play btn -- will resume the animation
+	DONE * Build REST the slide animation from start with data from cookie
+	* Save - stops the scrolling animation and saves in cookies
+		* need to set by default in cookies active witch at the beginning will be 0
+		* once the slider starts to move on save btn press that position needs to be updated and saved into the cookie with the new active value
+		* on page refresh the slider has to start from the saved position
 	* remove button - will remove the current image and thumb including from the cookies
 		* get the li big image and thumb and remove them based on the mObj.id
 		* get the cookies remove the current image from it
 		* set it again with the new values
+    * Each action of SAVE | REMOVE | RESET must show a popup with confirmation	
 	* When cookies are set the list it's build but the cookies are not loaded and split it shows the html but not the cookies from images
 	* CAPTION object add image title not hardcoded text
 	* INTERNET EXPLOERE SUPORT	
 	* mouse hover left right move slider
-	
+	* check for _CG settings of the buttons if they are disabled enabled etc.	
 	
 	* to fix the move into highlight logic
 
@@ -42,53 +49,49 @@ _CG.buildList = function(){
 		thumbs = [],
 		bigImgs = [],
 		matchUrl = /thumb_/i,
-		tWidth = _CG.thumbs.width,
-		tHeight = _CG.thumbs.height,
 		mObjs = [],
 		startPos = 0,
 		speed = 300,
 		countImage,
-		auto = true,
-		autodelay = 5,
 		noThumbsInView = 0,
 		getNew = 0;
 	
 	//calls the merged objects togheter
 	//builds the HTML list
 	//init the thumbs and imgs
-	this.initList = function(){
+	var initList = function(){
 		//split _thumbs cookie from big img cokoie
-		_list.splitCookies();
+		splitCookies();
 		//create all html holders
-		_list.createDomElements();
+		createDomElements();
 		//merge the thumbs object with the big image obj
-		_list.mergeObjs();
+		mergeObjs();
 		
 		var listH = document.getElementById('listH');
 		if(listH){
-			_list.storeThumbsInView();
+			storeThumbsInView();
 			//add dynamic width to the ul
-			_list.storeUlWidth(listH);
+			storeUlWidth(listH);
 				//create the li with img and append them to ul
-			_list.setThumbs(listH);
+			setThumbs(listH);
 			
 			if(_CG.autoplay.enabled) {
-				_list.startAutoPlay(listH, _CG.autoplay.autorotate.duration);
+				startAutoPlay(listH, _CG.autoplay.autorotate.duration);
 			}
 			/*
 			listH.onmousemove = function(evnt){
-				//_list.stopAnimation();
-				//_list.onHoverStart(evnt, listH);
+				//stopAnimation();
+				//onHoverStart(evnt, listH);
 			}
 			listH.onmouseout = function(){
-				//_list.resetAutoPlayOnClick();
+				//resetAutoPlayOnClick();
 			}*/
 			
 		}
 	};
 	//loops through cookie and splits the thumbs from big images
 	//builds 2 arrays with new values
-	this.splitCookies = function(){
+	var splitCookies = function(){
 		/* loop through images that are saved into the cookies
 			separate the thumbs from big images
 			build object with id, index src etc for each img for further linking
@@ -104,22 +107,23 @@ _CG.buildList = function(){
 		}
 	};
 	//Holds only the HTML elements without actually images or thumbs
-	this.createDomElements = function(){
-		_list.createBigHolder();
-		_list.creatContorls();
-		_list.createThumbHolder();
-		_list.clickActions();
+	var createDomElements = function(){
+		createBigHolder();
+		creatContorls();
+		createThumbHolder();
+		clickActions();
 		
 	};
 	//create the top part of the gal big image and controls
-	this.createBigHolder = function(){
+	var createBigHolder = function(){
 		var imgHolder = document.createElement('div'),
 			gControl = document.createElement('div'),
 			cHolders = document.createElement('div'),
 			imgIn = document.createElement('div'),
 			start = document.createElement('div'),
 			stop = document.createElement('div'),
-			remove = document.createElement('div');
+			remove = document.createElement('div'),
+			reset = document.createElement('div');
 			
 		imgHolder.setAttribute('id', 'imgHolder');
 		imgIn.setAttribute('id', 'imgIn');
@@ -130,9 +134,11 @@ _CG.buildList = function(){
 		start.setAttribute('id', 'play');
 		stop.setAttribute('id', 'stop');
 		remove.setAttribute('id', 'remove');
+		reset.setAttribute('id', 'reset');
 		start.setAttribute('class', 'actionControls');
 		stop.setAttribute('class', 'actionControls');
 		remove.setAttribute('class', 'actionControls');
+		reset.setAttribute('class', 'actionControls');
 		
 		mainHolder.appendChild(imgHolder);
 		imgHolder.appendChild(imgIn);
@@ -141,10 +147,11 @@ _CG.buildList = function(){
 		cHolders.appendChild(start);
 		cHolders.appendChild(stop);
 		cHolders.appendChild(remove);
+		cHolders.appendChild(reset);
 		
 	};
 	//create controls next prev and caption
-	this.creatContorls = function(){
+	var creatContorls = function(){
 		var infoH = document.createElement('div'),
 			prev = document.createElement('div'),
 			photoCaption = document.createElement('div'),
@@ -164,7 +171,7 @@ _CG.buildList = function(){
 		
 	};
 	//create holder of the thumbs
-	this.createThumbHolder = function(){
+	var createThumbHolder = function(){
 		var thumbH = document.createElement('div'),
 			ulList = document.createElement('ul');
 		thumbH.setAttribute('id','thumbH');
@@ -174,40 +181,46 @@ _CG.buildList = function(){
 	};
 	//get all the buttons which has action and apply the click event on them
 	//each one calls it's functionality functions
-	this.clickActions = function(){
+	var clickActions = function(){
 		var playBtn = document.getElementById('play'),
 			stopBtn = document.getElementById('stop'),
 			nextBtn = document.getElementById('next'),
 			prevBtn = document.getElementById('prev'),
-			removeBtn = document.getElementById('remove');
+			removeBtn = document.getElementById('remove'),
+			resetBtn = document.getElementById('reset');
 			
 		if(playBtn && stopBtn){
 			playBtn.onclick = function(){
-				_list.resetAutoPlayOnClick();
+				resetAutoPlayOnClick();
 			}
 			stopBtn.onclick = function(){
-				_list.stopAnimation();
+				stopAnimation();
 			}
 			removeBtn.onclick = function(){
-				_list.removeCurrent();
+				removeCurrent();
 			}
+			resetBtn.onclick = function(){
+				resetAnimation();
+			}
+			
+			
 		}
 		if(nextBtn && prevBtn){
 			//move slider to right
 			nextBtn.onclick = function(){
-				_list.resetAutoPlayOnClick();
-				_list.moveRight();
+				resetAutoPlayOnClick();
+				moveRight();
 			}
 			//move slider to left
 			prevBtn.onclick = function(){
-				_list.resetAutoPlayOnClick();
-				_list.moveLeft();
+				resetAutoPlayOnClick();
+				moveLeft();
 			}
 		}		
 	}
 	//function to create an object with detailed information
 	//returns new object
-    this.addImageToGallery = function(imageConfig){
+    var addImageToGallery = function(imageConfig){
         imageConfig  = {
             index : imageConfig.index,
             id : imageConfig.id,
@@ -219,32 +232,33 @@ _CG.buildList = function(){
     };
 	//once we split the cookie push into new object just the thumbs
 	//returns new object
-	this.setThumbObj = function(){
+	var setThumbObj = function(){
 		var objThumb = [];
 		for(var x = 0; x < thumbs.length; x++){
 			objThumb.push(
-				_list.addImageToGallery({
+				addImageToGallery({
 					index : x,
 					id : x,
 					thumb : thumbs[x],
-					caption : 'title',
+					caption : thumbs[x],
 					src : thumbs[x]
 				})			
 			)		
 		}
+		console.log(objThumb)
 		return objThumb;
 	};
 	//once we split the cookie push into new object just the big images
 	//returns new object
-	this.setImgObj = function(){
+	var setImgObj = function(){
 		var objImg = [];
 		for(var x = 0; x < bigImgs.length; x++){
 			objImg.push(
-				_list.addImageToGallery({
+				addImageToGallery({
 					index : x,
 					id : x,
 					thumb : bigImgs[x],
-					caption : 'title',
+					caption : bigImgs[x],
 					src : bigImgs[x]
 				})			
 			)		
@@ -253,16 +267,16 @@ _CG.buildList = function(){
 	};
 	//setThumbObj and setImgObj merged togheter for haveing single id or index for the same thumb and img
 	//returns new object
-	this.mergeObjs = function(){
-		var objThumb = _list.setThumbObj();
-		var objImgs = _list.setImgObj();
+	var mergeObjs = function(){
+		var objThumb = setThumbObj();
+		var objImgs = setImgObj();
 		for(var p in objThumb){
 			for(var o in objImgs){
 				mObjs[p] = {
 					index : objThumb[p].index,
 					id : objThumb[p].id,
 					thumb : objThumb[p].thumb,
-					caption : 'title',
+					caption : objThumb[p].thumb,
 					src : objImgs[p].src
 				}
 			}
@@ -271,18 +285,18 @@ _CG.buildList = function(){
 	};
 	//get the thumb holder width and devided by the thumb width
 	//return the number of the thumbs that can be visible into thumb holder
-	this.storeThumbsInView = function(){
+	var storeThumbsInView = function(){
 		var thumbH = document.getElementById('thumbH');
         var containerWidth = thumbH.offsetWidth;
         noThumbsInView = Math.round(containerWidth / _CG.thumbs.width);
 	};
 	//set width to the ul imgs.length * the thumb width	
-	this.storeUlWidth = function(ulH){
+	var storeUlWidth = function(ulH){
 		var setW = (ulH.style.width = Math.round(mObjs.length * (_CG.thumbs.width + 4)) + 'px');
 		return setW;
 	};
 	//once the object thubms it's set apply id and value for identifing the images
-	this.setThumbs = function(ulHolder){
+	var setThumbs = function(ulHolder){
 		var x = 0, max = mObjs.length, id = 0, index = 0;
 		var imgH = document.getElementById('imgIn');
 		var photoCaption = document.getElementById('photoCaption');
@@ -298,24 +312,24 @@ _CG.buildList = function(){
 			ulHolder.appendChild(liList);
  			
 			//create thumb images and append them to each li
-			_list.createImgThumb(id, liList, thumbSrc);
+			createImgThumb(id, liList, thumbSrc);
 			
 			//on click switch the big image assigned to thumb
 			liList.onclick = function(e){
-				_list.resetAutoPlayOnClick();
-				_list.clickOnThumbnail(e);
+				resetAutoPlayOnClick();
+				clickOnThumbnail(e);
 			}
 			if(x == 0){
 				if(liList.hasAttribute('id', 'list_' + startPos)){
 					liList.setAttribute('class', 'active');
-					_list.createBigImg(startPos, imgH);
+					createBigImg(startPos, imgH);
 					photoCaption.innerHTML = mObjs[id].caption;
 				}
 			}
 		};
 	}
 	//create thumbs annd apend them
-	this.createImgThumb = function(id, list, thumbSrc){
+	var createImgThumb = function(id, list, thumbSrc){
 		if(id != null || id != ''){
 			var createT = document.createElement('img');
 			createT.setAttribute('id','thumb_' + id);
@@ -326,7 +340,7 @@ _CG.buildList = function(){
 		}
 	};
 	//general function witch gets the all objects but returns just the object with the machted id
-    this.getImageDataById = function(id) {
+    var getImageDataById = function(id) {
         var countImages = mObjs.length;
         for (var i = 0; i < countImages; i++) {
             if (mObjs[i].id == id) {
@@ -336,34 +350,34 @@ _CG.buildList = function(){
     };
 	//on thumbnail click get target id and replace the string convert it into number
 	//then send the given id to the selectImage fn
-	this.clickOnThumbnail = function(e) {
+	var clickOnThumbnail = function(e) {
 		var getTargetId = e.target.id;
 		var getId = getTargetId.replace('thumb_', '');
 		var id = Number(getId);
 		
 		//update the startPos with the new id
 		startPos = id;
-		_list.selectImage(id);
+		selectImage(id);
     };
 	//moves the slider to right
 	//if reaches the max length of the images starts from 0
-	this.moveRight = function(ulList){
+	var moveRight = function(ulList){
 		startPos = startPos + 1;
 		if(startPos >= mObjs.length) {
             startPos = 0;
         }
-		_list.selectImage(mObjs[startPos].id);
+		selectImage(mObjs[startPos].id);
 	};
 	//moves slider to left
 	//if gets under 0 then start from the end position of the given images object
-	this.moveLeft = function(){
+	var moveLeft = function(){
 		startPos = startPos - 1;
 		if(startPos < 0){
 			startPos = mObjs.length - 1;
 		}
-		_list.selectImage(mObjs[startPos].id);
+		selectImage(mObjs[startPos].id);
 	};
-	this.createBigImg = function(id, holder){
+	var createBigImg = function(id, holder){
 		if(id != null){
 			var foundId = document.getElementById('img_' + id),
 				createImg;
@@ -380,7 +394,7 @@ _CG.buildList = function(){
 						var setOpacity = getImages[x];
 						clearInterval(setOpacity.timer);
 						setOpacity.timer = setInterval(function(){
-							_list.fdout(setOpacity);
+							fdout(setOpacity);
 						},_CG.autoplay.fadeduration)
 					}
 				}
@@ -400,13 +414,13 @@ _CG.buildList = function(){
 			}
 			
 			createImg.timer = setInterval(function(){
-				_list.fdin(createImg);
+				fdin(createImg);
 			}, _CG.autoplay.fadeduration);
 	
 		}		
 	}
 	//fade in the big image
-	this.fdin = function(image){
+	var fdin = function(image){
 		//check if image has been loaded and set opacity based on the interval increases
 		if(image.complete){
 			image.setOpacity = image.setOpacity + _CG.autoplay.fadeduration;
@@ -422,7 +436,7 @@ _CG.buildList = function(){
 		}
 	};
 	//fade out the big image
-	this.fdout = function(image){
+	var fdout = function(image){
 		image.setOpacity = image.setOpacity - _CG.autoplay.fadeduration;
 		image.style.opacity = image.setOpacity / 100;
 		image.style.filter = 'alpha(opacity=' + image.setOpacity + ')';
@@ -436,8 +450,8 @@ _CG.buildList = function(){
 	};
 	//sects active class to the li
 	//and if it already exists then removes the active and gives it to the next li
-	this.createThumbHighLight = function(id){
-		var imageData = _list.getImageDataById(id);
+	var createThumbHighLight = function(id){
+		var imageData = getImageDataById(id);
 		for(var x = 0; x < mObjs.length; x++){
 			var getList = document.getElementById('list_' + mObjs[x].id);
 			if(mObjs[x].id == id){
@@ -449,11 +463,11 @@ _CG.buildList = function(){
 			}
 		}
 	}
-	this.moveHighilightIntoView = function(id){
+	var moveHighilightIntoView = function(id){
 		var newIndexHighlight;
 		var listH = document.getElementById('listH');		
-		var activeLi = _list.getActiveEl(listH);
-		
+		var activeLi = getActiveEl(listH);
+
 		//start position is 0
 		if(activeLi == 0) {
             newIndexHighlight = 0;
@@ -462,8 +476,6 @@ _CG.buildList = function(){
         }else if(activeLi == (mObjs.length - 1)) {
 			var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
 			newIndexHighlight = - (getLast * _CG.thumbs.width);
-			console.log(getLast)
-			
 		//if active bigger then thumbs move to right e.g. 6=6
         /*}else if(activeLi > noThumbsInView) {
             newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;*/
@@ -491,7 +503,7 @@ _CG.buildList = function(){
 		
 	};
 	//returns the id of the active li elem
-	this.getActiveEl = function(listH){
+	var getActiveEl = function(listH){
 		var getLi = listH.getElementsByTagName('li');
 		var foundActive
 		for(var x = 0; x < getLi.length; x++){
@@ -503,45 +515,49 @@ _CG.buildList = function(){
 		return Number(foundActive);
 	}
 	//select big image based on the id
-	this.selectImage = function(id){
+	var selectImage = function(id){
 		var holder = document.getElementById('imgIn');
-		var imageData = _list.getImageDataById(id);
+		var imageData = getImageDataById(id);
 		var photoCaption = document.getElementById('photoCaption');
 		
-		_list.createBigImg(id, holder);
-		_list.createThumbHighLight(id);
-		_list.moveHighilightIntoView(id);
+		createBigImg(id, holder);
+		createThumbHighLight(id);
+		moveHighilightIntoView(id);
 		
 		photoCaption.innerHTML = mObjs[id].caption;
 	};
 	//start auto play of the ul based on the _CG settings duration
-	this.startAutoPlay = function(ulList, time){
+	var startAutoPlay = function(ulList, time){
 		_CG.autoplay.enabled = true;
 		ulList.timer = setInterval(function(){
-			_list.moveRight();
+			moveRight();
 		}, time)		
 	};
-	this.stopAnimation = function(){
+	var stopAnimation = function(){
 		var listH = document.getElementById('listH')
 		if(_CG.autoplay.enabled == true){
 			clearInterval(listH.timer);
 		}		
 	}
 	//when clicking the next or prev stop the interval for auto rotate and reset it again to the _CG settings
-	this.resetAutoPlayOnClick = function(){
+	var resetAutoPlayOnClick = function(){
 		var listH = document.getElementById('listH');
-		console.log('reset')
 		if(_CG.autoplay.enabled == true){
 			clearInterval(listH.timer);
-			_list.startAutoPlay(listH, _CG.autoplay.autorotate.duration);
+			startAutoPlay(listH, _CG.autoplay.autorotate.duration);
 		}
 	};
-	this.removeCurrent = function(){
+	var resetAnimation = function(){
+		startPos = 0;
+		selectImage(startPos);
+		resetAutoPlayOnClick();
+	}
+	var removeCurrent = function(){
 		var getCurrentThumb = document.getElementById('thumb_' + mObjs[startPos].id),
 			getCurrentLi = document.getElementById('list_' + mObjs[startPos].id),
 			getCurrentBig = document.getElementById('img_' + mObjs[startPos].id);
 			
-
+		
 	}
 	
 	
@@ -557,10 +573,10 @@ _CG.buildList = function(){
 	
 	
 	
-	this.onHoverStart = function(e, ulList) {
-		var deltaX = _list.getPosition(thumbH);
+	var onHoverStart = function(e, ulList) {
+		var deltaX = getPosition(thumbH);
 		var scrollX;
-		var getWidth = _list.storeUlWidth(ulList);
+		var getWidth = storeUlWidth(ulList);
 		var width = Number(getWidth.replace('px', ''));
 		
 		deltaX = e.pageX - deltaX.x;
@@ -576,7 +592,7 @@ _CG.buildList = function(){
 
 		ulList.style.left = scrollX + 'px';
 	};
-	this.getPosition = function(element) {
+	var getPosition = function(element) {
 		var xPosition = 0;
 		var yPosition = 0;
 		while(element) {
@@ -739,12 +755,14 @@ _CG.buildList = function(){
                 return this.images[i];
             }
         }
-    }*/
-		
+    }
+	this.initList = function(){
+		return initialize();
+	}*/
 	if(CGSettings.placeTarget != ''){
 		if(mainHolder){
 			if(doneLoading === true){
-				_list.initList();
+				initList();
 			}
 		}
 	}	

@@ -12,7 +12,6 @@ function cookie(){
 			var date = new Date();
 			date.setTime(date.getTime()+(time * 24 * 60 * 60 * 1000));
 			var expires = "; expires=" + date.toGMTString();
-			console.log(date.getTime());
 		}else{
 			var expires = "";
 		}
@@ -21,10 +20,8 @@ function cookie(){
 	}
 	//get cookies 
 	this.get = function(name){
-		
 		if(document.cookie.length > 0 || document.cookie != ''){
 			//check the CookieGallery by name
-		
 			if(c_start != -1){
 				var getIndexes = _cookie.getCIndexes(c_start, c_end);
 				var cookieName = name + '=',
@@ -88,14 +85,9 @@ function cookie(){
 		}
 		
 	}
-	//clear cookies 
-	this.clear = function(){
-		console.log('clear cookie');
-	}
-	
 	//remove cookie
-	this.remove = function(name){
-		this.setCookie(name, "", -1);
+	this.removeCurrentEntry = function(){
+		
 	}
 	
 }

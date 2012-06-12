@@ -60,7 +60,7 @@ ul, li {
 }
 #contorlHolders {
 	display:none;
-	width: 151px;
+	width: 180px;
 	margin: 0 auto;
 	height: 40px;
 	margin-top: 165px;
@@ -80,22 +80,28 @@ ul, li {
 	cursor:pointer;
 }
 #contorlHolders #play {
-	background-position: -28px 1px;	
+	background-position: -28px 0px;	
 }
 #contorlHolders #play:hover{
-	background-position:-28px 24px;
+	background-position:-28px 26px;
 }
 #contorlHolders #stop {
-	background-position: -55px 1px;		
+	background-position: -55px 0px;		
 }
 #contorlHolders #stop:hover {
-	background-position: -55px 24px;		
+	background-position: -55px 26px;		
 }
 #contorlHolders #remove{
 	background-position: -80px 0px;	
 }
 #contorlHolders #remove:hover {
-	background-position: -80px 22px;	
+	background-position: -80px 25px;	
+}
+#contorlHolders #reset {
+	background-position: -133px 0px;	
+}
+#contorlHolders #reset:hover {
+	background-position: -133px -37px;	
 }
 #imgHolder #imgIn img {
 	position:absolute;
