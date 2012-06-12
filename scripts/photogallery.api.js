@@ -98,18 +98,27 @@ var init = function(){
 			if(imagesPath && thumbPath){
 				
 				if(CGSettings.readFileType.rFServer === true){
+					var cookieGet = _CG.cookie.get(CGSettings.setCookieName);
 					
-					httpRequest(requestImages, imagesPath, fileTypes, splitArr, function(){
-						var cookieGet = _CG.cookie.get(CGSettings.setCookieName);
-
-						if(checkRequest === true){
-							//test purpose only
-							var doneParse = praseFiles(cookieGet, images, numResourcesLoaded);
-							if(doneParse){
-								_CG.buildList();
-							}
+					//check if cookies are set so it doesn't make an extra request
+					if(document.cookie.length > 0 || document.cookie != ''){
+						var doneParse = praseFiles(cookieGet, images, numResourcesLoaded);
+						if(doneParse){
+							_CG.buildList();
 						}
-					});
+					}else{
+						console.log('make request')
+						httpRequest(requestImages, imagesPath, fileTypes, splitArr, function(){
+							if(checkRequest === true){
+								//test purpose only
+								var doneParse = praseFiles(cookieGet, images, numResourcesLoaded);
+								if(doneParse){
+									_CG.buildList();
+								}
+							}
+						});						
+					}
+					
 					
 				}else if(CGSettings.readFileType.rFClient === true){
 					httpRequest(requestImages, imagesPath, fileTypes, splitArr);
