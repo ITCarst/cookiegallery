@@ -1,9 +1,9 @@
 /* TO DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  on the init fn there is a set timeout don't forget to remove it
-  
-  return the number of images dinamilcy not hardcode e.g 13
-  
-  GIVE SUPPROT FOR ONLY JS OPTION
+  * on the init fn there is a set timeout don't forget to remove it
+  * imgString and images objects has to be privatg
+  * return the number of images dinamilcy not hardcode e.g 13
+  * GIVE SUPPROT FOR ONLY JS OPTION
+  * Refactoring
   
 */
 //append main obj to window obj
@@ -15,18 +15,26 @@ _CG = {
 	preload:true,
 	autoplay:{
         buttons:{
-            start:{
+            play:{
                 txt:'Play',
                 enabled:true
             },
-            stop:{
-                txt:'Stop',
+            pause:{
+                txt:'Pause',
                 enabled:true
             },
 			remove:{
                 txt:'Remove',
                 enabled:true
-            }
+            },
+			reset: {
+				txt:'Reset',
+                enabled:true
+			},
+			save: {
+				txt:'Save',
+				enabled:true
+			}
         },
 		enabled:true,
 		fadeduration: 0.7, //fade in and fade out of the images change
