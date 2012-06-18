@@ -245,7 +245,7 @@ _CG.buildList = function(){
 				})			
 			)		
 		}
-		console.log(objThumb)
+		//console.log(objThumb)
 		return objThumb;
 	};
 	//once we split the cookie push into new object just the big images

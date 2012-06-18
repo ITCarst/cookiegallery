@@ -106,23 +106,14 @@ var init = function(){
 			if(imagesPath && thumbPath){
 				
 				if(CGSettings.readFileType.rFServer === true){
-					var cookieGet = _CG.cookie.get(CGSettings.setCookieName);
 					
 					//check if cookies are set so it doesn't make an extra request
 					if(document.cookie.length > 0 || document.cookie != ''){
-						var doneParse = praseFiles(cookieGet, images, numResourcesLoaded);
-						if(doneParse){
-							_CG.buildList();
-						}
+						returnCookie();
 					}else{
-						console.log('make request')
 						httpRequest(requestImages, imagesPath, fileTypes, splitArr, function(){
 							if(checkRequest === true){
-								//test purpose only
-								var doneParse = praseFiles(cookieGet, images, numResourcesLoaded);
-								if(doneParse){
-									_CG.buildList();
-								}
+								returnCookie();
 							}
 						});						
 					}
@@ -141,28 +132,23 @@ var init = function(){
 	}
 }
 
+
 function praseFiles(cGet, images, fLoaded){
 	var _praseF = this;
 	
 	if(cGet != ''){
 		setImages(cGet);
-		doneLoading = true;
+		if(setImages(cGet)){
+			doneLoading = true;
+			return true;
+		}
 	}else{
-		if(document.cookie.length > 0 || document.cookie != ''){
-			var c_start = document.cookie.indexOf(_CG._settings.setCookieName + "="),
-				c_end = document.cookie.indexOf(";" , c_start);
-				
-			if(c_start != -1){
-				var getIndexes = _CG.cookie.getCIndexes(c_start, c_end);
-				var cookieName = _CG._settings.setCookieName + '=',
-					splitCookies = getIndexes.split(/,/),
-					i = 0,
-					c = [];
-				for(i; i < splitCookies.length; i++){
-					c.push(splitCookies[i]);
-				}				
-				setImages(c);
+		var c = _CG.cookie.get(CGSettings.setCookieName);
+		if(c){
+			setImages(c);
+			if(setImages(c)){
 				doneLoading = true;
+				return true;
 			}
 		}
 	}
@@ -179,7 +165,6 @@ function praseFiles(cGet, images, fLoaded){
 			}else{
 				stringImg += (CGSettings.imagesdir + replaceT);
 			}
-			
 			images[replaceT] = new Image();
 			
 			images[replaceT].onload = function(){
@@ -188,7 +173,6 @@ function praseFiles(cGet, images, fLoaded){
 					//add +1 to counter
 					fLoaded += 1;
 					if(6 === fLoaded){
-						console.log('loaded')
 						//if counter its = with all images then hide loading msg
 						preloadMsg.style.display = 'none';
 					}
@@ -198,7 +182,15 @@ function praseFiles(cGet, images, fLoaded){
 			images[replaceT].src = stringImg;
 			_CG.imgString.push(stringImg);
 		}
-		
+		if(images){
+			return true;
+		}
 	}
-	return true;
+}
+function returnCookie (){
+	var cookieGet = _CG.cookie.get(CGSettings.setCookieName);
+	var doneParse = praseFiles(cookieGet, _CG.images, numResourcesLoaded);
+	if(doneParse){
+		_CG.buildList();
+	}
 }

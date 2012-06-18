@@ -1,3 +1,10 @@
+/* TO DO
+	* GET fn it's not working properly
+		* the first time the page it's loaded the cookies are set but the get returns -1 instead of 0
+		* when the get fn it's called the first time returns -1 in the build list and api
+		* build the get only after the c_start returns 0 instead of -1
+*/
+
 _CG.cookie = new cookie();
 
 function cookie(){
@@ -8,6 +15,7 @@ function cookie(){
 
 	//set cookies name|value|time
 	this.set = function(name, value, time){
+		//console.log(value)
 		if(time) {
 			var date = new Date();
 			date.setTime(date.getTime()+(time * 24 * 60 * 60 * 1000));
@@ -20,6 +28,7 @@ function cookie(){
 	}
 	//get cookies 
 	this.get = function(name){
+		//console.log(name)
 		if(document.cookie.length > 0 || document.cookie != ''){
 			//check the CookieGallery by name
 			if(c_start != -1){
