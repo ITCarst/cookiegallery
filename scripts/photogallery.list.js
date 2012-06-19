@@ -49,13 +49,15 @@ _CG.buildList = function(){
 		thumbs = [],
 		bigImgs = [],
 		matchUrl = /thumb_/i,
+		matchActive = /active_/,
 		mObjs = [],
-		startPos = 0,
 		speed = 300,
 		countImage,
 		noThumbsInView = 0,
+		isActive,
 		getNew = 0;
-	
+		
+		
 	//calls the merged objects togheter
 	//builds the HTML list
 	//init the thumbs and imgs
@@ -101,6 +103,8 @@ _CG.buildList = function(){
 			if(cookieGet[i].match(matchUrl)){
 				var stripname = cookieGet[i].replace(matchUrl, '');
 				thumbs.push(CGSettings.thumbdir + stripname);
+			}else if(cookieGet[i].match(matchActive)){
+				isActive = cookieGet[i].match(matchActive);
 			}else{
 				bigImgs.push(CGSettings.imagesdir + cookieGet[i])			
 			}
@@ -112,7 +116,6 @@ _CG.buildList = function(){
 		creatContorls();
 		createThumbHolder();
 		clickActions();
-		
 	};
 	//create the top part of the gal big image and controls
 	var createBigHolder = function(){
@@ -124,6 +127,7 @@ _CG.buildList = function(){
 			stop = document.createElement('div'),
 			remove = document.createElement('div'),
 			reset = document.createElement('div');
+			save = document.createElement('div');
 			
 		imgHolder.setAttribute('id', 'imgHolder');
 		imgIn.setAttribute('id', 'imgIn');
@@ -135,19 +139,25 @@ _CG.buildList = function(){
 		stop.setAttribute('id', 'stop');
 		remove.setAttribute('id', 'remove');
 		reset.setAttribute('id', 'reset');
+		save.setAttribute('id', 'save');
+
+		
 		start.setAttribute('class', 'actionControls');
 		stop.setAttribute('class', 'actionControls');
 		remove.setAttribute('class', 'actionControls');
 		reset.setAttribute('class', 'actionControls');
-		
+		save.setAttribute('class', 'actionControls');
+
 		mainHolder.appendChild(imgHolder);
 		imgHolder.appendChild(imgIn);
 		imgHolder.appendChild(gControl);
 		gControl.appendChild(cHolders);
+		
 		cHolders.appendChild(start);
 		cHolders.appendChild(stop);
 		cHolders.appendChild(remove);
 		cHolders.appendChild(reset);
+		cHolders.appendChild(save);
 		
 	};
 	//create controls next prev and caption
@@ -163,7 +173,6 @@ _CG.buildList = function(){
 		prev.setAttribute('class', 'moveControls');
 		next.setAttribute('class', 'moveControls');
 		photoCaption.setAttribute('id','photoCaption');
-
 		mainHolder.appendChild(infoH);
 		infoH.appendChild(prev);
 		infoH.appendChild(next);
@@ -179,6 +188,7 @@ _CG.buildList = function(){
 		mainHolder.appendChild(thumbH);
 		thumbH.appendChild(ulList);
 	};
+	
 	//get all the buttons which has action and apply the click event on them
 	//each one calls it's functionality functions
 	var clickActions = function(){
@@ -187,7 +197,8 @@ _CG.buildList = function(){
 			nextBtn = document.getElementById('next'),
 			prevBtn = document.getElementById('prev'),
 			removeBtn = document.getElementById('remove'),
-			resetBtn = document.getElementById('reset');
+			resetBtn = document.getElementById('reset'),
+			saveBtn = document.getElementById('save');
 			
 		if(playBtn && stopBtn){
 			playBtn.onclick = function(){
@@ -201,6 +212,9 @@ _CG.buildList = function(){
 			}
 			resetBtn.onclick = function(){
 				resetAnimation();
+			}
+			saveBtn.onclick = function(){
+				console.log('save')
 			}
 			
 			
@@ -226,7 +240,8 @@ _CG.buildList = function(){
             id : imageConfig.id,
             thumb : imageConfig.thumb,
             caption : imageConfig.caption,
-            src : imageConfig.src
+            src : imageConfig.src,
+			active:  imageConfig.active
         };
 		return imageConfig;
     };
@@ -241,7 +256,8 @@ _CG.buildList = function(){
 					id : x,
 					thumb : thumbs[x],
 					caption : thumbs[x],
-					src : thumbs[x]
+					src : thumbs[x],
+					active: x
 				})			
 			)		
 		}
@@ -259,7 +275,8 @@ _CG.buildList = function(){
 					id : x,
 					thumb : bigImgs[x],
 					caption : bigImgs[x],
-					src : bigImgs[x]
+					src : bigImgs[x],
+					active: x
 				})			
 			)		
 		}
@@ -277,10 +294,12 @@ _CG.buildList = function(){
 					id : objThumb[p].id,
 					thumb : objThumb[p].thumb,
 					caption : objThumb[p].thumb,
-					src : objImgs[p].src
+					src : objImgs[p].src,
+					active : objImgs[p].active
 				}
 			}
 		}
+		//console.log(mObjs)
 		return mObjs;
 	};
 	//get the thumb holder width and devided by the thumb width
@@ -300,7 +319,7 @@ _CG.buildList = function(){
 		var x = 0, max = mObjs.length, id = 0, index = 0;
 		var imgH = document.getElementById('imgIn');
 		var photoCaption = document.getElementById('photoCaption');
-		
+
 		for(x; x < max; x++){
 			var liList = document.createElement('li');
 				id = mObjs[x].id;
@@ -320,9 +339,9 @@ _CG.buildList = function(){
 				clickOnThumbnail(e);
 			}
 			if(x == 0){
-				if(liList.hasAttribute('id', 'list_' + startPos)){
+				if(liList.hasAttribute('id', 'list_' + _CG.autoplay.autorotate.startPos)){
 					liList.setAttribute('class', 'active');
-					createBigImg(startPos, imgH);
+					createBigImg(_CG.autoplay.autorotate.startPos, imgH);
 					photoCaption.innerHTML = mObjs[id].caption;
 				}
 			}
@@ -356,26 +375,26 @@ _CG.buildList = function(){
 		var id = Number(getId);
 		
 		//update the startPos with the new id
-		startPos = id;
+		_CG.autoplay.autorotate.startPos = id;
 		selectImage(id);
     };
 	//moves the slider to right
 	//if reaches the max length of the images starts from 0
 	var moveRight = function(ulList){
-		startPos = startPos + 1;
-		if(startPos >= mObjs.length) {
-            startPos = 0;
+		_CG.autoplay.autorotate.startPos = _CG.autoplay.autorotate.startPos + 1;
+		if(_CG.autoplay.autorotate.startPos >= mObjs.length) {
+            _CG.autoplay.autorotate.startPos = 0;
         }
-		selectImage(mObjs[startPos].id);
+		selectImage(mObjs[_CG.autoplay.autorotate.startPos].id);
 	};
 	//moves slider to left
 	//if gets under 0 then start from the end position of the given images object
 	var moveLeft = function(){
-		startPos = startPos - 1;
-		if(startPos < 0){
-			startPos = mObjs.length - 1;
+		_CG.autoplay.autorotate.startPos = _CG.autoplay.autorotate.startPos - 1;
+		if(_CG.autoplay.autorotate.startPos < 0){
+			_CG.autoplay.autorotate.startPos = mObjs.length - 1;
 		}
-		selectImage(mObjs[startPos].id);
+		selectImage(mObjs[_CG.autoplay.autorotate.startPos].id);
 	};
 	var createBigImg = function(id, holder){
 		if(id != null){
@@ -548,14 +567,14 @@ _CG.buildList = function(){
 		}
 	};
 	var resetAnimation = function(){
-		startPos = 0;
-		selectImage(startPos);
+		_CG.autoplay.autorotate.startPos = 0;
+		selectImage(_CG.autoplay.autorotate.startPos);
 		resetAutoPlayOnClick();
 	}
 	var removeCurrent = function(){
-		var getCurrentThumb = document.getElementById('thumb_' + mObjs[startPos].id),
-			getCurrentLi = document.getElementById('list_' + mObjs[startPos].id),
-			getCurrentBig = document.getElementById('img_' + mObjs[startPos].id);
+		var getCurrentThumb = document.getElementById('thumb_' + mObjs[_CG.autoplay.autorotate.startPos].id),
+			getCurrentLi = document.getElementById('list_' + mObjs[_CG.autoplay.autorotate.startPos].id),
+			getCurrentBig = document.getElementById('img_' + mObjs[_CG.autoplay.autorotate.startPos].id);
 			
 		
 	}
