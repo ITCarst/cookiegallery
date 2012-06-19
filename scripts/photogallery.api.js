@@ -41,7 +41,8 @@ _CG = {
 		autorotate:{
 			initialPause:0.2,
 			enabled:true,
-			duration:2000
+			duration:2000,
+			startPos: 0
 		}
     },
 	_settings: {
@@ -59,6 +60,7 @@ _CG = {
 		splitArray: /<li>|<a .*?>|<\/a>|<\/li>/ig //regex for removing unsed tags that are received from xml call through localhost ajax
 	},
 	imgString:[],
+	isActive:'',
 	images:{},
 	thumbs:{
         width:114,
@@ -77,12 +79,9 @@ var CGSettings = _CG._settings,
 	doneLoading = false;
 	numResourcesLoaded = 0;
 
-
 //image/cookie/requests preloader
 var init = function(){
-	
 	if(CGSettings.placeTarget != ''){
-		
 		var mainHolder = document.getElementById(CGSettings.placeTarget);
 		//check if gallery-module exisits
 		if(mainHolder){
@@ -117,7 +116,6 @@ var init = function(){
 							}
 						});						
 					}
-					
 					
 				}else if(CGSettings.readFileType.rFClient === true){
 					httpRequest(requestImages, imagesPath, fileTypes, splitArr);
@@ -158,10 +156,15 @@ function praseFiles(cGet, images, fLoaded){
 			//remove the thumb_ from cookie name that it's set into php|JS
 			var matchT = c[i].match(/thumb_/),
 				replaceT = c[i].replace(matchT, ''),
-				stringImg = [];
-			
+				stringImg = [],
+				matchActive = c[i].match(/active_/), //get the active cookie
+				replaceA = c[i].replace(matchActive + _CG.autoplay.autorotate.startPos, ''); //remove it from array so it's not passed as an image
+				
 			if(matchT){
 				stringImg += (CGSettings.thumbdir + replaceT);
+			}else if(matchActive){
+				//save active into an empty string
+				_CG.isActive = (matchActive + _CG.autoplay.autorotate.startPos);
 			}else{
 				stringImg += (CGSettings.imagesdir + replaceT);
 			}

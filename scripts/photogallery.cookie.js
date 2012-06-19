@@ -15,7 +15,8 @@ function cookie(){
 
 	//set cookies name|value|time
 	this.set = function(name, value, time){
-		//console.log(value)
+		//add to cookie the images value + the saved image
+		value = value + ',active_' + _CG.autoplay.autorotate.startPos;
 		if(time) {
 			var date = new Date();
 			date.setTime(date.getTime()+(time * 24 * 60 * 60 * 1000));
