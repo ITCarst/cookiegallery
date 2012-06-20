@@ -14,9 +14,9 @@ function cookie(){
 		c_end = document.cookie.indexOf(";" , c_start);
 
 	//set cookies name|value|time
-	this.set = function(name, value, time){
+	this.set = function(name, value, time, active){
 		//add to cookie the images value + the saved image
-		value = value + ',active_' + _CG.autoplay.autorotate.startPos;
+		value = value + ',active_' + active;
 		if(time) {
 			var date = new Date();
 			date.setTime(date.getTime()+(time * 24 * 60 * 60 * 1000));
@@ -53,15 +53,15 @@ function cookie(){
 		if JS reading it's set build the second cookie for the thumbs
 		check if the cookies are set receive and if the thumbs cookie its not set set thumb cookie
 	*/
-	this.checkCookies = function(returnImg, returnThumb){
+	this.checkCookies = function(returnImg, returnThumb, active){
 		//if the thumbs img is false that means we have a php request to files
 		if(returnThumb != false){
 			var cName = 'CookieGalleryThumbs';
 			_cookie.checkCGal(returnThumb, cName);
-			_CG.cookie.set(cName, returnThumb, _CG._settings.expireTime);
+			_CG.cookie.set(cName, returnThumb, active);
 		}else{
 			//if its php request do the checking for cookie and set it
-			_cookie.checkCGal(returnImg, cookieName);
+			_cookie.checkCGal(returnImg, cookieName, active);
 		}
 	}
 	/*
@@ -69,20 +69,20 @@ function cookie(){
 		if the cookie its already set make sure it's the cookie gallery
 		if there are cookies but not the cookie gallery then set it
 	*/ 
-	this.checkCGal = function(_returnImgs, cName){
+	this.checkCGal = function(_returnImgs, cName, active){
 		if(_returnImgs != ''){
 			//if there are no cookies then set our cookie
 			if(document.cookie === '' || document.cookie.length <= 0 ){
 				//set the cookies if there are not there
-				_CG.cookie.set(cName, _returnImgs, _CG._settings.expireTime);
+				_CG.cookie.set(cName, _returnImgs, active);
 			}else{
 				//get the start and end of your cookie appling expecialy of server has multiple cookies
-				_cookie.getCIndexes(c_start, c_end, _returnImgs);
+				_cookie.getCIndexes(c_start, c_end, _returnImgs, active);
 			}			
 		}
 	}
 	//get the start and end of your cookie precaution if the ser,ver has already multiple cookies
-	this.getCIndexes = function(startVal, endVal, receivedImg){
+	this.getCIndexes = function(startVal, endVal, receivedImg, active){
 		//check if in cookies we find is the cookie gallery
 		if(startVal != -1){
 			startVal = startVal + cookieName.length + 1;
@@ -91,7 +91,7 @@ function cookie(){
 			}
 			return unescape(document.cookie.substring(startVal, endVal));
 		}else{
-			_CG.cookie.set(cookieName, receivedImg, _CG._settings.expireTime);
+			_CG.cookie.set(cookieName, receivedImg, _CG._settings.expireTime, active);
 		}
 		
 	}
