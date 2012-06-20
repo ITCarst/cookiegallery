@@ -48,13 +48,10 @@ _CG.buildList = function(){
 		cookieGet = _CG.cookie.get(CGSettings.setCookieName),
 		thumbs = [],
 		bigImgs = [],
-		matchUrl = /thumb_/i,
-		matchActive = /active_/,
 		mObjs = [],
 		speed = 300,
 		countImage,
 		noThumbsInView = 0,
-		isActive,
 		getNew = 0;
 		
 		
@@ -97,14 +94,13 @@ _CG.buildList = function(){
 		/* loop through images that are saved into the cookies
 			separate the thumbs from big images
 			build object with id, index src etc for each img for further linking
-		*/				
+		*/
+		var matchUrl = /thumb_/i;
 		for(var i = 0; i < cookieGet.length; i++){
 			//separate thumbs
 			if(cookieGet[i].match(matchUrl)){
 				var stripname = cookieGet[i].replace(matchUrl, '');
 				thumbs.push(CGSettings.thumbdir + stripname);
-			}else if(cookieGet[i].match(matchActive)){
-				isActive = cookieGet[i].match(matchActive);
 			}else{
 				bigImgs.push(CGSettings.imagesdir + cookieGet[i])			
 			}
@@ -200,6 +196,7 @@ _CG.buildList = function(){
 			
 		if(playBtn && stopBtn){
 			playBtn.onclick = function(){
+				console.log('play')
 				resetAutoPlayOnClick();
 			}
 			stopBtn.onclick = function(){
@@ -567,28 +564,11 @@ _CG.buildList = function(){
 		var listH = document.getElementById('listH'),
 			activeLi = getActiveEl(listH),
 			setNewC = [],
-			imgArr = _CG.imgString;
+			imgArr = _CG.cookie.get(CGSettings.setCookieName);
 		
-		for(var x = 0; x < imgArr.length; x++){
-			console.log(imgArr)
-			var matchT = imgArr[x].match(CGSettings.thumbdir);
-			var matchB = imgArr[x].match(CGSettings.imagesdir);
-			var matchA = imgArr[x].match(/active_/);
-			
-			if(matchT){
-				var replaceT = imgArr[x].replace(matchT, 'thumb_');
-				setNewC += replaceT;
-			}else if(matchB){
-				var replaceB = imgArr[x].replace(matchB, '');
-				setNewC += replaceB;
-			}else if(matchA){
-				var replaceA = imgArr[x].replace(matchA, 'active_' + activeLi);
-				setNewC += replaceA; 
-			}
-			
+		if(activeLi != _CG.isActive){
+			_CG.cookie.checkCookies(imgArr, false, activeLi);
 		}
-		console.log(setNewC)
-		//_CG.cookie.checkCookies(setNewC, false, _CG.autoplay.autorotate.startPos);
 
 	};
 	
