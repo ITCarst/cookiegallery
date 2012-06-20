@@ -39,9 +39,9 @@ _CG = {
 		enabled:true,
 		fadeduration: 0.7, //fade in and fade out of the images change
 		autorotate:{
-			initialPause:0.2,
-			enabled:true,
-			duration:2000,
+			initialPause: 0.2,
+			enabled: true,
+			duration: 2000,
 			startPos: 0
 		}
     },
@@ -59,8 +59,7 @@ _CG = {
 		fileTypes: /(.jpg)|(.gif)|(.png)|(.bmp)$/g,
 		splitArray: /<li>|<a .*?>|<\/a>|<\/li>/ig //regex for removing unsed tags that are received from xml call through localhost ajax
 	},
-	imgString:[],
-	isActive:'',
+	isActive: 0,
 	images:{},
 	thumbs:{
         width:114,
@@ -85,8 +84,7 @@ var init = function(){
 		var mainHolder = document.getElementById(CGSettings.placeTarget);
 		//check if gallery-module exisits
 		if(mainHolder){
-			var images = _CG.images,
-				preloadMsg = document.createElement('div');
+			var preloadMsg = document.createElement('div');
 				
 			var date = new Date().getTime(),
 				imagesPath = CGSettings.imagesdir,
@@ -111,7 +109,9 @@ var init = function(){
 						returnCookie();
 					}else{
 						httpRequest(requestImages, imagesPath, fileTypes, splitArr, function(){
+							console.log("REQUEST CALLBACK");
 							if(checkRequest === true){
+								console.log("CHECKED SET TRUE");
 								returnCookie();
 							}
 						});						
@@ -131,12 +131,13 @@ var init = function(){
 }
 
 
-function praseFiles(cGet, images, fLoaded){
+function praseFiles(images, fLoaded){
 	var _praseF = this;
-			console.log(cGet)
-
+	var cGet = _CG.cookie.get(CGSettings.setCookieName);
+	
+	console.log("DONE PARSING");
+	
 	if(cGet != ''){
-		setImages(cGet);
 		if(setImages(cGet)){
 			doneLoading = true;
 			return true;
@@ -144,34 +145,35 @@ function praseFiles(cGet, images, fLoaded){
 	}else{
 		var c = _CG.cookie.get(CGSettings.setCookieName);
 		if(c){
-			setImages(c);
 			if(setImages(c)){
 				doneLoading = true;
 				return true;
 			}
 		}
 	}
+	
 	function setImages(c){
 		var preloadMsg = document.getElementById('preloadMsg');
+		//Reads the cookie and strips the thumbs and other aditions
+		//adds the path to the images + image name and saves it into an image obj and an image array
+		//do the loader
 		for(var i=0; i < c.length; i++){
 			//remove the thumb_ from cookie name that it's set into php|JS
 			var matchT = c[i].match(/thumb_/),
+				matchA = c[i].match('active_' + _CG.isActive),
+				replaceA = c[i].replace(matchA, ''),
 				replaceT = c[i].replace(matchT, ''),
-				stringImg = [],
-				matchActive = c[i].match(/active_/), //get the active cookie
-				replaceA = c[i].replace(matchActive + _CG.autoplay.autorotate.startPos, ''); //remove it from array so it's not passed as an image
-				
+				stringImg = [];
+			
 			if(matchT){
 				stringImg += (CGSettings.thumbdir + replaceT);
-			}else if(matchActive){
-				//save active into an empty string
-				_CG.isActive = (matchActive + _CG.autoplay.autorotate.startPos);
+			}else if(matchA){
+				stringImg += replaceA;
 			}else{
 				stringImg += (CGSettings.imagesdir + replaceT);
 			}
-			images[replaceT] = new Image();
-			
-			images[replaceT].onload = function(){
+			images[stringImg] = new Image();
+			images[stringImg].onload = function(){
 				//check if images status
 				if(this.complete === true){
 					//add +1 to counter
@@ -183,18 +185,20 @@ function praseFiles(cGet, images, fLoaded){
 				}
 			}
 			//add source to img
-			images[replaceT].src = stringImg;
-			_CG.imgString.push(stringImg);
+			images[stringImg].src = stringImg;
 		}
-		if(images){
+		if(_CG.images){
 			return true;
 		}
 	}
 }
 function returnCookie (){
-	var cookieGet = _CG.cookie.get(CGSettings.setCookieName);
-	var doneParse = praseFiles(cookieGet, _CG.images, numResourcesLoaded);
+	console.log("RETURN COOKIE FN");
+	console.log(_CG.images)
+	var doneParse = praseFiles(_CG.images, numResourcesLoaded);
+	console.log('done parsing ' + doneParse)
 	if(doneParse){
+		console.log("BUILD LIST")
 		_CG.buildList();
 	}
 }

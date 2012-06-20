@@ -49,7 +49,8 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 								}
 							}
 							if(retrunImageFiles != ''){
-								callback(_CG.cookie.checkCookies(retrunImageFiles, false, _CG.autoplay.autorotate.startPos));
+								console.log("REQUEST")
+								callback(_CG.cookie.checkCookies(retrunImageFiles, false, _CG.isActive));
 							}
 							
 						}else if(CGSettings.readFileType.rFClient === true){
@@ -76,7 +77,7 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 								}
 							}
 							if(count == total){
-								_CG.cookie.checkCookies(retrunImageFiles, returnImageThumb, _CG.autoplay.autorotate.startPos);
+								_CG.cookie.checkCookies(retrunImageFiles, returnImageThumb, _CG.isActive);
 							}
 						}else{
 							console.log('please make sure you have enabled one reading file option')
@@ -96,7 +97,6 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 			//localhost request returing 
 			_xhr.open("GET", path, true);
 		}
-		checkRequest = true;
 		_xhr.send(null);
 	}
 }
