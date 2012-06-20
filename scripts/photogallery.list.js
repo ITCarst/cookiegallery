@@ -565,11 +565,12 @@ _CG.buildList = function(){
 			activeLi = getActiveEl(listH),
 			setNewC = [],
 			imgArr = _CG.cookie.get(CGSettings.setCookieName);
-		
+			
 		if(activeLi != _CG.isActive){
-			_CG.cookie.checkCookies(imgArr, false, activeLi);
+			console.log(imgArr)
+			imgArr = imgArr + activeLi;
+			_CG.cookie.updateValues(CGSettings.setCookieName, imgArr, _CG._settings.expireTime);
 		}
-
 	};
 	
 	var removeCurrent = function(){
