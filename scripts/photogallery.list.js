@@ -134,14 +134,12 @@ _CG.buildList = function(){
 		gControl.setAttribute('id', 'controls');
 		cHolders.setAttribute('id', 'contorlHolders');
 		
-		
 		start.setAttribute('id', 'play');
 		stop.setAttribute('id', 'stop');
 		remove.setAttribute('id', 'remove');
 		reset.setAttribute('id', 'reset');
 		save.setAttribute('id', 'save');
 
-		
 		start.setAttribute('class', 'actionControls');
 		stop.setAttribute('class', 'actionControls');
 		remove.setAttribute('class', 'actionControls');
@@ -214,10 +212,8 @@ _CG.buildList = function(){
 				resetAnimation();
 			}
 			saveBtn.onclick = function(){
-				console.log('save')
+				saveCurrent();
 			}
-			
-			
 		}
 		if(nextBtn && prevBtn){
 			//move slider to right
@@ -240,8 +236,7 @@ _CG.buildList = function(){
             id : imageConfig.id,
             thumb : imageConfig.thumb,
             caption : imageConfig.caption,
-            src : imageConfig.src,
-			active:  imageConfig.active
+            src : imageConfig.src
         };
 		return imageConfig;
     };
@@ -256,8 +251,7 @@ _CG.buildList = function(){
 					id : x,
 					thumb : thumbs[x],
 					caption : thumbs[x],
-					src : thumbs[x],
-					active: x
+					src : thumbs[x]
 				})			
 			)		
 		}
@@ -275,8 +269,7 @@ _CG.buildList = function(){
 					id : x,
 					thumb : bigImgs[x],
 					caption : bigImgs[x],
-					src : bigImgs[x],
-					active: x
+					src : bigImgs[x]
 				})			
 			)		
 		}
@@ -294,8 +287,7 @@ _CG.buildList = function(){
 					id : objThumb[p].id,
 					thumb : objThumb[p].thumb,
 					caption : objThumb[p].thumb,
-					src : objImgs[p].src,
-					active : objImgs[p].active
+					src : objImgs[p].src
 				}
 			}
 		}
@@ -358,44 +350,6 @@ _CG.buildList = function(){
 			list.appendChild(createT);
 		}
 	};
-	//general function witch gets the all objects but returns just the object with the machted id
-    var getImageDataById = function(id) {
-        var countImages = mObjs.length;
-        for (var i = 0; i < countImages; i++) {
-            if (mObjs[i].id == id) {
-                return mObjs[i];
-            }
-        }
-    };
-	//on thumbnail click get target id and replace the string convert it into number
-	//then send the given id to the selectImage fn
-	var clickOnThumbnail = function(e) {
-		var getTargetId = e.target.id;
-		var getId = getTargetId.replace('thumb_', '');
-		var id = Number(getId);
-		
-		//update the startPos with the new id
-		_CG.autoplay.autorotate.startPos = id;
-		selectImage(id);
-    };
-	//moves the slider to right
-	//if reaches the max length of the images starts from 0
-	var moveRight = function(ulList){
-		_CG.autoplay.autorotate.startPos = _CG.autoplay.autorotate.startPos + 1;
-		if(_CG.autoplay.autorotate.startPos >= mObjs.length) {
-            _CG.autoplay.autorotate.startPos = 0;
-        }
-		selectImage(mObjs[_CG.autoplay.autorotate.startPos].id);
-	};
-	//moves slider to left
-	//if gets under 0 then start from the end position of the given images object
-	var moveLeft = function(){
-		_CG.autoplay.autorotate.startPos = _CG.autoplay.autorotate.startPos - 1;
-		if(_CG.autoplay.autorotate.startPos < 0){
-			_CG.autoplay.autorotate.startPos = mObjs.length - 1;
-		}
-		selectImage(mObjs[_CG.autoplay.autorotate.startPos].id);
-	};
 	var createBigImg = function(id, holder){
 		if(id != null){
 			var foundId = document.getElementById('img_' + id),
@@ -437,7 +391,7 @@ _CG.buildList = function(){
 			}, _CG.autoplay.fadeduration);
 	
 		}		
-	}
+	};
 	//fade in the big image
 	var fdin = function(image){
 		//check if image has been loaded and set opacity based on the interval increases
@@ -466,6 +420,44 @@ _CG.buildList = function(){
 				image.parentNode.removeChild(image);
 			}
 		}
+	};	
+	//general function witch gets the all objects but returns just the object with the machted id
+    var getImageDataById = function(id) {
+        var countImages = mObjs.length;
+        for (var i = 0; i < countImages; i++) {
+            if (mObjs[i].id == id) {
+                return mObjs[i];
+            }
+        }
+    };
+	//on thumbnail click get target id and replace the string convert it into number
+	//then send the given id to the selectImage fn
+	var clickOnThumbnail = function(e) {
+		var getTargetId = e.target.id;
+		var getId = getTargetId.replace('thumb_', '');
+		var id = Number(getId);
+		
+		//update the startPos with the new id
+		_CG.autoplay.autorotate.startPos = id;
+		selectImage(id);
+    };
+	//moves the slider to right
+	//if reaches the max length of the images starts from 0
+	var moveRight = function(ulList){
+		_CG.autoplay.autorotate.startPos = _CG.autoplay.autorotate.startPos + 1;
+		if(_CG.autoplay.autorotate.startPos >= mObjs.length) {
+            _CG.autoplay.autorotate.startPos = 0;
+        }
+		selectImage(mObjs[_CG.autoplay.autorotate.startPos].id);
+	};
+	//moves slider to left
+	//if gets under 0 then start from the end position of the given images object
+	var moveLeft = function(){
+		_CG.autoplay.autorotate.startPos = _CG.autoplay.autorotate.startPos - 1;
+		if(_CG.autoplay.autorotate.startPos < 0){
+			_CG.autoplay.autorotate.startPos = mObjs.length - 1;
+		}
+		selectImage(mObjs[_CG.autoplay.autorotate.startPos].id);
 	};
 	//sects active class to the li
 	//and if it already exists then removes the active and gives it to the next li
@@ -570,7 +562,36 @@ _CG.buildList = function(){
 		_CG.autoplay.autorotate.startPos = 0;
 		selectImage(_CG.autoplay.autorotate.startPos);
 		resetAutoPlayOnClick();
-	}
+	};
+	var saveCurrent = function(){
+		var listH = document.getElementById('listH'),
+			activeLi = getActiveEl(listH),
+			setNewC = [],
+			imgArr = _CG.imgString;
+		
+		for(var x = 0; x < imgArr.length; x++){
+			console.log(imgArr)
+			var matchT = imgArr[x].match(CGSettings.thumbdir);
+			var matchB = imgArr[x].match(CGSettings.imagesdir);
+			var matchA = imgArr[x].match(/active_/);
+			
+			if(matchT){
+				var replaceT = imgArr[x].replace(matchT, 'thumb_');
+				setNewC += replaceT;
+			}else if(matchB){
+				var replaceB = imgArr[x].replace(matchB, '');
+				setNewC += replaceB;
+			}else if(matchA){
+				var replaceA = imgArr[x].replace(matchA, 'active_' + activeLi);
+				setNewC += replaceA; 
+			}
+			
+		}
+		console.log(setNewC)
+		//_CG.cookie.checkCookies(setNewC, false, _CG.autoplay.autorotate.startPos);
+
+	};
+	
 	var removeCurrent = function(){
 		var getCurrentThumb = document.getElementById('thumb_' + mObjs[_CG.autoplay.autorotate.startPos].id),
 			getCurrentLi = document.getElementById('list_' + mObjs[_CG.autoplay.autorotate.startPos].id),

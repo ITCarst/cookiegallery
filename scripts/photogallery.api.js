@@ -133,7 +133,8 @@ var init = function(){
 
 function praseFiles(cGet, images, fLoaded){
 	var _praseF = this;
-	
+			console.log(cGet)
+
 	if(cGet != ''){
 		setImages(cGet);
 		if(setImages(cGet)){

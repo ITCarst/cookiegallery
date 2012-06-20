@@ -49,7 +49,7 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 								}
 							}
 							if(retrunImageFiles != ''){
-								callback(_CG.cookie.checkCookies(retrunImageFiles, false));
+								callback(_CG.cookie.checkCookies(retrunImageFiles, false, _CG.autoplay.autorotate.startPos));
 							}
 							
 						}else if(CGSettings.readFileType.rFClient === true){
@@ -76,7 +76,7 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 								}
 							}
 							if(count == total){
-								CookieGallery.cookie.checkCookies(retrunImageFiles, returnImageThumb);
+								_CG.cookie.checkCookies(retrunImageFiles, returnImageThumb, _CG.autoplay.autorotate.startPos);
 							}
 						}else{
 							console.log('please make sure you have enabled one reading file option')
