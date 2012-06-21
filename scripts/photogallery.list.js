@@ -12,7 +12,7 @@
 	DONE * Create pause btn --- will stop the animation
 	DONE * create play btn -- will resume the animation
 	DONE * Build REST the slide animation from start with data from cookie
-	* Save - stops the scrolling animation and saves in cookies
+	DONE * Save - stops the scrolling animation and saves in cookies
 		* need to set by default in cookies active witch at the beginning will be 0
 		* once the slider starts to move on save btn press that position needs to be updated and saved into the cookie with the new active value
 		* on page refresh the slider has to start from the saved position
@@ -21,12 +21,11 @@
 		* get the cookies remove the current image from it
 		* set it again with the new values
     * Each action of SAVE | REMOVE | RESET must show a popup with confirmation	
-	* When cookies are set the list it's build but the cookies are not loaded and split it shows the html but not the cookies from images
+	* BUG ON MOVE RIGHT
+	DONE * When cookies are set the list it's build but the cookies are not loaded and split it shows the html but not the cookies from images
 	* CAPTION object add image title not hardcoded text
 	* INTERNET EXPLOERE SUPORT	
-	* mouse hover left right move slider
 	* check for _CG settings of the buttons if they are disabled enabled etc.	
-	
 	* to fix the move into highlight logic
 
 	EXTRA
@@ -443,8 +442,8 @@ _CG.buildList = function(){
 	//moves the slider to right
 	//if reaches the max length of the images starts from 0
 	var moveRight = function(ulList){
-		console.log('is active ' + _CG.isActive)
-		console.log('get active ' + getCActive)
+		//console.log('is active ' + _CG.isActive)
+		//console.log('get active ' + getCActive)
 		
 		if(getCActive >= _CG.isActive){
 			_CG.isActive = getCActive;
@@ -563,29 +562,64 @@ _CG.buildList = function(){
 			clearInterval(listH.timer);
 			startAutoPlay(listH, _CG.autoplay.autorotate.duration);
 		}
+		//saveCurrent();
 	};
+	//reset animation reset _CG active and the cookie value recevied to 0
+	//applies on the reset btn of the gallery
 	var resetAnimation = function(){
 		_CG.isActive = 0;
-		selectImage(_CG.isActive);
-		resetAutoPlayOnClick();
-	};
-	var saveCurrent = function(){
-		var listH = document.getElementById('listH'),
-			activeLi = getActiveEl(listH),
-			setNewC = [],
-			imgArr = _CG.cookie.get(CGSettings.setCookieName);
-			
-			console.log('active li ' + activeLi);
-			console.log('is active' + _CG.isActive);
-			console.log('get active' + getCActive);
-			
-		if(activeLi != getCActive){
-			imgArr = imgArr + activeLi;
-			console.log(imgArr.split(','))
-			//_CG.cookie.setCVal(CGSettings.setCookieName, imgArr, _CG._settings.expireTime);
+		if(saveCurrent()){
+			console.log('return true')
+			selectImage(_CG.isActive);
+			resetAutoPlayOnClick();
 		}
 	};
-	
+	var saveCurrent = function(){
+		stopAnimation();
+		var listH = document.getElementById('listH'),
+			activeLi = getActiveEl(listH),
+			imgArr = _CG.cookie.get(CGSettings.setCookieName);
+		for(var i=0; i < imgArr.length; i++){
+			var matchExact = imgArr[i].match('active_' + getCActive); //match exact entry used on the save btn
+			var matchAp = imgArr[i].match('active_'); //match aproximative active used from reset animation fn
+			if(matchExact){
+				imgArr[i] = imgArr[i].replace(matchExact, 'active_' + activeLi);
+			//goes here when the reset button its presed
+			//sets the cookie back from 0
+			}else if(matchAp){
+				imgArr[i] = imgArr[i].replace(matchAp, '0');
+			}
+		}
+		if(activeLi != getCActive){
+			console.log('goes here')
+			if(actionConfrimation()){
+				console.log('true')
+				_CG.cookie.setCVal(CGSettings.setCookieName, imgArr, _CG._settings.expireTime);
+				return true;
+			}
+		}
+	};
+	var actionConfrimation = function(){
+		var alertHolder = document.createElement('div');
+		var wrapper = document.getElementById('wrapper');
+		alertHolder.setAttribute('id', 'alertHolder');
+		alertHolder.innerHTML = ('<div class="innerHolder"><div>Are you sure you want to delete it?</div>'+
+								 '<div class="btnBig left" id="btnYes">Yes</div><div id="btnNo" class="btnBig right">No</div>'+
+								 '<div class="clear"><!-- empty --></div></div>'
+								 );
+		wrapper.appendChild(alertHolder);
+		var btnYes = document.getElementById('btnYes');
+		var btnNo = document.getElementById('btnNo');
+		
+		btnYes.onclick = function(){
+			wrapper.removeChild(alertHolder);
+			return true;
+		}
+		btnNo.onclick = function(){
+			wrapper.removeChild(alertHolder);
+			return false;
+		}		
+	}
 	var removeCurrent = function(){
 		var getCurrentThumb = document.getElementById('thumb_' + mObjs[getCActive].id),
 			getCurrentLi = document.getElementById('list_' + mObjs[getCActive].id),
