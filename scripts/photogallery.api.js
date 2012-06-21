@@ -106,7 +106,19 @@ var init = function(){
 					
 					//check if cookies are set so it doesn't make an extra request
 					if(document.cookie.length > 0 || document.cookie != ''){
-						returnCookie();
+						var results = document.cookie.match(CGSettings.setCookieName + '=(.*?)(;|$)');
+						//if the cookies dosen't match then do an other request witch will get our images
+						if(results){
+							returnCookie();
+						}else{
+							httpRequest(requestImages, imagesPath, fileTypes, splitArr, function(){
+								console.log("REQUEST CALLBACK");
+								if(checkRequest === true){
+									console.log("CHECKED SET TRUE");
+									returnCookie();
+								}
+							});	
+						}
 					}else{
 						httpRequest(requestImages, imagesPath, fileTypes, splitArr, function(){
 							console.log("REQUEST CALLBACK");
@@ -135,8 +147,6 @@ function praseFiles(images, fLoaded){
 	var _praseF = this;
 	var cGet = _CG.cookie.get(CGSettings.setCookieName);
 	
-	console.log("DONE PARSING");
-	
 	if(cGet != ''){
 		if(setImages(cGet)){
 			doneLoading = true;
@@ -157,6 +167,7 @@ function praseFiles(images, fLoaded){
 		//Reads the cookie and strips the thumbs and other aditions
 		//adds the path to the images + image name and saves it into an image obj and an image array
 		//do the loader
+		
 		for(var i=0; i < c.length; i++){
 			//remove the thumb_ from cookie name that it's set into php|JS
 			var matchT = c[i].match(/thumb_/),
@@ -172,6 +183,7 @@ function praseFiles(images, fLoaded){
 			}else{
 				stringImg += (CGSettings.imagesdir + replaceT);
 			}
+			//console.log(replaceT)
 			images[stringImg] = new Image();
 			images[stringImg].onload = function(){
 				//check if images status
@@ -193,12 +205,8 @@ function praseFiles(images, fLoaded){
 	}
 }
 function returnCookie (){
-	console.log("RETURN COOKIE FN");
-	console.log(_CG.images)
 	var doneParse = praseFiles(_CG.images, numResourcesLoaded);
-	console.log('done parsing ' + doneParse)
 	if(doneParse){
-		console.log("BUILD LIST")
 		_CG.buildList();
 	}
 }

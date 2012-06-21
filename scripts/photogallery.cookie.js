@@ -1,8 +1,8 @@
 /* TO DO
-	* GET fn it's not working properly
-		* the first time the page it's loaded the cookies are set but the get returns -1 instead of 0
-		* when the get fn it's called the first time returns -1 in the build list and api
-		* build the get only after the c_start returns 0 instead of -1
+	DONE * GET fn it's not working properly
+			* the first time the page it's loaded the cookies are set but the get returns -1 instead of 0
+			* when the get fn it's called the first time returns -1 in the build list and api
+			* build the get only after the c_start returns 0 instead of -1
 	* on each fn send the active value of the current active thumb for saveing
 */
 
@@ -16,7 +16,6 @@ function cookie(){
 
 	//set cookies name|value|time
 	this.set = function(name, value, time, active){
-		console.log('SET')
 		//add to cookie the images value + the saved image
 		value = value + ',active_' + active;
 		if(time) {
@@ -30,50 +29,39 @@ function cookie(){
 		checkRequest = true;		
 	}
 	//get cookies 
-	this.get = function(name){
-		console.log('GET')
-		//console.log(name)
-		var c = [];
-		/*if(document.cookie.length > 0 || document.cookie != ''){
-			//check the CookieGallery by name
-			console.log(c_start)
-			if(c_start != -1){
-				var getIndexes = _cookie.getCIndexes(c_start, c_end);
-				if(getIndexes){
-					var cookieName = name + '=',
-						splitCookies = getIndexes.split(/,/),
-						i = 0;
-					for(i; i < splitCookies.length; i++){
-						c.push(splitCookies[i]);
-					}
-					return c;
+	this.get = function(check_name){
+		// first we'll split this cookie up into name/value pairs
+		// note: document.cookie only returns name=value, not the other components
+		var a_all_cookies = document.cookie.split(';');
+		var a_temp_cookie = '';
+		var cookie_name = '';
+		var cookie_value = '';
+		var b_cookie_found = false; // set boolean t/f default f
+	
+		for( i = 0; i < a_all_cookies.length; i++ ){
+			// now we'll split apart each name=value pair
+			a_temp_cookie = a_all_cookies[i].split( '=' );
+	
+			// and trim left/right whitespace while we're at it
+			cookie_name = a_temp_cookie[0].replace(/^\s+|\s+$/g, '');
+			// if the extracted name matches passed check_name
+			if(cookie_name == check_name ) {
+				b_cookie_found = true;
+				// we need to handle case where cookie has no value but exists (no = sign, that is):
+				if(a_temp_cookie.length > 1){
+					cookie_value = unescape( a_temp_cookie[1].replace(/^\s+|\s+$/g, '') );
+					cookie_value = cookie_value.split(/,/);
 				}
-			}else{
-				return '';
+				// note that in cases where cookie is initialized but no value, null is returned
+				return cookie_value;
+				break;
 			}
-		}else{
-			return 'cookies are not set yet';
-		}*/
-		if(document.cookie.length > 0 || document.cookie != ''){
-			var i, x, y, ARRcookies = document.cookie.split(";");
-				
-				console.log(ARRcookies)
-				
-			for(i = 0; i < ARRcookies.length; i++){
-				c.push(splitCookies[i]);
-				
-				/*x = ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
-				y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
-				x=x.replace(/^\s+|\s+$/g,"");*/
-				
-				if (x == name){
-					return unescape(y);
-				}
-			}
-		
-		}else{
-			return 'cookies are not set yet';
+			a_temp_cookie = null;
+			cookie_name = '';
 		}
+		if(!b_cookie_found){
+			return null;
+		}		
 	}
 	/*
 		if JS reading it's set build the second cookie for the thumbs
@@ -121,6 +109,16 @@ function cookie(){
 			_cookie.set(cookieName, receivedImg, _CG._settings.expireTime, active);
 		}
 		
+	}
+	this.updateValues = function(name, value, time){
+		if(time) {
+			var date = new Date();
+			date.setTime(date.getTime()+(time * 24 * 60 * 60 * 1000));
+			var expires = "; expires=" + date.toGMTString();
+		}else{
+			var expires = "";
+		}
+		document.cookie = name + "= " + value + expires + "; path=/";
 	}
 	//remove cookie
 	this.removeCurrentEntry = function(){
