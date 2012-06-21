@@ -50,7 +50,7 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 							}
 							if(retrunImageFiles != ''){
 								console.log("REQUEST")
-								callback(_CG.cookie.checkCookies(retrunImageFiles, false, _CG.isActive));
+								callback(_CG.cookie.checkCookies(retrunImageFiles, false, _CG.cookie.getCActive()));
 							}
 							
 						}else if(CGSettings.readFileType.rFClient === true){
