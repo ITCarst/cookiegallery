@@ -166,3 +166,81 @@ ul, li {
 #thumbH ul li:hover{
 	opacity:1;
 }
+/* -----------------------------------------------------------------------------
+ * ALERT
+ * ----------------------------------------------------------------------------- */
+#alertHolder {
+	z-index:99;
+	position:absolute;
+	top:0;
+	background:rgba(0,0,0,0.5);
+	width:100%;
+	height:100%;
+}
+.innerHolder {
+	background:#ccc;
+	position:relative;
+	padding:0px 25px 20px;
+	border-radius:4px;
+	-webkit-border-radius:4px;
+	-moz-border-radius:4px;
+	box-shadow:0 1px 3px #A3A3A3;
+	-webkit-box-shadow:0 1px 3px #A3A3A3;
+	-moz-box-shadow:0 1px 3px #A3A3A3;
+	left:50%;
+	margin-left:-250px;
+	width:550px;
+	top:72px;
+	min-height:80px;
+}
+#alertHolder .innerHolder {
+	width:215px;
+	padding-top:30px;
+	min-height:20px;
+	margin-left:-200px;
+	top:105px;
+}
+#alertHolder .btnBig {
+	width:95px;
+	height:20px;
+	line-height:20px;
+	margin-top:20px;
+	font-weight:normal;
+	font-size:12px;
+}
+#pageTarget .innerHolder h1 {
+	padding:0;
+}
+.btnBig {
+	width:150px;
+	height:30px;
+	line-height:30px;
+	margin: 20px auto;
+	text-align:center;
+	font-weight:bold;
+	font-size:16px;
+	border-radius:4px;
+	-webkit-border-radius:4px;
+	-moz-border-radius:4px;
+	background:#e8f1f4;
+	background: -webkit-gradient(linear, left top, left bottom, from(#e8f1f4), to(#ddecf1)); /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #e8f1f4,  #ddecf1); /* for firefox 3.6+ */
+	background-image: -o-linear-gradient(#e8f1f4, #ddecf1); /* opera gradient */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e8f1f4', endColorstr='#ddecf1'); /* for IE7 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient (GradientType=0, startColorstr=#e8f1f4, endColorstr=#ddecf1)"; /* IE8 + */
+	border:1px solid #ccc;
+	cursor:pointer;
+}
+#closePopup {
+	font-size: 18px;
+	font-weight: bold;
+	position: absolute;
+	right: -6px;
+	color: #d40000;
+	margin-top: -11px;
+	background: white;
+	padding: 2px 7px;
+	border-radius: 10px;
+	box-shadow: 1px 1px 1px #000;
+	cursor:pointer;
+}
