@@ -573,7 +573,6 @@ _CG.buildList = function(){
 			selectImage(_CG.isActive);
 			resetAutoPlayOnClick();
 		}
-
 	};
 	var saveCurrent = function(){
 		stopAnimation();
