@@ -46,6 +46,7 @@ _CG.buildList = function(){
 	var _list = this,
 		mainHolder = document.getElementById(CGSettings.placeTarget),
 		cookieGet = _CG.cookie.get(CGSettings.setCookieName),
+		getCActive = _CG.cookie.getCActive() || _CG.isActive, //get the number of active from cookie
 		thumbs = [],
 		bigImgs = [],
 		mObjs = [],
@@ -67,11 +68,12 @@ _CG.buildList = function(){
 		mergeObjs();
 		
 		var listH = document.getElementById('listH');
+		
 		if(listH){
 			storeThumbsInView();
 			//add dynamic width to the ul
 			storeUlWidth(listH);
-				//create the li with img and append them to ul
+			//create the li with img and append them to ul
 			setThumbs(listH);
 			
 			if(_CG.autoplay.enabled) {
@@ -308,14 +310,14 @@ _CG.buildList = function(){
 		var x = 0, max = mObjs.length, id = 0, index = 0;
 		var imgH = document.getElementById('imgIn');
 		var photoCaption = document.getElementById('photoCaption');
-
+		
 		for(x; x < max; x++){
 			var liList = document.createElement('li');
 				id = mObjs[x].id;
 				index  = mObjs[x].index;
 				thumbSrc = mObjs[x].thumb,
 				bigSrc = mObjs[x].src;
-				
+			
 			liList.setAttribute('id', 'list_' + id);
 			ulHolder.appendChild(liList);
  			
@@ -327,10 +329,10 @@ _CG.buildList = function(){
 				resetAutoPlayOnClick();
 				clickOnThumbnail(e);
 			}
-			if(x == 0){
-				if(liList.hasAttribute('id', 'list_' + _CG.autoplay.autorotate.startPos)){
+			if(x == getCActive){
+				if(liList.hasAttribute('id', 'list_' + getCActive)){
 					liList.setAttribute('class', 'active');
-					createBigImg(_CG.autoplay.autorotate.startPos, imgH);
+					createBigImg(getCActive, imgH);
 					photoCaption.innerHTML = mObjs[id].caption;
 				}
 			}
@@ -435,26 +437,34 @@ _CG.buildList = function(){
 		var id = Number(getId);
 		
 		//update the startPos with the new id
-		_CG.autoplay.autorotate.startPos = id;
+		_CG.isActive = id;
 		selectImage(id);
     };
 	//moves the slider to right
 	//if reaches the max length of the images starts from 0
 	var moveRight = function(ulList){
-		_CG.autoplay.autorotate.startPos = _CG.autoplay.autorotate.startPos + 1;
-		if(_CG.autoplay.autorotate.startPos >= mObjs.length) {
-            _CG.autoplay.autorotate.startPos = 0;
+		console.log('is active ' + _CG.isActive)
+		console.log('get active ' + getCActive)
+		
+		if(getCActive >= _CG.isActive){
+			_CG.isActive = getCActive;
+		}
+		
+		_CG.isActive = _CG.isActive + 1;
+		
+		if(_CG.isActive >= mObjs.length) {
+            _CG.isActive = 0;
         }
-		selectImage(mObjs[_CG.autoplay.autorotate.startPos].id);
+		selectImage(mObjs[_CG.isActive].id);
 	};
 	//moves slider to left
 	//if gets under 0 then start from the end position of the given images object
 	var moveLeft = function(){
-		_CG.autoplay.autorotate.startPos = _CG.autoplay.autorotate.startPos - 1;
-		if(_CG.autoplay.autorotate.startPos < 0){
-			_CG.autoplay.autorotate.startPos = mObjs.length - 1;
+		_CG.isActive = _CG.isActive - 1;
+		if(_CG.isActive < 0){
+			_CG.isActive = mObjs.length - 1;
 		}
-		selectImage(mObjs[_CG.autoplay.autorotate.startPos].id);
+		selectImage(mObjs[_CG.isActive].id);
 	};
 	//sects active class to the li
 	//and if it already exists then removes the active and gives it to the next li
@@ -513,7 +523,7 @@ _CG.buildList = function(){
 	//returns the id of the active li elem
 	var getActiveEl = function(listH){
 		var getLi = listH.getElementsByTagName('li');
-		var foundActive
+		var foundActive;
 		for(var x = 0; x < getLi.length; x++){
 			if(getLi[x].className == 'active'){
 				foundActive = getLi[x].id.replace('list_', '');
@@ -536,7 +546,6 @@ _CG.buildList = function(){
 	};
 	//start auto play of the ul based on the _CG settings duration
 	var startAutoPlay = function(ulList, time){
-		_CG.autoplay.enabled = true;
 		ulList.timer = setInterval(function(){
 			moveRight();
 		}, time)		
@@ -556,8 +565,8 @@ _CG.buildList = function(){
 		}
 	};
 	var resetAnimation = function(){
-		_CG.autoplay.autorotate.startPos = 0;
-		selectImage(_CG.autoplay.autorotate.startPos);
+		_CG.isActive = 0;
+		selectImage(_CG.isActive);
 		resetAutoPlayOnClick();
 	};
 	var saveCurrent = function(){
@@ -566,17 +575,21 @@ _CG.buildList = function(){
 			setNewC = [],
 			imgArr = _CG.cookie.get(CGSettings.setCookieName);
 			
-		if(activeLi != _CG.isActive){
-			console.log(imgArr)
+			console.log('active li ' + activeLi);
+			console.log('is active' + _CG.isActive);
+			console.log('get active' + getCActive);
+			
+		if(activeLi != getCActive){
 			imgArr = imgArr + activeLi;
-			_CG.cookie.updateValues(CGSettings.setCookieName, imgArr, _CG._settings.expireTime);
+			console.log(imgArr.split(','))
+			//_CG.cookie.setCVal(CGSettings.setCookieName, imgArr, _CG._settings.expireTime);
 		}
 	};
 	
 	var removeCurrent = function(){
-		var getCurrentThumb = document.getElementById('thumb_' + mObjs[_CG.autoplay.autorotate.startPos].id),
-			getCurrentLi = document.getElementById('list_' + mObjs[_CG.autoplay.autorotate.startPos].id),
-			getCurrentBig = document.getElementById('img_' + mObjs[_CG.autoplay.autorotate.startPos].id);
+		var getCurrentThumb = document.getElementById('thumb_' + mObjs[getCActive].id),
+			getCurrentLi = document.getElementById('list_' + mObjs[getCActive].id),
+			getCurrentBig = document.getElementById('img_' + mObjs[getCActive].id);
 			
 		
 	}

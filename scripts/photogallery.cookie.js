@@ -18,14 +18,7 @@ function cookie(){
 	this.set = function(name, value, time, active){
 		//add to cookie the images value + the saved image
 		value = value + ',active_' + active;
-		if(time) {
-			var date = new Date();
-			date.setTime(date.getTime()+(time * 24 * 60 * 60 * 1000));
-			var expires = "; expires=" + date.toGMTString();
-		}else{
-			var expires = "";
-		}
-		document.cookie = name + "= " + value + expires + "; path=/";
+		_cookie.setCVal(name, value, time)
 		checkRequest = true;		
 	}
 	//get cookies 
@@ -109,8 +102,8 @@ function cookie(){
 			_cookie.set(cookieName, receivedImg, _CG._settings.expireTime, active);
 		}
 		
-	}
-	this.updateValues = function(name, value, time){
+	};
+	this.setCVal = function(name, value, time){
 		if(time) {
 			var date = new Date();
 			date.setTime(date.getTime()+(time * 24 * 60 * 60 * 1000));
@@ -118,8 +111,27 @@ function cookie(){
 		}else{
 			var expires = "";
 		}
-		document.cookie = name + "= " + value + expires + "; path=/";
+		document.cookie = name + "= " + value + expires + "; path=/";		
+	};
+	//get the active number from the cookie
+	this.getCActive = function (){
+		var getC = _cookie.get(CGSettings.setCookieName);
+		var repalceA;
+		if(!getC){
+			repalceA = _CG.isActive;
+		}else{
+			for(var i=0; i < getC.length; i++){
+				var matchA = getC[i].match('active_');
+				if(matchA){
+					repalceA = getC[i].replace(matchA, '');
+				}else{
+					repalceA = _CG.isActive;
+				}
+			}
+		}
+		return Number(repalceA);
 	}
+	
 	//remove cookie
 	this.removeCurrentEntry = function(){
 		

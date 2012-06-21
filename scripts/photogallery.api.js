@@ -41,8 +41,7 @@ _CG = {
 		autorotate:{
 			initialPause: 0.2,
 			enabled: true,
-			duration: 2000,
-			startPos: 0
+			duration: 2000
 		}
     },
 	_settings: {
@@ -168,10 +167,12 @@ function praseFiles(images, fLoaded){
 		//adds the path to the images + image name and saves it into an image obj and an image array
 		//do the loader
 		
+		var getCActive = _CG.cookie.getCActive(); //get the number of active from cookie
+		
 		for(var i=0; i < c.length; i++){
 			//remove the thumb_ from cookie name that it's set into php|JS
 			var matchT = c[i].match(/thumb_/),
-				matchA = c[i].match('active_' + _CG.isActive),
+				matchA = c[i].match('active_' + getCActive),
 				replaceA = c[i].replace(matchA, ''),
 				replaceT = c[i].replace(matchT, ''),
 				stringImg = [];
@@ -209,4 +210,4 @@ function returnCookie (){
 	if(doneParse){
 		_CG.buildList();
 	}
-}
+}	
