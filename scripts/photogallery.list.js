@@ -52,6 +52,7 @@ _CG.buildList = function(){
 		speed = 300,
 		countImage,
 		noThumbsInView = 0,
+		doReset = false,
 		getNew = 0;
 		
 		
@@ -75,7 +76,8 @@ _CG.buildList = function(){
 			//create the li with img and append them to ul
 			setThumbs(listH);
 			
-			if(_CG.autoplay.enabled) {
+			//if the autoplay is true do autorotate
+			if(_CG.autoplay.enabled){
 				startAutoPlay(listH, _CG.autoplay.autorotate.duration);
 			}
 			/*
@@ -197,7 +199,6 @@ _CG.buildList = function(){
 			
 		if(playBtn && stopBtn){
 			playBtn.onclick = function(){
-				console.log('play')
 				resetAutoPlayOnClick();
 			}
 			stopBtn.onclick = function(){
@@ -210,7 +211,8 @@ _CG.buildList = function(){
 				resetAnimation();
 			}
 			saveBtn.onclick = function(){
-				saveCurrent();
+				var stringAction = 'Save';
+				saveCurrent(stringAction);
 			}
 		}
 		if(nextBtn && prevBtn){
@@ -550,96 +552,91 @@ _CG.buildList = function(){
 		}, time)		
 	};
 	var stopAnimation = function(){
-		var listH = document.getElementById('listH')
-		if(_CG.autoplay.enabled == true){
-			clearInterval(listH.timer);
-		}		
+		var listH = document.getElementById('listH');
+		clearInterval(listH.timer);
 	}
 	//when clicking the next or prev stop the interval for auto rotate and reset it again to the _CG settings
 	var resetAutoPlayOnClick = function(){
 		var listH = document.getElementById('listH');
-		if(_CG.autoplay.enabled == true){
-			clearInterval(listH.timer);
-			startAutoPlay(listH, _CG.autoplay.autorotate.duration);
-		}
-		//saveCurrent();
+		clearInterval(listH.timer);
+		startAutoPlay(listH, _CG.autoplay.autorotate.duration);
 	};
 	//reset animation reset _CG active and the cookie value recevied to 0
 	//applies on the reset btn of the gallery
 	var resetAnimation = function(){
+		doReset = true;
 		_CG.isActive = 0;
-		if(saveCurrent()){
-			console.log('return true')
+		var stringAction = 'reset';
+		if(saveCurrent(stringAction)){
+			console.log('save current true')
 			selectImage(_CG.isActive);
 			resetAutoPlayOnClick();
 		}
 	};
-	var saveCurrent = function(){
+	var saveCurrent = function(stringAction){
 		stopAnimation();
 		var listH = document.getElementById('listH'),
 			activeLi = getActiveEl(listH),
 			imgArr = _CG.cookie.get(CGSettings.setCookieName);
+			
 		for(var i=0; i < imgArr.length; i++){
 			var matchExact = imgArr[i].match('active_' + getCActive); //match exact entry used on the save btn
 			var matchAp = imgArr[i].match('active_'); //match aproximative active used from reset animation fn
-			if(matchExact){
+			
+			if(doReset == true){
+				imgArr[i] = imgArr[i].replace(matchExact, 'active_0'); //goes here when the reset button its presed sets the cookie back from 0
+			}else{
 				imgArr[i] = imgArr[i].replace(matchExact, 'active_' + activeLi);
-			//goes here when the reset button its presed
-			//sets the cookie back from 0
-			}else if(matchAp){
-				imgArr[i] = imgArr[i].replace(matchAp, '0');
 			}
 		}
-		if(activeLi != getCActive){
-			console.log('goes here')
-			if(actionConfrimation()){
-				console.log('true')
-				_CG.cookie.setCVal(CGSettings.setCookieName, imgArr, _CG._settings.expireTime);
-				return true;
-			}
-		}
+		confirmationPopup(stringAction,imgArr);
 	};
-	var actionConfrimation = function(){
+	var removeCurrent = function(){
+		var removeString = 'delete';
+		var listH = document.getElementById('listH'),
+			activeLi = getActiveEl(listH),
+			getCurrentThumb = document.getElementById('thumb_' + activeLi),
+			getCurrentLi = document.getElementById('list_' + activeLi),
+			getCurrentBig = document.getElementById('img_' + activeLi),
+			imgArr = _CG.cookie.get(CGSettings.setCookieName);
+		
+		for(var i=0; i < imgArr.length; i++){
+			console.log(activeLi)
+			
+		}
+			
+				
+		
+	};
+	//builds the html for the poup confirmation with yes and no btn
+	//checks for confirmation fn and returns either false or true based on what the user clicks
+	var confirmationPopup = function(action, sendImages){
 		var alertHolder = document.createElement('div');
 		var wrapper = document.getElementById('wrapper');
 		alertHolder.setAttribute('id', 'alertHolder');
-		alertHolder.innerHTML = ('<div class="innerHolder"><div>Are you sure you want to delete it?</div>'+
+		alertHolder.innerHTML = ('<div class="innerHolder"><div>Are you sure you want to '+ action +'?</div>'+
 								 '<div class="btnBig left" id="btnYes">Yes</div><div id="btnNo" class="btnBig right">No</div>'+
 								 '<div class="clear"><!-- empty --></div></div>'
 								 );
 		wrapper.appendChild(alertHolder);
+		
 		var btnYes = document.getElementById('btnYes');
 		var btnNo = document.getElementById('btnNo');
-		
-		btnYes.onclick = function(){
-			wrapper.removeChild(alertHolder);
-			return true;
+
+		if(btnYes){
+			btnYes.onclick = function(){
+				//on click save the new updated cookies
+				_CG.cookie.setCVal(CGSettings.setCookieName, sendImages, _CG._settings.expireTime);
+				wrapper.removeChild(alertHolder);
+				return true;
+			}
+			btnNo.onclick = function(){
+				wrapper.removeChild(alertHolder);
+				return false;
+			}		
 		}
-		btnNo.onclick = function(){
-			wrapper.removeChild(alertHolder);
-			return false;
-		}		
-	}
-	var removeCurrent = function(){
-		var getCurrentThumb = document.getElementById('thumb_' + mObjs[getCActive].id),
-			getCurrentLi = document.getElementById('list_' + mObjs[getCActive].id),
-			getCurrentBig = document.getElementById('img_' + mObjs[getCActive].id);
-			
 		
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	};
 	
 	var onHoverStart = function(e, ulList) {
 		var deltaX = getPosition(thumbH);
