@@ -49,6 +49,7 @@ ul, li {
 	height: 360px;
 	position:relative;
 	z-index:2;
+	overflow:hidden;
 }
 #imgHolder #controls {
 	position:absolute;
