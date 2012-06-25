@@ -16,7 +16,7 @@
 		* need to set by default in cookies active witch at the beginning will be 0
 		* once the slider starts to move on save btn press that position needs to be updated and saved into the cookie with the new active value
 		* on page refresh the slider has to start from the saved position
-	* remove button - will remove the current image and thumb including from the cookies
+	DONE * remove button - will remove the current image and thumb including from the cookies
 		* get the li big image and thumb and remove them based on the mObj.id
 		* get the cookies remove the current image from it
 		* set it again with the new values
@@ -150,19 +150,18 @@ _CG.buildList = function(){
 			remove.setAttribute('class', 'actionControls');
 			cHolders.appendChild(remove);
 		}
-		if(resetEnabled == true){
-			var reset = document.createElement('div');
-			reset.setAttribute('id', 'reset');
-			reset.setAttribute('class', 'actionControls');
-			cHolders.appendChild(reset);
-		}
 		if(saveEnabled == true){
 			var save = document.createElement('div');
 			save.setAttribute('id', 'save');
 			save.setAttribute('class', 'actionControls');
 			cHolders.appendChild(save);
 		}
-
+		if(resetEnabled == true){
+			var reset = document.createElement('div');
+			reset.setAttribute('id', 'reset');
+			reset.setAttribute('class', 'actionControls');
+			cHolders.appendChild(reset);
+		}
 		imgHolder.setAttribute('id', 'imgHolder');
 		imgIn.setAttribute('id', 'imgIn');
 		gControl.setAttribute('id', 'controls');
@@ -372,7 +371,8 @@ _CG.buildList = function(){
 				clickOnThumbnail(e);
 			}
 			if(x == getCActive){
-				if(liList.hasAttribute('id', 'list_' + getCActive)){
+				if(liList.id == 'list_' + getCActive){
+					console.log('list_' + getCActive)
 					liList.setAttribute('class', 'active');
 					createBigImg(getCActive, imgH);
 					photoCaption.innerHTML = mObjs[id].caption;
@@ -628,11 +628,10 @@ _CG.buildList = function(){
 		doReset = true;
 		_CG.isActive = 0;
 		var stringAction = 'reset';
-		if(saveCurrent(stringAction)){
-			console.log('save current true')
-			selectImage(_CG.isActive);
-			resetAutoPlayOnClick();
-		}
+		saveCurrent(stringAction);
+		selectImage(_CG.isActive);
+		resetAutoPlayOnClick();
+		
 	};
 	//saves the current image into cookie based on the active li
 	var saveCurrent = function(stringAction){
@@ -661,7 +660,7 @@ _CG.buildList = function(){
 			getCurrentLi = document.getElementById('list_' + activeLi),
 			imgArr = _CG.cookie.get(CGSettings.setCookieName);
 			
-		
+		console.log(activeLi)
 		var getTName = getThumbNames();
 		for(var x = 0; x < getTName.length; x++){
 			var currentT = document.getElementById('thumb_' + getTName[x]);
@@ -719,6 +718,7 @@ _CG.buildList = function(){
 	var confirmationPopup = function(action, sendImages){
 		var alertHolder = document.createElement('div');
 		var wrapper = document.getElementById('wrapper');
+		var listH = document.getElementById('listH');
 		alertHolder.setAttribute('id', 'alertHolder');
 		alertHolder.innerHTML = ('<div class="innerHolder"><div>Are you sure you want to '+ action +'?</div>'+
 								 '<div class="btnBig left" id="btnYes">Yes</div><div id="btnNo" class="btnBig right">No</div>'+
@@ -738,7 +738,6 @@ _CG.buildList = function(){
 					getCurrentLi.style.display = 'none';
 					getCurrentBig.style.display = 'none';
 					moveRight();
-
 				}
 				//on click save the new updated cookies
 				_CG.cookie.setCVal(CGSettings.setCookieName, sendImages, _CG._settings.expireTime);
