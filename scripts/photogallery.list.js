@@ -56,6 +56,13 @@ _CG.buildList = function(){
 		getNew = 0;
 		
 		
+	var playEnabled = _CG.autoplay.buttons.play.enabled,
+		pauseEnabled = _CG.autoplay.buttons.pause.enabled,
+		removeEnabled = _CG.autoplay.buttons.remove.enabled,
+		resetEnabled = _CG.autoplay.buttons.reset.enabled,
+		saveEnabled = _CG.autoplay.buttons.reset.enabled;
+		
+		
 	//calls the merged objects togheter
 	//builds the HTML list
 	//init the thumbs and imgs
@@ -121,40 +128,50 @@ _CG.buildList = function(){
 		var imgHolder = document.createElement('div'),
 			gControl = document.createElement('div'),
 			cHolders = document.createElement('div'),
-			imgIn = document.createElement('div'),
-			start = document.createElement('div'),
-			stop = document.createElement('div'),
-			remove = document.createElement('div'),
-			reset = document.createElement('div');
-			save = document.createElement('div');
+			imgIn = document.createElement('div');
 			
+		//check if the _CG has enabled the buttons
+		//if there are true create html elements with specific ID's for each action buttons
+		if(playEnabled == true) {
+			var start = document.createElement('div');
+			start.setAttribute('id', 'play');
+			start.setAttribute('class', 'actionControls');
+			cHolders.appendChild(start);
+		}
+		if(pauseEnabled == true){
+			var stop = document.createElement('div')
+			stop.setAttribute('id', 'stop');
+			stop.setAttribute('class', 'actionControls');
+			cHolders.appendChild(stop);
+		}
+		if(removeEnabled == true){
+			var remove = document.createElement('div');
+			remove.setAttribute('id', 'remove');
+			remove.setAttribute('class', 'actionControls');
+			cHolders.appendChild(remove);
+		}
+		if(resetEnabled == true){
+			var reset = document.createElement('div');
+			reset.setAttribute('id', 'reset');
+			reset.setAttribute('class', 'actionControls');
+			cHolders.appendChild(reset);
+		}
+		if(saveEnabled == true){
+			var save = document.createElement('div');
+			save.setAttribute('id', 'save');
+			save.setAttribute('class', 'actionControls');
+			cHolders.appendChild(save);
+		}
+
 		imgHolder.setAttribute('id', 'imgHolder');
 		imgIn.setAttribute('id', 'imgIn');
 		gControl.setAttribute('id', 'controls');
 		cHolders.setAttribute('id', 'contorlHolders');
-		
-		start.setAttribute('id', 'play');
-		stop.setAttribute('id', 'stop');
-		remove.setAttribute('id', 'remove');
-		reset.setAttribute('id', 'reset');
-		save.setAttribute('id', 'save');
-
-		start.setAttribute('class', 'actionControls');
-		stop.setAttribute('class', 'actionControls');
-		remove.setAttribute('class', 'actionControls');
-		reset.setAttribute('class', 'actionControls');
-		save.setAttribute('class', 'actionControls');
 
 		mainHolder.appendChild(imgHolder);
 		imgHolder.appendChild(imgIn);
 		imgHolder.appendChild(gControl);
 		gControl.appendChild(cHolders);
-		
-		cHolders.appendChild(start);
-		cHolders.appendChild(stop);
-		cHolders.appendChild(remove);
-		cHolders.appendChild(reset);
-		cHolders.appendChild(save);
 		
 	};
 	//create controls next prev and caption
@@ -189,30 +206,50 @@ _CG.buildList = function(){
 	//get all the buttons which has action and apply the click event on them
 	//each one calls it's functionality functions
 	var clickActions = function(){
-		var playBtn = document.getElementById('play'),
-			stopBtn = document.getElementById('stop'),
-			nextBtn = document.getElementById('next'),
-			prevBtn = document.getElementById('prev'),
-			removeBtn = document.getElementById('remove'),
-			resetBtn = document.getElementById('reset'),
-			saveBtn = document.getElementById('save');
-			
-		if(playBtn && stopBtn){
-			playBtn.onclick = function(){
-				resetAutoPlayOnClick();
+		var nextBtn = document.getElementById('next'),
+			prevBtn = document.getElementById('prev');
+		
+		//chcek if action buttons are enabled then apply action functions to them
+		
+		if(playEnabled == true) {
+			var playBtn = document.getElementById('play');
+			if(playBtn){			
+				playBtn.onclick = function(){
+					resetAutoPlayOnClick();
+				}
 			}
-			stopBtn.onclick = function(){
-				stopAnimation();
+		}
+		if(pauseEnabled == true){
+			var stopBtn = document.getElementById('stop');
+			if(stopBtn){
+				stopBtn.onclick = function(){
+					stopAnimation();
+				}
 			}
-			removeBtn.onclick = function(){
-				removeCurrent();
+		}
+		if(removeEnabled == true){
+			var removeBtn = document.getElementById('remove');
+			if(removeBtn){
+				removeBtn.onclick = function(){
+					removeCurrent();
+				}
 			}
-			resetBtn.onclick = function(){
-				resetAnimation();
+		}
+		if(resetEnabled == true){
+			var resetBtn = document.getElementById('reset');
+			if(removeBtn){
+				resetBtn.onclick = function(){
+					resetAnimation();
+				}
 			}
-			saveBtn.onclick = function(){
-				var stringAction = 'Save';
-				saveCurrent(stringAction);
+		}
+		if(saveEnabled == true){
+			var saveBtn = document.getElementById('save');
+			if(removeBtn){
+				saveBtn.onclick = function(){
+					var stringAction = 'Save';
+					saveCurrent(stringAction);
+				}
 			}
 		}
 		if(nextBtn && prevBtn){
