@@ -61,7 +61,7 @@ ul, li {
 }
 #contorlHolders {
 	display:none;
-	width: 180px;
+	width: 195px;
 	margin: 0 auto;
 	height: 40px;
 	margin-top: 165px;
@@ -74,35 +74,42 @@ ul, li {
 }
 #contorlHolders .actionControls {
 	background-image: url("../img/sprite.png");	
-	width:34px;
+	width:25px;
 	height:25px;
 	float:left;
 	margin-right:10px;
 	cursor:pointer;
 }
 #contorlHolders #play {
-	background-position: -28px 0px;	
+	background-position: 1px 62px;	
 }
 #contorlHolders #play:hover{
-	background-position:-28px 26px;
+	background-position:1px 27px;
 }
 #contorlHolders #stop {
-	background-position: -55px 0px;		
+	background-position: -30px 0px;		
 }
 #contorlHolders #stop:hover {
-	background-position: -55px 26px;		
+	background-position: -30px -35px;		
 }
 #contorlHolders #remove{
-	background-position: -80px 0px;	
+	background-position: -63px 2px;	
 }
 #contorlHolders #remove:hover {
-	background-position: -80px 25px;	
+	background-position: -63px -33px;	
 }
 #contorlHolders #reset {
-	background-position: -133px 0px;	
+	background-position: -97px 2px;
+	width:32px;
 }
 #contorlHolders #reset:hover {
-	background-position: -133px -37px;	
+	background-position: -97px -33px;	
+}
+#contorlHolders #save {
+	background-position: -136px 2px;
+}
+#contorlHolders #save:hover {
+	background-position: -136px -33px;	
 }
 #imgHolder #imgIn img {
 	position:absolute;
@@ -124,24 +131,24 @@ ul, li {
 }
 #infoH .moveControls{
 	background-image: url("../img/sprite.png");
-    height: 17px;
-    width: 13px;
+    height: 30px;
+    width: 20px;
     cursor: pointer;
 	margin-top:10px;
 }
 #infoH #prev {
-    background-position: -2px -3px;
+    background-position: -204px 0px;
 	float:left;
 }
+#infoH #prev:hover {
+    background-position: -204px -35px;
+}
 #infoH #next {
-    background-position: -20px -3px;
+    background-position: -221px 0px;
 	float:right;
 }
-#infoH #prev:hover {
-    background-position: -2px 18px;
-}
 #infoH #next:hover{
-	background-position: -20px 18px;
+	background-position:  -221px -35px;
 }
 #thumbH {
 	height: 80px;
@@ -198,7 +205,7 @@ ul, li {
 	width:215px;
 	padding-top:30px;
 	min-height:20px;
-	margin-left:-200px;
+	margin-left:-130px;
 	top:105px;
 }
 #alertHolder .btnBig {
