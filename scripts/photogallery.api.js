@@ -85,12 +85,9 @@ _CG = {
 				enabled:true
 			}
         },
-		enabled:false,
+		enabled:true, //auto play its enabled
 		fadeduration: 0.7, //fade in and fade out of the images change
-		autorotate:{
-			initialPause: 0.2,
-			duration: 2000
-		}
+		autorotate:  5000
     },
 	_settings: {
 		placeTarget		: 'CGallery', //main target wichi is required in the html
@@ -100,8 +97,8 @@ _CG = {
 		expireTime		: 365, //xpire cookie in days --> default 1 year //if days are not added will expire on browser closing
 		setCookieName	: 'CookieGallery', //define the name of the cookie that will hold the imgs
 		readFileType	: { //setting for enableing either php reading file or JS reading dir through ajax
-			rFServer	: true, 
-			rFClient	: false //this option will make 2 ajax requests one for images dir and one for thumbs
+			rFServer	: false, 
+			rFClient	: true //this option will make 2 ajax requests one for images dir and one for thumbs
 		},
 		fileTypes: /(.jpg)|(.gif)|(.png)|(.bmp)$/g,
 		splitArray: /<li>|<a .*?>|<\/a>|<\/li>/ig //regex for removing unsed tags that are received from xml call through localhost ajax
@@ -171,8 +168,8 @@ var init = function(){
 					};
 					
 				}else if(CGSettings.readFileType.rFClient === true){
-					httpRequest(requestImages, CGSettings.imagesdir, CGSettings.fileTypes, splitArr);
-					httpRequest(requestImages, CGSettings.thumbdir, CGSettings.fileTypes, splitArr);
+					httpRequest(requestImages, CGSettings.imagesdir, CGSettings.fileTypes, CGSettings.splitArray);
+					httpRequest(requestImages, CGSettings.thumbdir, CGSettings.fileTypes, CGSettings.splitArray);
 				};
 			}	
 		}else{
@@ -186,6 +183,7 @@ var init = function(){
 function praseFiles(images){
 	var _praseF = this;
 	var cGet = _CG.cookie.get(CGSettings.setCookieName);
+	console.log(cGet)
 	if(cGet != ''){
 		if(setImages(cGet)){
 			doneLoading = true;
@@ -267,7 +265,7 @@ Array.prototype.clean = function(to_delete) {
 function httpRequest(xhr, path, filetype, splitArr, callback){
 	var _xhr = xhr,
 		retrunImageFiles = [],
-		returnImageThumb = '',
+		returnImageThumb = [],
 		count = 0,
 		total = 0,
 		sendUrl = CGSettings.readFiles + '?path=' + path; //url for read file server side
@@ -314,7 +312,6 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 								};
 							};
 							if(retrunImageFiles != ''){
-								console.log("REQUEST")
 								callback(_CG.cookie.checkCookies(retrunImageFiles, false, _CG.cookie.getCActive()));
 							};
 							
@@ -326,23 +323,22 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 							//remove the a tag so it wont get duplicated entries
 							var splitArray = responeTxt.split(splitArr);
 							total = splitArray.length;
-							
 							//loop through the array and get the founded files from dir
 							for(var x = 0; x < splitArray.length; x++){
 								count++;
 								//check matches for extension from the array
 								if(splitArray[x].match(filetype)){
 									//check for path and if it's thumb then add thumb to the small images
-									if(path === mainObjSettings.imagesdir){
+									if(path === CGSettings.imagesdir){
 										retrunImageFiles += splitArray[x];
 									};
-									if(path === mainObjSettings.thumbdir){
-										returnImageThumb += 'thumb_' + splitArray[x] + ' ';
+									if(path === CGSettings.thumbdir){
+										returnImageThumb += 'thumb_' + splitArray[x];
 									};
 								};
 							};
 							if(count == total){
-								_CG.cookie.checkCookies(retrunImageFiles, returnImageThumb, _CG.isActive);
+								_CG.cookie.checkCookies(retrunImageFiles, returnImageThumb, _CG.cookie.getCActive());
 							};
 						}else{
 							console.log('please make sure you have enabled one reading file option')
@@ -422,9 +418,10 @@ function cookie(){
 	this.checkCookies = function(returnImg, returnThumb, active){
 		//if the thumbs img is false that means we have a php request to files
 		if(returnThumb != false){ //JS CALL
-			var cName = 'CookieGalleryThumbs';
-			_cookie.checkCGal(returnThumb, cName, active);
-			_cookie.set(cName, returnThumb, _CG._settings.expireTime, active);
+			console.log('js call')
+			//var cName = 'CookieGalleryThumbs';
+			//_cookie.setCVal(cName, returnThumb, _CG._settings.expireTime, active);
+			//_cookie.checkCGal(returnThumb, cName, active);
 		}else{
 			//if its php request do the checking for cookie and set it
 			_cookie.checkCGal(returnImg, cookieName, active);
@@ -451,7 +448,6 @@ function cookie(){
 	this.getCIndexes = function(startVal, endVal, receivedImg, active){
 		//check if in cookies we find is the cookie gallery
 		if(startVal != -1){
-			console.log('here')
 			startVal = startVal + cookieName.length + 1;
 			if(endVal == -1) {
 				endVal = document.cookie.length;
@@ -460,7 +456,6 @@ function cookie(){
 		}else{
 			_cookie.set(cookieName, receivedImg, _CG._settings.expireTime, active);
 		};
-		
 	};
 	this.setCVal = function(name, value, time){
 		if(time) {
@@ -527,7 +522,7 @@ _CG.buildList = function(){
 			setThumbs(listH);
 			//if the autoplay is true do autorotate
 			if(_CG.autoplay.enabled){
-				startAutoPlay(listH, _CG.autoplay.autorotate.duration);
+				startAutoPlay(listH, _CG.autoplay.autorotate);
 			};
 		};
 	};
@@ -1048,7 +1043,7 @@ _CG.buildList = function(){
 	var resetAutoPlayOnClick = function(){
 		var listH = document.getElementById('listH');
 		clearInterval(listH.timer);
-		startAutoPlay(listH, _CG.autoplay.autorotate.duration);
+		startAutoPlay(listH, _CG.autoplay.autorotate);
 	};
 	//reset animation reset _CG active and the cookie value recevied to 0
 	//applies on the reset btn of the gallery
@@ -1168,6 +1163,7 @@ _CG.buildList = function(){
 	if(CGSettings.placeTarget != ''){
 		if(mainHolder){
 			if(doneLoading === true){
+				console.log('jere')
 				initList();
 			};
 		};
