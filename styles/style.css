@@ -252,3 +252,17 @@ ul, li {
 	box-shadow: 1px 1px 1px #000;
 	cursor:pointer;
 }
+
+#errorMsg {
+	width:450px;
+	padding:20px;
+	background:#fde9ac url('../img/warning-ico.png') no-repeat 5% center;
+	border:1px solid #f9b317;
+	color:#4a4a4a;
+	font-size:14px;
+	padding-left:65px;
+	position:absolute;
+	top:0;
+	left:50%;
+	margin-left:-225px;
+}
