@@ -1,8 +1,9 @@
 /* TO DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   * to fix the move into highlight logic
-  * INTERNET EXPLOERE SUPORT	
-  * BUG ON MOVE RIGHT
-  * imgString and images objects has to be privatg
+  * INTERNET EXPLOERE SUPORT
+  * BUG on reset button
+  * clean up the confirmation function
+  DONE * BUG ON MOVE RIGHT
   * GIVE SUPPROT FOR ONLY JS OPTION
   * Refactoring
   DONE * on the init fn there is a set timeout don't forget to remove it
@@ -34,7 +35,7 @@ TO DO
 	DONE * When cookies are set the list it's build but the cookies are not loaded and split it shows the html but not the cookies from images
 	DONE * CAPTION object add image title not hardcoded text
 	DONE * check for _CG settings of the buttons if they are disabled enabled etc.	
-
+	DONE * Create a fn which will display an general error message if something went wrong
 
 	EXTRA
 	* Create horizontal gallery with option
@@ -97,8 +98,8 @@ _CG = {
 		expireTime		: 365, //xpire cookie in days --> default 1 year //if days are not added will expire on browser closing
 		setCookieName	: 'CookieGallery', //define the name of the cookie that will hold the imgs
 		readFileType	: { //setting for enableing either php reading file or JS reading dir through ajax
-			rFServer	: false, 
-			rFClient	: true //this option will make 2 ajax requests one for images dir and one for thumbs
+			rFServer	: true, 
+			rFClient	: false //this option will make 2 ajax requests one for images dir and one for thumbs
 		},
 		fileTypes: /(.jpg)|(.gif)|(.png)|(.bmp)$/g,
 		splitArray: /<li>|<a .*?>|<\/a>|<\/li>/ig //regex for removing unsed tags that are received from xml call through localhost ajax
@@ -147,43 +148,40 @@ var init = function(){
 						var results = document.cookie.match(CGSettings.setCookieName + '=(.*?)(;|$)');
 						//if the cookies dosen't match then do an other request witch will get our images
 						if(results){
-							returnCookie();
+							preLoader();
 						}else{
 							httpRequest(requestImages, CGSettings.imagesdir, CGSettings.fileTypes, CGSettings.splitArray, function(){
 								console.log("REQUEST CALLBACK");
 								if(checkRequest === true){
 									console.log("CHECKED SET TRUE");
-									returnCookie();
+									preLoader();
 								}
 							});	
-						}
+						};
 					}else{
 						httpRequest(requestImages, CGSettings.imagesdir, CGSettings.fileTypes, CGSettings.splitArray, function(){
 							console.log("REQUEST CALLBACK");
 							if(checkRequest === true){
 								console.log("CHECKED SET TRUE");
-								returnCookie();
+								preLoader();
 							}
 						});						
 					};
-					
 				}else if(CGSettings.readFileType.rFClient === true){
 					httpRequest(requestImages, CGSettings.imagesdir, CGSettings.fileTypes, CGSettings.splitArray);
 					httpRequest(requestImages, CGSettings.thumbdir, CGSettings.fileTypes, CGSettings.splitArray);
 				};
 			}	
 		}else{
-			alert('your defined id doesn\'t match the api id');
+			createErrorNotif('Your defined id doesn\'t match the api id');
 		}
 	}else{
-		alert('you must define an id for the gallery placeholder');
+		createErrorNotif('You must define an id for the gallery placeholder');
 	}
 }
-
+//private fn for building the preloader and reads the cookies
 function praseFiles(images){
-	var _praseF = this;
 	var cGet = _CG.cookie.get(CGSettings.setCookieName);
-	console.log(cGet)
 	if(cGet != ''){
 		if(setImages(cGet)){
 			doneLoading = true;
@@ -198,13 +196,11 @@ function praseFiles(images){
 			};
 		};
 	};
-	
 	function setImages(c){
 		var preloadMsg = document.getElementById('preloadMsg');
 		//Reads the cookie and strips the thumbs and other aditions
 		//adds the path to the images + image name and saves it into an image obj and an image array
 		//do the loader
-		
 		var getCActive = _CG.cookie.getCActive(); //get the number of active from cookie
 		var cLength = c.length;
 		
@@ -215,7 +211,7 @@ function praseFiles(images){
 				replaceA = c[i].replace(matchA, ''),
 				replaceT = c[i].replace(matchT, ''),
 				stringImg = [];
-			
+
 			if(matchT){
 				stringImg += (CGSettings.thumbdir + replaceT);
 			}else if(matchA){
@@ -223,42 +219,51 @@ function praseFiles(images){
 			}else{
 				stringImg += (CGSettings.imagesdir + replaceT);
 			};
-			//console.log(replaceT)
-			images[stringImg] = new Image();
-			images[stringImg].onload = function(){
-				//check if images status
-				if(this.complete === true){
-					//add +1 to counter
-					numResourcesLoaded += 1;
-					if((cLength - 1) === numResourcesLoaded){
-						//if counter its = with all images then hide loading msg
-						preloadMsg.style.display = 'none';
+			if(stringImg != ''){
+				images[stringImg] = new Image();
+				images[stringImg].onload = function(){
+					//check if images status
+					if(this.complete === true){
+						//add +1 to counter
+						numResourcesLoaded += 1;
+						if((cLength - 1) === numResourcesLoaded){
+							//if counter its = with all images then hide loading msg
+							preloadMsg.style.display = 'none';
+						};
 					};
 				};
-			};
-			//add source to img
-			images[stringImg].src = stringImg;
+				//add source to img
+				images[stringImg].src = stringImg;
+			}else{
+				preloadMsg.style.display = 'none';
+			}
 		}
 		if(_CG.images){
-			return true;
+			//if the user delets all the images from cookies display message
+			var savedImgs = _CG.images;
+			var checkEntries = false;
+			//check if images obj has no values if not show message and return false for stop building the list
+			for(var key in savedImgs) {
+				if(savedImgs.hasOwnProperty(key)) {
+					checkEntries = true;
+				}
+			}
+			if(checkEntries == true){
+				return true;
+			}else{
+				createErrorNotif('You have deleted all the images from cookies');
+				return false;
+			}
+			
 		};
 	};
 };
-function returnCookie (){
-	var doneParse = praseFiles(_CG.images, numResourcesLoaded);
+
+function preLoader(){
+	var doneParse = praseFiles(_CG.images);
 	if(doneParse){
 		_CG.buildList();
 	};
-}	;
-Array.prototype.clean = function(to_delete) {
-	var a;
-	for (a = 0; a < this.length; a++){
-	  if (this[a] == to_delete) {         
-		 this.splice(a, 1);
-		 a--;
-	  };
-   };
-   return this;
 };
 
 //general fn for makeing the ajax request in the folders
@@ -282,7 +287,7 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 				try{
 					_xhr = ActiveXObject("Microsoft.XMLHTTP");
 				}catch(e) {
-					console.log("This browser does not support XMLHttpRequest." + e);		
+					createErrorNotif("This browser does not support XMLHttpRequest." + e);
 				};
 			};
 		};
@@ -293,7 +298,7 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 				if (_xhr.status == 200) {
 					var responeTxt = _xhr.responseText,
 						matchExtension = responeTxt.match(filetype);
-
+					
 					//check for images extenstions and if the response it's bigger then 0	
 					if(matchExtension && responeTxt.length > 0 && responeTxt.length != '' ){
 							
@@ -341,13 +346,13 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 								_CG.cookie.checkCookies(retrunImageFiles, returnImageThumb, _CG.cookie.getCActive());
 							};
 						}else{
-							console.log('please make sure you have enabled one reading file option')
+							createErrorNotif('Please make sure you have enabled one reading file option');
 						};
 					}else{
-						console.log('you don\'t have any images in folders');
+						createErrorNotif(responeTxt);
 					};
 				}else{
-					console.log("Error Code:" + _xhr.status + ' Error Type:' + _xhr.statusText);  
+					createErrorNotif("Error Code:" + _xhr.status + ' Error Type:' + _xhr.statusText);
 				};
 			};
 		};
@@ -361,6 +366,7 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 		_xhr.send(null);
 	};
 };
+
 
 _CG.cookie = new cookie();
 function cookie(){
@@ -418,10 +424,9 @@ function cookie(){
 	this.checkCookies = function(returnImg, returnThumb, active){
 		//if the thumbs img is false that means we have a php request to files
 		if(returnThumb != false){ //JS CALL
-			console.log('js call')
-			//var cName = 'CookieGalleryThumbs';
-			//_cookie.setCVal(cName, returnThumb, _CG._settings.expireTime, active);
-			//_cookie.checkCGal(returnThumb, cName, active);
+			var cName = 'CookieGalleryThumbs';
+			_cookie.setCVal(cName, returnThumb, _CG._settings.expireTime, active);
+			_cookie.checkCGal(returnThumb, cName, active);
 		}else{
 			//if its php request do the checking for cookie and set it
 			_cookie.checkCGal(returnImg, cookieName, active);
@@ -487,6 +492,8 @@ function cookie(){
 	};
 };
 
+
+//main object that creates the HTML and images
 _CG.buildList = function(){
 	var _list = this,
 		mainHolder = document.getElementById(CGSettings.placeTarget),
@@ -909,22 +916,29 @@ _CG.buildList = function(){
 	//moves the slider to right
 	//if reaches the max length of the images starts from 0
 	var moveRight = function(ulList){
-		if(getCActive >= _CG.isActive){
-			_CG.isActive = getCActive;
-		};
+		if(getCActive){
+			_CG.isActive = getCActive++;
+		}
 		_CG.isActive = _CG.isActive + 1;
+		
 		if(_CG.isActive >= mObjs.length) {
+			getCActive = 0;
             _CG.isActive = 0;
         };
+		
 		selectImage(mObjs[_CG.isActive].id);
 	};
 	//moves slider to left
 	//if gets under 0 then start from the end position of the given images object
 	var moveLeft = function(){
+		//rest the get active to 0 so on move right wont start from prev pos
+		getCActive = 0;
 		_CG.isActive = _CG.isActive - 1;
+		
 		if(_CG.isActive < 0){
 			_CG.isActive = mObjs.length - 1;
 		};
+		
 		selectImage(mObjs[_CG.isActive].id);
 	};
 	//sects active class to the li
@@ -954,6 +968,7 @@ _CG.buildList = function(){
 		}else if(activeLi == (mObjs.length - 1)) {
 			var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
 			newIndexHighlight = -(getLast * _CG.thumbs.width);
+			console.log('active is at the end of the list')	
 		//if active bigger then thumbs move to right e.g. 6=6
 		}else if(activeLi > noThumbsInView) {
 			newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;
@@ -1022,18 +1037,19 @@ _CG.buildList = function(){
 		var holder = document.getElementById('imgIn'),
 			imageData = getImageDataById(id),
 			photoCaption = document.getElementById('photoCaption');
-		
+			
 		createBigImg(id, holder);
 		createThumbHighLight(id);
 		moveHighilightIntoView(id);
-		
 		photoCaption.innerHTML = mObjs[id].caption;
 	};
 	//start auto play of the ul based on the _CG settings duration
 	var startAutoPlay = function(ulList, time){
-		ulList.timer = setInterval(function(){
-			moveRight();
-		}, time);	
+		if(thumbs != ''){
+			ulList.timer = setInterval(function(){
+				moveRight();
+			}, time);	
+		}
 	};
 	var stopAnimation = function(){
 		var listH = document.getElementById('listH');
@@ -1051,10 +1067,11 @@ _CG.buildList = function(){
 		var stringAction = 'reset';
 		doReset = true;
 		_CG.isActive = 0;
-		saveCurrent(stringAction);
+		getCActive = 0;
+		saveCurrent(stringAction)
 		selectImage(_CG.isActive);
 		resetAutoPlayOnClick();
-		
+	
 	};
 	//saves the current image into cookie based on the active li
 	var saveCurrent = function(stringAction){
@@ -1075,6 +1092,7 @@ _CG.buildList = function(){
 		};
 		confirmationPopup(stringAction,imgArr);
 	};
+	//removes the current image from the list and from the cookies
 	var removeCurrent = function(){
 		var removeString = 'delete',
 			listH = document.getElementById('listH'),
@@ -1083,7 +1101,9 @@ _CG.buildList = function(){
 			getCurrentLi = document.getElementById('list_' + activeLi),
 			imgArr = _CG.cookie.get(CGSettings.setCookieName),
 			getTName = getThumbNames();
-
+		
+		console.log(listH.style.width)
+		
 		for(var x = 0; x < getTName.length; x++){
 			var currentT = document.getElementById('thumb_' + getTName[x]),
 				currentB = mObjs[x].src,
@@ -1126,7 +1146,7 @@ _CG.buildList = function(){
 	//checks for confirmation fn and returns either false or true based on what the user clicks
 	var confirmationPopup = function(action, sendImages){
 		var alertHolder = document.createElement('div'),
-			wrapper = document.getElementById('wrapper'),
+			wrapper = document.getElementById(CGSettings.placeTarget),
 			listH = document.getElementById('listH');
 		alertHolder.setAttribute('id', 'alertHolder');
 		alertHolder.innerHTML = ('<div class="innerHolder"><div>Are you sure you want to '+ action +'?</div>'+
@@ -1139,11 +1159,15 @@ _CG.buildList = function(){
 			btnNo = document.getElementById('btnNo'),
 			activeLi = getActiveEl(listH),
 			getCurrentLi = document.getElementById('list_' + activeLi),
-			getCurrentBig = document.getElementById('img_' + activeLi);
-
+			getCurrentBig = document.getElementById('img_' + activeLi),
+			getHWidth = listH.offsetWidth;
+			
 		if(btnYes){
 			btnYes.onclick = function(){
 				if(action == 'delete'){
+					var newWidth = getHWidth - _CG.thumbs.width;
+					listH.style.width = newWidth + 'px';
+					console.log(listH.style.width)
 					getCurrentLi.style.display = 'none';
 					getCurrentBig.style.display = 'none';
 					moveRight();
@@ -1163,9 +1187,38 @@ _CG.buildList = function(){
 	if(CGSettings.placeTarget != ''){
 		if(mainHolder){
 			if(doneLoading === true){
-				console.log('jere')
 				initList();
 			};
 		};
 	};	
+};
+// error notification function which creates an element and placeses the error as a string
+function createErrorNotif(string){
+	var errorMsg = document.createElement('div');
+	errorMsg.id = 'errorMsg';
+	errorMsg.innerHTML = string;
+	document.body.appendChild(errorMsg);	
+	return errorMsg;
+}
+function checkIfDeleted(){
+	var allHtml = document.getElementById('imgHolder');
+	var infoH = document.getElementById('infoH');
+	var thumbH = document.getElementById('thumbH');
+	allHtml.style.display = 'none';
+	infoH.style.display = 'none';
+	thumbH.style.display = 'none';
+	createErrorNotif('You have deleted all the images from cookies');
+}
+
+//prototype fn which checks the array and removes the given string from an arrary
+//used on remove image function
+Array.prototype.clean = function(to_delete) {
+	var a;
+	for (a = 0; a < this.length; a++){
+	  if (this[a] == to_delete) {         
+		 this.splice(a, 1);
+		 a--;
+	  };
+   };
+   return this;
 };
