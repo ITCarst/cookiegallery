@@ -1,8 +1,9 @@
 /* TO DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	* to fix the move into highlight logic
-	* INTERNET EXPLOERE SUPORT
-	* Refactoring
 	* clean up the confirmation function
+	* bug on removeing the current image
+	* Refactoring
+	* INTERNET EXPLOERE SUPORT
   
 EXTRA
 	* Create horizontal gallery with option
@@ -494,8 +495,7 @@ function cookie(){
 
 //main object that creates the HTML and images
 _CG.buildList = function(){
-	var _list = this,
-		mainHolder = document.getElementById(CGSettings.placeTarget),
+	var mainHolder = document.getElementById(CGSettings.placeTarget),
 		cookieGet = _CG.cookie.get(CGSettings.setCookieName),
 		getCActive = _CG.cookie.getCActive() || _CG.isActive, //get the number of active from cookie
 		thumbs = [],
@@ -531,6 +531,7 @@ _CG.buildList = function(){
 				startAutoPlay(listH, _CG.autoplay.autorotate);
 			};
 		};
+
 	};
 	//loops through cookie and splits the thumbs from big images
 	//builds 2 arrays with new values
@@ -631,7 +632,7 @@ _CG.buildList = function(){
 		var thumbH = document.createElement('div'),
 			ulList = document.createElement('ul');
 		thumbH.setAttribute('id','thumbH');
-		ulList.setAttribute('id', 'listH')
+		ulList.setAttribute('id', 'listH');
 		mainHolder.appendChild(thumbH);
 		thumbH.appendChild(ulList);
 	};
@@ -831,7 +832,7 @@ _CG.buildList = function(){
 	};
 	var createBigImg = function(id, holder){
 		if(id != null){
-			var foundId = document.getElementById('img_' + id),createImg;
+			var foundId = document.getElementById('img_' + id), createImg;
 			//first time the count image is null
 			//but when the image is set the countImage gets the image
 			if(countImage != null){
@@ -955,11 +956,18 @@ _CG.buildList = function(){
 			};
 		};
 	};
+	var  getIndexPositionOfActiveThumbnail = function () {
+        var pos = 0;
+        return Math.round(pos / _CG.thumbs.width);
+    };
 	var moveHighilightIntoView = function(id){
 		var newIndexHighlight,
 			listH = document.getElementById('listH'),
 			activeLi = getActiveEl(listH);
 		
+		var indexThumb = getIndexPositionOfActiveThumbnail();
+		
+		/*
 		//start position is 0
 		if(activeLi == 0) {
 			newIndexHighlight = 0;
@@ -967,15 +975,24 @@ _CG.buildList = function(){
 		}else if(activeLi == (mObjs.length - 1)) {
 			var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
 			newIndexHighlight = -(getLast * _CG.thumbs.width);
-		//is located beyond right edge of view
-		}else if(activeLi > noThumbsInView) {
-			//newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;
-			newIndexHighlight = - _CG.thumbs.width;
-			console.log(newIndexHighlight)
 			
+		//is located beyond right edge of view
+		}else if(isLocatedBeyondRightEdgeOfView()) {
+            newIndexHighlight = noThumbsInView - 1;
+
+			//newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;
+			//newIndexHighlight = - _CG.thumbs.width;
+			//console.log(newIndexHighlight)
+			
+		}else if(isLocatedAtLastThumbnailInView()){
+			
+		}
+		/*	
 		//is located at last thumbnail in view
 		}else if(activeLi >= (noThumbsInView - 1)) {
-			console.log('here')
+			
+			
+			/*console.log('here')
 			var getNew = Math.min(noThumbsInView - 1, _CG.isActive - 1);
 			newIndexHighlight = - (getNew * _CG.thumbs.width);
 			
@@ -991,15 +1008,34 @@ _CG.buildList = function(){
 		}else {
 			newIndexHighlight = 0;
 		};
-		
+		*/
+			
+		if(activeLi == 0) {
+            newIndexHighlight = 0;
+        }
+		else if(activeLi == mObjs.length - 1) {
+            newIndexHighlight = Math.min(noThumbsInView - 1, mObjs.length - 1);
+        }
+		else if(getIndexPositionOfActiveThumbnail(listH) > noThumbsInView) {
+            newIndexHighlight = noThumbsInView - 1;
+        }
+		else if(getIndexPositionOfActiveThumbnail(listH) >= noThumbsInView - 1) {
+            newIndexHighlight = Math.min(noThumbsInView - 1, indexThumb - 1);
+        }
+        else if(getIndexPositionOfActiveThumbnail(listH) <= 0) {
+            newIndexHighlight = 1;
+        }
+        else {
+            newIndexHighlight = indexThumb;
+        }			
 		
 		listH.style.webkitTransitionDuration = listH.style.MozTransitionDuration = speed + 'ms';
 		listH.style.msTransitionDuration = listH.style.OTransitionDuration = speed + 'ms';
 		listH.style.transitionDuration = speed + 'ms';
 
 		listH.style.left = newIndexHighlight + 'px';
-		
 	};
+	
 	//returns the id of the active li elem
 	var getActiveEl = function(listH){
 		var getLi = listH.getElementsByTagName('li'), foundActive;
@@ -1043,6 +1079,7 @@ _CG.buildList = function(){
 	//reset animation reset _CG active and the cookie value recevied to 0
 	//applies on the reset btn of the gallery
 	var resetAnimation = function(){
+		stopAnimation();
 		var stringAction = 'reset';
 		doReset = true;
 		_CG.isActive = 0;
@@ -1069,6 +1106,7 @@ _CG.buildList = function(){
 	};
 	//removes the current image from the list and from the cookies
 	var removeCurrent = function(){
+		stopAnimation();
 		var removeString = 'delete',
 			listH = document.getElementById('listH'),
 			imgIn = document.getElementById('imgIn'),
@@ -1076,7 +1114,7 @@ _CG.buildList = function(){
 			getCurrentLi = document.getElementById('list_' + activeLi),
 			imgArr = _CG.cookie.get(CGSettings.setCookieName),
 			getTName = getThumbNames();
-		
+
 		for(var x = 0; x < getTName.length; x++){
 			var currentT = document.getElementById('thumb_' + getTName[x]),
 				currentB = mObjs[x].src,
@@ -1085,7 +1123,8 @@ _CG.buildList = function(){
 			
 			if(currentT.parentNode == getCurrentLi){
 				for(var i=0; i < imgArr.length; i++){
-					var matchAT = imgArr[i].match(currentT.id + '.jpg'), //match active thumb
+					var test = imgArr[i].match(CGSettings.fileTypes);
+					var matchAT = imgArr[i].match(currentT.id + test), //match active thumb
 						matchBA = imgArr[i].match(replaceSrc); //match big image active
 					if(matchAT){
 						imgArr[i] = imgArr[i].replace(matchAT, ''); //goes here when the reset button its presed sets the cookie back from 0
@@ -1095,10 +1134,10 @@ _CG.buildList = function(){
 				};
 				break;
 			};
-			
 		};
 		imgArr.clean("");
 		confirmationPopup(removeString,imgArr)
+		
 	};
 	//get the name of the thumbs and saves it into an array
 	var getThumbNames = function(){
@@ -1120,6 +1159,7 @@ _CG.buildList = function(){
 		var alertHolder = document.createElement('div'),
 			wrapper = document.getElementById(CGSettings.placeTarget),
 			listH = document.getElementById('listH');
+			
 		alertHolder.setAttribute('id', 'alertHolder');
 		alertHolder.innerHTML = ('<div class="innerHolder"><div>Are you sure you want to '+ action +'?</div>'+
 								 '<div class="btnBig left" id="btnYes">Yes</div><div id="btnNo" class="btnBig right">No</div>'+
@@ -1137,7 +1177,7 @@ _CG.buildList = function(){
 		if(btnYes){
 			btnYes.onclick = function(){
 				if(action == 'delete'){
-					var newWidth = getHWidth - _CG.thumbs.width;
+					var newWidth = (getHWidth - _CG.thumbs.width) - 5;
 					listH.style.width = newWidth + 'px';
 					getCurrentLi.style.display = 'none';
 					getCurrentBig.style.display = 'none';
