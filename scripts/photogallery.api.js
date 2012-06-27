@@ -1,15 +1,22 @@
 /* TO DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  * to fix the move into highlight logic
-  * INTERNET EXPLOERE SUPORT
-  * BUG on reset button
-  * clean up the confirmation function
-  DONE * BUG ON MOVE RIGHT
-  * GIVE SUPPROT FOR ONLY JS OPTION
-  * Refactoring
-  DONE * on the init fn there is a set timeout don't forget to remove it
-  DONE * return the number of images dinamilcy not hardcode e.g 13
-
+	* to fix the move into highlight logic
+	* INTERNET EXPLOERE SUPORT
+	* Refactoring
+	* clean up the confirmation function
+  
+EXTRA
+	* Create horizontal gallery with option
+	* create an visual line ofer the image to show "time" when the image it's swithing
+	* JS request supprot
+		* current stage saves into cookies
+		* there are 2 types of cookies one for thumbs one for big images
+		* read images has to read each cookie and create list based on cookie
+	
 TO DO
+	DONE * BUG on reset button
+	DONE * BUG ON MOVE RIGHT
+	DONE * on the init fn there is a set timeout don't forget to remove it
+	DONE * return the number of images dinamilcy not hardcode e.g 13
 	DONE * Make this entire object private
 	DONE * NEXT ---- on click switch big image and thumb
 	DONE * PREV ---- on click swith big image and thumb
@@ -36,19 +43,11 @@ TO DO
 	DONE * CAPTION object add image title not hardcoded text
 	DONE * check for _CG settings of the buttons if they are disabled enabled etc.	
 	DONE * Create a fn which will display an general error message if something went wrong
-
-	EXTRA
-	* Create horizontal gallery with option
-	* create an visual line ofer the image to show "time" when the image it's swithing
-	
-	OLDER ONES
 	DONE * on thumb click we call a function which creates the first image on x = 0
 	DONE * but when click on the thumb the image calls the thumbclick fn which returns an index --- this index it's not returning correct data
 	DONE * for next click needs to increase + 1
 	DONE * on prev click needs to decrease -1
 	DONE * on thumb click needs to select the big image based on the returing id 
-  
-TO DO
 	DONE * GET fn it's not working properly
 		* the first time the page it's loaded the cookies are set but the get returns -1 instead of 0
 		* when the get fn it's called the first time returns -1 in the build list and api
@@ -585,7 +584,7 @@ _CG.buildList = function(){
 			remove.setAttribute('class', 'actionControls');
 			cHolders.appendChild(remove);
 		};
-		if(_CG.autoplay.buttons.reset.enabled == true){
+		if(_CG.autoplay.buttons.save.enabled == true){
 			var save = document.createElement('div');
 			save.setAttribute('id', 'save');
 			save.setAttribute('class', 'actionControls');
@@ -968,57 +967,37 @@ _CG.buildList = function(){
 		}else if(activeLi == (mObjs.length - 1)) {
 			var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
 			newIndexHighlight = -(getLast * _CG.thumbs.width);
-			console.log('active is at the end of the list')	
-		//if active bigger then thumbs move to right e.g. 6=6
+		//is located beyond right edge of view
 		}else if(activeLi > noThumbsInView) {
-			newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;
-		//if active bigger = to thumbs move right 6 >5  
+			//newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;
+			newIndexHighlight = - _CG.thumbs.width;
+			console.log(newIndexHighlight)
+			
+		//is located at last thumbnail in view
 		}else if(activeLi >= (noThumbsInView - 1)) {
+			console.log('here')
 			var getNew = Math.min(noThumbsInView - 1, _CG.isActive - 1);
 			newIndexHighlight = - (getNew * _CG.thumbs.width);
+			
+			console.log('is active - 1 ' + (_CG.isActive - 1))
+			console.log('thumbs in view -1 ' + (noThumbsInView -1))
+			console.log('thumbs in view ' + (noThumbsInView))
+			console.log('get new ' + getNew)
+			console.log('number ' + newIndexHighlight)
+			
+		//is located at first thumbnailIn view	
 		}else if(activeLi <= 0) {
 			newIndexHighlight = 1;
 		}else {
-			newIndexHighlight = _CG.isActive;
+			newIndexHighlight = 0;
 		};
+		
+		
 		listH.style.webkitTransitionDuration = listH.style.MozTransitionDuration = speed + 'ms';
 		listH.style.msTransitionDuration = listH.style.OTransitionDuration = speed + 'ms';
 		listH.style.transitionDuration = speed + 'ms';
-		
-		
+
 		listH.style.left = newIndexHighlight + 'px';
-		/*//start position is 0
-		if(activeLi == 0) {
-            newIndexHighlight = 0;
-			getNew = 0;
-		//start from end position
-        }else if(activeLi == (mObjs.length - 1)) {
-			var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
-			newIndexHighlight = - (getLast * _CG.thumbs.width);
-		//if active bigger then thumbs move to right e.g. 6=6
-        }else if(activeLi > noThumbsInView) {
-            newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;
-		//if active bigger = to thumbs move right 6 >5	
-        }else if(activeLi >= (noThumbsInView - 1)) {
-			//var getNew = Math.min(noThumbsInView - 1, startPos - 1);
-            //newIndexHighlight = - (getNew * _CG.thumbs.width);
-			if(getNew == 0){
-				getNew = _CG.thumbs.width;
-			}else {
-				getNew += getNew;
-			}
-			newIndexHighlight = - getNew;
-        }else if(activeLi <= 0) {
-            newIndexHighlight = 1;
-        }else {
-			getNew = 0;
-            newIndexHighlight = 0;
-        }		
-		listH.style.webkitTransitionDuration = listH.style.MozTransitionDuration = speed + 'ms';
-		listH.style.msTransitionDuration = listH.style.OTransitionDuration = speed + 'ms';
-		listH.style.transitionDuration = speed + 'ms';
-		
-		listH.style.left = newIndexHighlight + 'px';*/
 		
 	};
 	//returns the id of the active li elem
@@ -1069,9 +1048,6 @@ _CG.buildList = function(){
 		_CG.isActive = 0;
 		getCActive = 0;
 		saveCurrent(stringAction)
-		selectImage(_CG.isActive);
-		resetAutoPlayOnClick();
-	
 	};
 	//saves the current image into cookie based on the active li
 	var saveCurrent = function(stringAction){
@@ -1082,10 +1058,9 @@ _CG.buildList = function(){
 			
 		for(var i=0; i < imgArr.length; i++){
 			var matchExact = imgArr[i].match('active_' + getCActive), //match exact entry used on the save btn
-				matchAp = imgArr[i].match('active_'); //match aproximative active used from reset animation fn
-			
+				matchAp = imgArr[i].match('active_' + activeLi); //match aproximative active used from reset animation fn
 			if(doReset == true){
-				imgArr[i] = imgArr[i].replace(matchExact, 'active_0'); //goes here when the reset button its presed sets the cookie back from 0
+				imgArr[i] = imgArr[i].replace(matchAp, 'active_0'); //goes here when the reset button its presed sets the cookie back from 0
 			}else{
 				imgArr[i] = imgArr[i].replace(matchExact, 'active_' + activeLi);
 			};
@@ -1101,8 +1076,6 @@ _CG.buildList = function(){
 			getCurrentLi = document.getElementById('list_' + activeLi),
 			imgArr = _CG.cookie.get(CGSettings.setCookieName),
 			getTName = getThumbNames();
-		
-		console.log(listH.style.width)
 		
 		for(var x = 0; x < getTName.length; x++){
 			var currentT = document.getElementById('thumb_' + getTName[x]),
@@ -1139,7 +1112,6 @@ _CG.buildList = function(){
 				
 			saveNew.push(rmvExtension)
 		};
-		console.log(saveNew)
 		return saveNew;
 	};
 	//builds the html for the poup confirmation with yes and no btn
@@ -1167,10 +1139,13 @@ _CG.buildList = function(){
 				if(action == 'delete'){
 					var newWidth = getHWidth - _CG.thumbs.width;
 					listH.style.width = newWidth + 'px';
-					console.log(listH.style.width)
 					getCurrentLi.style.display = 'none';
 					getCurrentBig.style.display = 'none';
 					moveRight();
+				}
+				if(action == 'reset'){
+					selectImage(_CG.isActive);
+					resetAutoPlayOnClick();
 				}
 				//on click save the new updated cookies
 				_CG.cookie.setCVal(CGSettings.setCookieName, sendImages, _CG._settings.expireTime);
