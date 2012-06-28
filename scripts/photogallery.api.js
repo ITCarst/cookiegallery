@@ -1,135 +1,97 @@
-/* TO DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	* to fix the move into highlight logic
-	* clean up the confirmation function
-	* bug on removeing the current image
-	* Refactoring
-	DONE * INTERNET EXPLOERE SUPORT
-		* IE 7 CSS missing the next prev btn --- to be fixed		
-  
-EXTRA
-	* Create horizontal gallery with option
-	* create an visual line ofer the image to show "time" when the image it's swithing
-	* JS request supprot
-		* current stage saves into cookies
-		* there are 2 types of cookies one for thumbs one for big images
-		* read images has to read each cookie and create list based on cookie
-	
-TO DO
-	DONE * BUG on reset button
-	DONE * BUG ON MOVE RIGHT
-	DONE * on the init fn there is a set timeout don't forget to remove it
-	DONE * return the number of images dinamilcy not hardcode e.g 13
-	DONE * Make this entire object private
-	DONE * NEXT ---- on click switch big image and thumb
-	DONE * PREV ---- on click swith big image and thumb
-	DONE * Thumb click --- get correct image
-	DONE * highlight once gets out of the view scroll to the right position
-		DONE * need to get the position of active thumb
-		DONE * on movement create animation effect
-	DONE * make auto animation to switch big image and thumb
-	DONE * on the next or prev click reset the time to _CG duration so the animation will be interupted on click
-	DONE * fix the fade in and fade out effects of the big images
-	DONE * Create pause btn --- will stop the animation
-	DONE * create play btn -- will resume the animation
-	DONE * Build REST the slide animation from start with data from cookie
-	DONE * Save - stops the scrolling animation and saves in cookies
-		* need to set by default in cookies active witch at the beginning will be 0
-		* once the slider starts to move on save btn press that position needs to be updated and saved into the cookie with the new active value
-		* on page refresh the slider has to start from the saved position
-	DONE * remove button - will remove the current image and thumb including from the cookies
-		* get the li big image and thumb and remove them based on the mObj.id
-		* get the cookies remove the current image from it
-		* set it again with the new values
-    DONE * Each action of SAVE | REMOVE | RESET must show a popup with confirmation	
-	DONE * When cookies are set the list it's build but the cookies are not loaded and split it shows the html but not the cookies from images
-	DONE * CAPTION object add image title not hardcoded text
-	DONE * check for _CG settings of the buttons if they are disabled enabled etc.	
-	DONE * Create a fn which will display an general error message if something went wrong
-	DONE * on thumb click we call a function which creates the first image on x = 0
-	DONE * but when click on the thumb the image calls the thumbclick fn which returns an index --- this index it's not returning correct data
-	DONE * for next click needs to increase + 1
-	DONE * on prev click needs to decrease -1
-	DONE * on thumb click needs to select the big image based on the returing id 
-	DONE * GET fn it's not working properly
-		* the first time the page it's loaded the cookies are set but the get returns -1 instead of 0
-		* when the get fn it's called the first time returns -1 in the build list and api
-		* build the get only after the c_start returns 0 instead of -1
-	DONE * on each fn send the active value of the current active thumb for saveing
+/*
+Name: Cookie Photo Gallery 
+Theme default: horizontal
+Author: Ionut Carst
+Version: 0.1
+================ Description =====================================
+Javascript Cookie Based Photo Gallery
+Adding photos to given image gallery gets read by PHP and saved into Cookies
+Once the cookies are set builds the list with all elements in it
+
+================ Action ==========================================
+Pause | Delete | Reset | Next | Prev | Play
 */
 
 //append main obj to window obj
-if(!window.CookieGallery) {
-    window.CookieGallery = {};
+if (!window._CG) {
+    window._CG = {};
+}
+//window load show preloader
+window.onload = function () {
+	_CG.init = new init();
 };
-//Cookie Gallery
 _CG = {
-	preload:true,
-	autoplay:{
-        buttons:{
-            play:{
-                txt:'Play',
-                enabled:true
+	preload : true,
+	autoplay : {
+        buttons : {
+            play : {
+                txt : 'Play',
+                enabled : true
             },
-            pause:{
-                txt:'Pause',
-                enabled:true
+            pause : {
+                txt : 'Pause',
+                enabled : true
             },
-			remove:{
-                txt:'Remove',
-                enabled:true
+			remove : {
+                txt : 'Remove',
+                enabled : true
             },
-			reset: {
-				txt:'Reset',
-                enabled:true
+			reset : {
+				txt : 'Reset',
+                enabled : true
 			},
 			save: {
-				txt:'Save',
-				enabled:true
+				txt : 'Save',
+				enabled : true
 			}
         },
-		enabled:true, //auto play its enabled
-		fadeduration: 2, //fade in and fade out of the images change
-		autorotate:  5000
+		enabled : true, //auto play its enabled
+		fadeduration : 2, //fade in and fade out of the images change
+		autorotate :  5000
     },
 	_settings: {
-		placeTarget		: 'CGallery', //main target wichi is required in the html
-		imagesdir		: 'gallery-images/', //folder of the big images -- 
-		thumbdir		: 'gallery-images/thumbs/', //name and path of the thumbs folder
-		readFiles		: 'readfiles.php', //php file wich opens|reads the files from folders
-		expireTime		: 365, //xpire cookie in days --> default 1 year //if days are not added will expire on browser closing
-		setCookieName	: 'CookieGallery', //define the name of the cookie that will hold the imgs
-		readFileType	: { //setting for enableing either php reading file or JS reading dir through ajax
-			rFServer	: true, 
-			rFClient	: false //this option will make 2 ajax requests one for images dir and one for thumbs
+		placeTarget : 'CGallery', //main target wichi is required in the html
+		imagesdir : 'gallery-images/', //folder of the big images -- 
+		thumbdir : 'gallery-images/thumbs/', //name and path of the thumbs folder
+		readFiles : 'readfiles.php', //php file wich opens|reads the files from folders
+		expireTime : 365, //xpire cookie in days --> default 1 year //if days are not added will expire on browser closing
+		setCookieName : 'CookieGallery', //define the name of the cookie that will hold the imgs
+		readFileType : { //setting for enableing either php reading file or JS reading dir through ajax
+			rFServer : true, 
+			rFClient : false //this option will make 2 ajax requests one for images dir and one for thumbs
 		},
-		fileTypes: /(.jpg)|(.gif)|(.png)|(.bmp)$/g,
-		splitArray: /<li>|<a .*?>|<\/a>|<\/li>/ig //regex for removing unsed tags that are received from xml call through localhost ajax
+		fileTypes : /(.jpg)|(.gif)|(.png)|(.bmp)$/g,
+		splitArray : /<li>|<a .*?>|<\/a>|<\/li>/ig //regex for removing unsed tags that are received from xml call through localhost ajax
 	},
-	isActive: 0,
-	images:{},
-	thumbs:{
-        width:114,
-        height:72
+	displayType : {
+		horizontal : true,
+		vertical : false
+	},
+	isActive : 0,
+	images : {},
+	thumbs : {
+        width : 114,
+        height : 72
     },
-	loaderGif: 'img/loader.gif' //image loader before everything it's loaded
-};
-
-//window load show preloader
-window.onload = function(){
-	_CG.init = new init();
+	loaderGif : 'img/loader.gif' //image loader before everything it's loaded
 };
 
 var CGSettings = _CG._settings,
 	checkRequest = false,
-	doneLoading = false;
+	doneLoading = false,
 	numResourcesLoaded = 0;
 
 //image/cookie/requests preloader
-var init = function(){
-	if(CGSettings.placeTarget != ''){
+var init = function () {
+	if(CGSettings.placeTarget != '') {
 		var mainHolder = document.getElementById(CGSettings.placeTarget);
 		//check if gallery-module exisits
 		if(mainHolder){
+			if(_CG.displayType.vertical == true) {
+				mainHolder.className = 'vertical';
+			}else{
+				mainHolder.className = 'horizontal';
+			}
 			var preloadMsg = document.createElement('div'),
 				requestImages = '',
 				requestThumbs = '';
@@ -211,8 +173,6 @@ function praseFiles(images){
 		//do the loader
 		var getCActive = _CG.cookie.getCActive(); //get the number of active from cookie
 		var cLength = c.length;
-		
-		console.log('set image get active is ' + getCActive)
 		
 		for(var i=0; i < cLength; i++){
 			//remove the thumb_ from cookie name that it's set into php|JS
@@ -498,7 +458,6 @@ function cookie(){
 				};
 			};
 		};
-		console.log('get cookie active is ' + repalceA)
 		return Number(repalceA);
 	};
 };
@@ -519,7 +478,6 @@ _CG.buildList = function(){
 		getNew = 0,
 		listH;
 		
-		console.log('build list get active top is ' + getCActive)
 		
 	//calls the merged objects togheter
 	//builds the HTML list
@@ -644,6 +602,7 @@ _CG.buildList = function(){
 	var createThumbHolder = function(){
 		var thumbH = document.createElement('div'),
 			ulList = document.createElement('ul');
+			
 		thumbH.setAttribute('id','thumbH');
 		ulList.setAttribute('id', 'listH');
 		mainHolder.appendChild(thumbH);
@@ -787,12 +746,24 @@ _CG.buildList = function(){
 	//return the number of the thumbs that can be visible into thumb holder
 	var storeThumbsInView = function(){
 		var thumbH = document.getElementById('thumbH'),
-			containerWidth = thumbH.offsetWidth;
-        noThumbsInView = Math.round(containerWidth / _CG.thumbs.width);
+			containerWidth = thumbH.offsetWidth,
+			containerHeight = thumbH.offsetHeight;
+			
+        if(_CG.displayType.vertical == true){
+			noThumbsInView = Math.round(containerHeight / _CG.thumbs.height);
+		}else{
+			noThumbsInView = Math.round(containerWidth / _CG.thumbs.width);
+		}
+		
 	};
 	//set width to the ul imgs.length * the thumb width	
 	var storeUlWidth = function(ulH){
-		var setW = (ulH.style.width = Math.round(mObjs.length * (_CG.thumbs.width + 4)) + 'px');
+		var setW;
+		if(_CG.displayType.vertical == true){
+			setW = (ulH.style.height = Math.round(mObjs.length * (_CG.thumbs.width + 4)) + 'px');
+		}else{
+			setW = (ulH.style.width = Math.round(mObjs.length * (_CG.thumbs.width + 4)) + 'px');
+		}
 		return setW;
 	};
 	//once the object thubms it's set apply id and value for identifing the images
@@ -827,6 +798,7 @@ _CG.buildList = function(){
 					liList.setAttribute('class', 'active');
 					createBigImg(getCActive, imgH);
 					photoCaption.innerHTML = mObjs[id].caption;
+					moveHighilightIntoView(getCActive);
 				};
 			};
 		};
@@ -919,12 +891,9 @@ _CG.buildList = function(){
 	//then send the given id to the selectImage fn
 	var clickOnThumbnail = function(e) {
 		var target = e ? e.target : window.event.srcElement;
-
 		var getTargetId = target.parentNode.id,
 			getId = getTargetId.replace('list_', ''),
 			id = Number(getId);
-			
-			console.log(getTargetId)
 		//update the startPos with the new id
 		_CG.isActive = id;
 		selectImage(id);
@@ -933,13 +902,10 @@ _CG.buildList = function(){
 	//if reaches the max length of the images starts from 0
 	var moveRight = function(ulList){
 		if(getCActive){
-			_CG.isActive = getCActive;
+			_CG.isActive = getCActive++;
 		}
-		_CG.isActive = _CG.isActive++;
+		_CG.isActive = _CG.isActive + 1;
 		
-		console.log('move right active is ' + getCActive);
-		console.log('move right is active' + _CG.isActive++);
-
 		if(_CG.isActive >= mObjs.length) {
 			getCActive = 0;
             _CG.isActive = 0;
@@ -949,14 +915,16 @@ _CG.buildList = function(){
 	//moves slider to left
 	//if gets under 0 then start from the end position of the given images object
 	var moveLeft = function(){
-		//rest the get active to 0 so on move right wont start from prev pos
-		getCActive = 0;
+		var listH = document.getElementById('listH');
+		var ulC = listH.children;
+		if(getCActive){
+			_CG.isActive = getCActive--;
+		}
 		_CG.isActive = _CG.isActive - 1;
-		
+
 		if(_CG.isActive < 0){
 			_CG.isActive = mObjs.length - 1;
 		};
-		
 		selectImage(mObjs[_CG.isActive].id);
 	};
 	//sects active class to the li
@@ -974,13 +942,23 @@ _CG.buildList = function(){
 			};
 		};
 	};
+	var isLocatedBeyondRightEdgeOfView = function(currentLi, ulWidth, sendNo){
+		for(var x = 0 ; x < mObjs.length; x++){
+			if(mObjs[x].id == currentLi){
+				var remainingTillEnd = mObjs.length - currentLi;
+				if(remainingTillEnd < (noThumbsInView - sendNo)){
+					var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
+					newIndexHighlight = ((getLast * _CG.thumbs.width) - (ulWidth - _CG.thumbs.width));
+				}
+			}
+		}		
+	}
 	var moveHighilightIntoView = function(id){
 		var newIndexHighlight,
 			listH = document.getElementById('listH'),
 			activeLi = getActiveEl(listH),
-			getHWidth = listH.offsetWidth;
-		
-		//console.log(activeLi)
+			getHWidth = listH.offsetWidth,
+			counter = 0;
 		
 		//start position is 0
 		if(activeLi == 0) {
@@ -988,24 +966,30 @@ _CG.buildList = function(){
         }
 		//start from end position
 		else if(activeLi == mObjs.length - 1) {
-			var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
-			newIndexHighlight = ((getLast * _CG.thumbs.width) - (getHWidth - _CG.thumbs.width));
+			if(_CG.displayType.vertical == true){
+				newIndexHighlight = 0;
+			}else{
+				var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
+				newIndexHighlight = ((getLast * _CG.thumbs.width) - (getHWidth - _CG.thumbs.width));
+			}
         }
 		else if(activeLi > noThumbsInView) {
-			//console.log('active is ' + activeLi);
-			//console.log('thumbs in view is ' + noThumbsInView)
-			//console.log('active bigger then thumbs in view')
 			newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;
-			if(newIndexHighlight){
-				//console.log(newIndexHighlight)
+			for(var x = 0 ; x < mObjs.length; x++){
+				if(mObjs[x].id == activeLi){
+					var remainingTillEnd = mObjs.length - activeLi;
+					if(remainingTillEnd < (noThumbsInView)){
+						var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
+						newIndexHighlight = ((getLast * _CG.thumbs.width) - (getHWidth - _CG.thumbs.width));
+					}
+				}
 			}
         }
 		else if(activeLi >= (noThumbsInView - 1)) {
-			//console.log('active equal  to thumbs in view')
-			var getNew = Math.min(noThumbsInView - 1, _CG.isActive - 1);
+			var getNew = Math.min(noThumbsInView - 1, activeLi - 1);
 			newIndexHighlight = - (getNew * _CG.thumbs.width);
+			isLocatedBeyondRightEdgeOfView(activeLi, getHWidth, 1);
         }
-		
 		else if(activeLi <= 0) {
 			//console.log('active smaller equal to 0')
             newIndexHighlight = activeLi;
@@ -1013,12 +997,15 @@ _CG.buildList = function(){
         else {
             newIndexHighlight = 0;
         }			
-		
 		listH.style.webkitTransitionDuration = listH.style.MozTransitionDuration = speed + 'ms';
 		listH.style.msTransitionDuration = listH.style.OTransitionDuration = speed + 'ms';
 		listH.style.transitionDuration = speed + 'ms';
 
-		listH.style.left = newIndexHighlight + 'px';
+		if(_CG.displayType.vertical == true){
+			listH.style.top = newIndexHighlight + 'px';
+		}else{
+			listH.style.left = newIndexHighlight + 'px';
+		}
 	};
 	
 	//returns the id of the active li elem
@@ -1076,25 +1063,18 @@ _CG.buildList = function(){
 		stopAnimation();
 		var listH = document.getElementById('listH'),
 			activeLi = getActiveEl(listH),
-			imgArr = _CG.cookie.get(CGSettings.setCookieName) //get the number of active from cookie
-			
-		console.log('GET ACTIVE IS ' + 	getCActive)
+			imgArr = _CG.cookie.get(CGSettings.setCookieName),//get the number of active from cookie
+			getCurrentActive = _CG.cookie.getCActive();
 			
 		for(var i=0; i < imgArr.length; i++){
-			var matchExact = imgArr[i].match('active_' + getCActive), //match exact entry used on the save btn
+			var matchExact = imgArr[i].match('active_' + getCurrentActive), //match exact entry used on the save btn
 				matchAp = imgArr[i].match('active_' + activeLi); //match aproximative active used from reset animation fn
-				
 			if(doReset == true){
 				imgArr[i] = imgArr[i].replace(matchAp, 'active_0'); //goes here when the reset button its presed sets the cookie back from 0
 			}else if(matchExact){
-				console.log('MATCH EXACT IS ' + matchExact)
-				console.log('get active is ' + _CG.cookie.getCActive());
 				imgArr[i] = imgArr[i].replace(matchExact, 'active_' + activeLi);
-				console.log(imgArr[i].replace(matchExact, 'active_' + activeLi))
-				console.log('active is ' + activeLi)
 			};
 		};
-		
 		confirmationPopup(stringAction,imgArr);
 	};
 	//removes the current image from the list and from the cookies
@@ -1136,8 +1116,8 @@ _CG.buildList = function(){
 	//checks for confirmation fn and returns either false or true based on what the user clicks
 	var confirmationPopup = function(action, sendImages){
 		var alertHolder = document.createElement('div'),
-			wrapper = document.getElementById(CGSettings.placeTarget),
-			listH = document.getElementById('listH');
+			wrapper = document.getElementById(CGSettings.placeTarget);
+			
 			
 		alertHolder.setAttribute('id', 'alertHolder');
 		alertHolder.innerHTML = ('<div class="innerHolder"><div>Are you sure you want to '+ action +'?</div>'+
@@ -1147,25 +1127,11 @@ _CG.buildList = function(){
 		wrapper.appendChild(alertHolder);
 		
 		var btnYes = document.getElementById('btnYes'),
-			btnNo = document.getElementById('btnNo'),
-			activeLi = getActiveEl(listH),
-			getCurrentLi = document.getElementById('list_' + activeLi),
-			getCurrentBig = document.getElementById('img_' + activeLi),
-			getHWidth = listH.offsetWidth;
+			btnNo = document.getElementById('btnNo');
+			
 		if(btnYes){
 			btnYes.onclick = function(){
-				if(action == 'delete'){
-					var newWidth = (getHWidth - _CG.thumbs.width) - 5;
-					listH.style.width = newWidth + 'px';
-					getCurrentLi.style.display = 'none';
-					getCurrentBig.style.display = 'none';
-					moveRight();
-				}
-				if(action == 'reset'){
-					selectImage(_CG.isActive);
-					resetAutoPlayOnClick();
-				}
-				//on click save the new updated cookies
+				confirmationActions(action);
 				_CG.cookie.setCVal(CGSettings.setCookieName, sendImages, _CG._settings.expireTime);
 				wrapper.removeChild(alertHolder);
 				return true;
@@ -1177,6 +1143,28 @@ _CG.buildList = function(){
 		};
 		
 	};
+	var confirmationActions = function(action){
+		console.log('CONFIRM')
+		var  listH = document.getElementById('listH'),
+			activeLi = getActiveEl(listH),
+			getCurrentLi = document.getElementById('list_' + activeLi),
+			getCurrentBig = document.getElementById('img_' + activeLi),
+			getHWidth = listH.offsetWidth;
+
+		//action delete set new width and move right
+		if(action == 'delete'){
+			var newWidth = (getHWidth - _CG.thumbs.width) - 5; //5 represetns the li margin
+			listH.style.width = newWidth + 'px';
+			getCurrentLi.style.display = 'none';
+			getCurrentBig.style.display = 'none';
+			moveRight();
+		}
+		if(action == 'reset'){
+			selectImage(_CG.isActive);
+			resetAutoPlayOnClick();
+		}
+		//on click save the new updated cookies
+	}
 	//get the name of the thumbs and saves it into an array
 	var getThumbNames = function(){
 		var saveNew = [];
