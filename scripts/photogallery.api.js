@@ -3,7 +3,8 @@
 	* clean up the confirmation function
 	* bug on removeing the current image
 	* Refactoring
-	* INTERNET EXPLOERE SUPORT
+	DONE * INTERNET EXPLOERE SUPORT
+		* IE 7 CSS missing the next prev btn --- to be fixed		
   
 EXTRA
 	* Create horizontal gallery with option
@@ -87,7 +88,7 @@ _CG = {
 			}
         },
 		enabled:true, //auto play its enabled
-		fadeduration: 0.7, //fade in and fade out of the images change
+		fadeduration: 2, //fade in and fade out of the images change
 		autorotate:  5000
     },
 	_settings: {
@@ -182,6 +183,13 @@ var init = function(){
 //private fn for building the preloader and reads the cookies
 function praseFiles(images){
 	var cGet = _CG.cookie.get(CGSettings.setCookieName);
+	var preloadMsg = document.getElementById('preloadMsg');
+	
+	if(cGet == null){
+		createErrorNotif('You must enable cookies for the gallery to work');
+		preloadMsg.style.display = 'none';
+		return false;
+	}
 	if(cGet != ''){
 		if(setImages(cGet)){
 			doneLoading = true;
@@ -197,7 +205,7 @@ function praseFiles(images){
 		};
 	};
 	function setImages(c){
-		var preloadMsg = document.getElementById('preloadMsg');
+		
 		//Reads the cookie and strips the thumbs and other aditions
 		//adds the path to the images + image name and saves it into an image obj and an image array
 		//do the loader
@@ -511,7 +519,7 @@ _CG.buildList = function(){
 	//calls the merged objects togheter
 	//builds the HTML list
 	//init the thumbs and imgs
-	var initList = function(){
+	initList = function(){
 		//split _thumbs cookie from big img cokoie
 		splitCookies();
 		//create all html holders
@@ -785,7 +793,7 @@ _CG.buildList = function(){
 	//once the object thubms it's set apply id and value for identifing the images
 	var setThumbs = function(ulHolder){
 		var x = 0, max = mObjs.length, id = 0, index = 0,
-			imgH = document.getElementById('imgIn');
+			imgH = document.getElementById('imgIn'),
 			photoCaption = document.getElementById('photoCaption');
 		
 		for(x; x < max; x++){
@@ -805,7 +813,6 @@ _CG.buildList = function(){
 			//create thumb images and append them to each li
 			createImgThumb(rmvExtension, liList, thumbSrc);
 			
-			//on click switch the big image assigned to thumb
 			liList.onclick = function(e){
 				resetAutoPlayOnClick();
 				clickOnThumbnail(e);
@@ -854,8 +861,8 @@ _CG.buildList = function(){
 				createImg.src = mObjs[id].src;
 				createImg.id = 'img_' + mObjs[id].id;
 				createImg.setOpacity = 0;
-				createImg.style.opacity = 0;
-				createImg.style.filter = 'alpha(opacity=0)';
+				createImg.style.opacity=0;
+				createImg.style.filter='alpha(opacity=0)';
 				holder.appendChild(createImg);
 			}else{
 				createImg = document.getElementById('img_' + id);
@@ -870,9 +877,11 @@ _CG.buildList = function(){
 	var fdin = function(image){
 		//check if image has been loaded and set opacity based on the interval increases
 		if(image.complete){
+			//console.log('complete' + image.setOpacity)
 			image.setOpacity = image.setOpacity + _CG.autoplay.fadeduration;
 			image.style.opacity = image.setOpacity / 100;
 			image.style.filter = 'alpha(opacity=' + image.setOpacity + ')';
+			console.log(image.setOpacity / 100)
 		};
 		//once the image visibility reaches 100 then set opacity to 1
 		if(image.setOpacity >= 100){
@@ -906,9 +915,13 @@ _CG.buildList = function(){
 	//on thumbnail click get target id and replace the string convert it into number
 	//then send the given id to the selectImage fn
 	var clickOnThumbnail = function(e) {
-		var getTargetId = e.target.parentNode.id,
+		var target = e ? e.target : window.event.srcElement;
+
+		var getTargetId = target.parentNode.id,
 			getId = getTargetId.replace('list_', ''),
 			id = Number(getId);
+			
+			console.log(getTargetId)
 		//update the startPos with the new id
 		_CG.isActive = id;
 		selectImage(id);
@@ -956,77 +969,40 @@ _CG.buildList = function(){
 			};
 		};
 	};
-	var  getIndexPositionOfActiveThumbnail = function () {
-        var pos = 0;
-        return Math.round(pos / _CG.thumbs.width);
-    };
 	var moveHighilightIntoView = function(id){
-		var newIndexHighlight,
+		var newIndexHighlight = newIndexHighlight || 0,
 			listH = document.getElementById('listH'),
-			activeLi = getActiveEl(listH);
+			activeLi = getActiveEl(listH),
+			getHWidth = listH.offsetWidth;
 		
-		var indexThumb = getIndexPositionOfActiveThumbnail();
-		
-		/*
 		//start position is 0
-		if(activeLi == 0) {
-			newIndexHighlight = 0;
-		//start from end position
-		}else if(activeLi == (mObjs.length - 1)) {
-			var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
-			newIndexHighlight = -(getLast * _CG.thumbs.width);
-			
-		//is located beyond right edge of view
-		}else if(isLocatedBeyondRightEdgeOfView()) {
-            newIndexHighlight = noThumbsInView - 1;
-
-			//newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;
-			//newIndexHighlight = - _CG.thumbs.width;
-			//console.log(newIndexHighlight)
-			
-		}else if(isLocatedAtLastThumbnailInView()){
-			
-		}
-		/*	
-		//is located at last thumbnail in view
-		}else if(activeLi >= (noThumbsInView - 1)) {
-			
-			
-			/*console.log('here')
-			var getNew = Math.min(noThumbsInView - 1, _CG.isActive - 1);
-			newIndexHighlight = - (getNew * _CG.thumbs.width);
-			
-			console.log('is active - 1 ' + (_CG.isActive - 1))
-			console.log('thumbs in view -1 ' + (noThumbsInView -1))
-			console.log('thumbs in view ' + (noThumbsInView))
-			console.log('get new ' + getNew)
-			console.log('number ' + newIndexHighlight)
-			
-		//is located at first thumbnailIn view	
-		}else if(activeLi <= 0) {
-			newIndexHighlight = 1;
-		}else {
-			newIndexHighlight = 0;
-		};
-		*/
-			
 		if(activeLi == 0) {
             newIndexHighlight = 0;
         }
+		//start from end position
 		else if(activeLi == mObjs.length - 1) {
-            newIndexHighlight = Math.min(noThumbsInView - 1, mObjs.length - 1);
+			var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
+			newIndexHighlight = ((getLast * _CG.thumbs.width) - (getHWidth - _CG.thumbs.width));
         }
-		else if(getIndexPositionOfActiveThumbnail(listH) > noThumbsInView) {
-            newIndexHighlight = noThumbsInView - 1;
+		else if(activeLi > noThumbsInView) {
+			console.log('active is ' + activeLi);
+			console.log('thumbs in view is ' + noThumbsInView)
+			console.log('active bigger then thumbs in view')
+			newIndexHighlight += - (noThumbsInView - 1) * _CG.thumbs.width;
+			
         }
-		else if(getIndexPositionOfActiveThumbnail(listH) >= noThumbsInView - 1) {
-            newIndexHighlight = Math.min(noThumbsInView - 1, indexThumb - 1);
+		else if(activeLi >= (noThumbsInView - 1)) {
+			console.log('active equal  to thumbs in view')
+			var getNew = Math.min(noThumbsInView - 1, _CG.isActive - 1);
+			newIndexHighlight = - (getNew * _CG.thumbs.width);
         }
-        else if(getIndexPositionOfActiveThumbnail(listH) <= 0) {
-            newIndexHighlight = 1;
+		
+		else if(activeLi <= 0) {
+			console.log('active smaller equal to 0')
+            newIndexHighlight = activeLi;
         }
         else {
-            newIndexHighlight = indexThumb;
+            newIndexHighlight = 0;
         }			
 		
 		listH.style.webkitTransitionDuration = listH.style.MozTransitionDuration = speed + 'ms';
