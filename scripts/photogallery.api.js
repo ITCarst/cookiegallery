@@ -114,18 +114,14 @@ var init = function () {
 							preLoader();
 						}else{
 							httpRequest(requestImages, CGSettings.imagesdir, CGSettings.fileTypes, CGSettings.splitArray, function(){
-								console.log("REQUEST CALLBACK");
 								if(checkRequest === true){
-									console.log("CHECKED SET TRUE");
 									preLoader();
 								}
 							});	
 						};
 					}else{
 						httpRequest(requestImages, CGSettings.imagesdir, CGSettings.fileTypes, CGSettings.splitArray, function(){
-							console.log("REQUEST CALLBACK");
 							if(checkRequest === true){
-								console.log("CHECKED SET TRUE");
 								preLoader();
 							}
 						});						
@@ -542,30 +538,35 @@ _CG.buildList = function(){
 			var start = document.createElement('div');
 			start.setAttribute('id', 'play');
 			start.setAttribute('class', 'actionControls');
+			start.title = _CG.autoplay.buttons.play.txt;
 			cHolders.appendChild(start);
 		};
 		if(_CG.autoplay.buttons.pause.enabled == true){
 			var stop = document.createElement('div')
 			stop.setAttribute('id', 'stop');
 			stop.setAttribute('class', 'actionControls');
+			stop.title = _CG.autoplay.buttons.pause.txt;
 			cHolders.appendChild(stop);
 		};
 		if(_CG.autoplay.buttons.remove.enabled == true){
 			var remove = document.createElement('div');
 			remove.setAttribute('id', 'remove');
 			remove.setAttribute('class', 'actionControls');
+			remove.title =  _CG.autoplay.buttons.remove.txt;
 			cHolders.appendChild(remove);
 		};
 		if(_CG.autoplay.buttons.save.enabled == true){
 			var save = document.createElement('div');
 			save.setAttribute('id', 'save');
 			save.setAttribute('class', 'actionControls');
+			save.title = _CG.autoplay.buttons.save.txt;
 			cHolders.appendChild(save);
 		};
 		if(_CG.autoplay.buttons.reset.enabled == true){
 			var reset = document.createElement('div');
 			reset.setAttribute('id', 'reset');
 			reset.setAttribute('class', 'actionControls');
+			reset.title = _CG.autoplay.buttons.reset.txt;
 			cHolders.appendChild(reset);
 		};
 		imgHolder.setAttribute('id', 'imgHolder');
@@ -704,7 +705,6 @@ _CG.buildList = function(){
 				})			
 			);		
 		};
-		//console.log(objImg)
 		return objImg;
 	};
 	//setThumbObj and setImgObj merged togheter for haveing single id or index for the same thumb and img
@@ -952,7 +952,7 @@ _CG.buildList = function(){
 				}
 			}
 		}		
-	}
+	};
 	var moveHighilightIntoView = function(id){
 		var newIndexHighlight,
 			listH = document.getElementById('listH'),
@@ -991,7 +991,6 @@ _CG.buildList = function(){
 			isLocatedBeyondRightEdgeOfView(activeLi, getHWidth, 1);
         }
 		else if(activeLi <= 0) {
-			//console.log('active smaller equal to 0')
             newIndexHighlight = activeLi;
         }
         else {
@@ -1007,7 +1006,6 @@ _CG.buildList = function(){
 			listH.style.left = newIndexHighlight + 'px';
 		}
 	};
-	
 	//returns the id of the active li elem
 	var getActiveEl = function(listH){
 		var getLi = listH.getElementsByTagName('li'), foundActive;
@@ -1144,7 +1142,6 @@ _CG.buildList = function(){
 		
 	};
 	var confirmationActions = function(action){
-		console.log('CONFIRM')
 		var  listH = document.getElementById('listH'),
 			activeLi = getActiveEl(listH),
 			getCurrentLi = document.getElementById('list_' + activeLi),
@@ -1217,3 +1214,59 @@ Array.prototype.clean = function(to_delete) {
    };
    return this;
 };
+/* TO DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	* to fix the move into highlight logic
+	* clean up the confirmation function
+	* bug on removeing the current image
+	* Refactoring
+	DONE * INTERNET EXPLOERE SUPORT
+	* IE 7 CSS missing the next prev btn --- to be fixed
+	EXTRA
+	* Create horizontal gallery with option
+	* create an visual line ofer the image to show "time" when the image it's swithing
+	* JS request supprot
+	* current stage saves into cookies
+	* there are 2 types of cookies one for thumbs one for big images
+	* read images has to read each cookie and create list based on cookie
+	TO DO
+	DONE * BUG on reset button
+	DONE * BUG ON MOVE RIGHT
+	DONE * on the init fn there is a set timeout don't forget to remove it
+	DONE * return the number of images dinamilcy not hardcode e.g 13
+	DONE * Make this entire object private
+	DONE * NEXT ---- on click switch big image and thumb
+	DONE * PREV ---- on click swith big image and thumb
+	DONE * Thumb click --- get correct image
+	DONE * highlight once gets out of the view scroll to the right position
+	DONE * need to get the position of active thumb
+	DONE * on movement create animation effect
+	DONE * make auto animation to switch big image and thumb
+	DONE * on the next or prev click reset the time to _CG duration so the animation will be interupted on click
+	DONE * fix the fade in and fade out effects of the big images
+	DONE * Create pause btn --- will stop the animation
+	DONE * create play btn -- will resume the animation
+	DONE * Build REST the slide animation from start with data from cookie
+	DONE * Save - stops the scrolling animation and saves in cookies
+	* need to set by default in cookies active witch at the beginning will be 0
+	* once the slider starts to move on save btn press that position needs to be updated and saved into the cookie with the new active value
+	* on page refresh the slider has to start from the saved position
+	DONE * remove button - will remove the current image and thumb including from the cookies
+	* get the li big image and thumb and remove them based on the mObj.id
+	* get the cookies remove the current image from it
+	* set it again with the new values
+	DONE * Each action of SAVE | REMOVE | RESET must show a popup with confirmation
+	DONE * When cookies are set the list it's build but the cookies are not loaded and split it shows the html but not the cookies from images
+	DONE * CAPTION object add image title not hardcoded text
+	DONE * check for _CG settings of the buttons if they are disabled enabled etc.
+	DONE * Create a fn which will display an general error message if something went wrong
+	DONE * on thumb click we call a function which creates the first image on x = 0
+	DONE * but when click on the thumb the image calls the thumbclick fn which returns an index --- this index it's not returning correct data
+	DONE * for next click needs to increase + 1
+	DONE * on prev click needs to decrease -1
+	DONE * on thumb click needs to select the big image based on the returing id
+	DONE * GET fn it's not working properly
+	* the first time the page it's loaded the cookies are set but the get returns -1 instead of 0
+	* when the get fn it's called the first time returns -1 in the build list and api
+	* build the get only after the c_start returns 0 instead of -1
+	DONE * on each fn send the active value of the current active thumb for saveing
+*/
