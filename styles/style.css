@@ -88,6 +88,7 @@ ul, li {
 	#contorlHolders #stop {
 		background-position: -30px 0px;		
 	}
+	#contorlHolders #stop.on,
 	#contorlHolders #stop:hover {
 		background-position: -30px -35px;		
 	}
