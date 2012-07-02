@@ -64,8 +64,8 @@ _CG = {
 		splitArray : /<li>|<a .*?>|<\/a>|<\/li>/ig //regex for removing unsed tags that are received from xml call through localhost ajax
 	},
 	displayType : {
-		horizontal : true,
-		vertical : false
+		horizontal : false,
+		vertical : true
 	},
 	isActive : 0,
 	images : {},
@@ -239,7 +239,8 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 		returnImageThumb = [],
 		count = 0,
 		total = 0,
-		sendUrl = CGSettings.readFiles + '?path=' + path; //url for read file server side
+		sendUrl = CGSettings.readFiles + '?path=' + path, //url for read file server side
+		preloadMsg = document.getElementById('preloadMsg');
 	
 	if(window.XMLHttpRequest) {
 		_xhr = new XMLHttpRequest();
@@ -312,12 +313,21 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 								_CG.cookie.checkCookies(retrunImageFiles, returnImageThumb, _CG.cookie.getCActive());
 							};
 						}else{
+							if(preloadMsg){
+								preloadMsg.style.display = 'none';
+							}
 							createErrorNotif('Please make sure you have enabled one reading file option');
 						};
 					}else{
+						if(preloadMsg){
+							preloadMsg.style.display = 'none';
+						}
 						createErrorNotif(responeTxt);
 					};
 				}else{
+					if(preloadMsg){
+						preloadMsg.style.display = 'none';
+					}
 					createErrorNotif("Error Code:" + _xhr.status + ' Error Type:' + _xhr.statusText);
 				};
 			};
@@ -332,7 +342,6 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 		_xhr.send(null);
 	};
 };
-
 
 _CG.cookie = new cookie();
 function cookie(){
@@ -352,11 +361,11 @@ function cookie(){
 	this.get = function(check_name){
 		// first we'll split this cookie up into name/value pairs
 		// note: document.cookie only returns name=value, not the other components
-		var a_all_cookies = document.cookie.split(';');
-		var a_temp_cookie = '';
-		var cookie_name = '';
-		var cookie_value = '';
-		var b_cookie_found = false; // set boolean t/f default f
+		var a_all_cookies = document.cookie.split(';'),
+			a_temp_cookie = '',
+			cookie_name = '',
+			cookie_value = '',
+			b_cookie_found = false; // set boolean t/f default f
 	
 		for( i = 0; i < a_all_cookies.length; i++ ){
 			// now we'll split apart each name=value pair
@@ -440,8 +449,8 @@ function cookie(){
 	};
 	//get the active number from the cookie
 	this.getCActive = function (){
-		var getC = _cookie.get(CGSettings.setCookieName);
-		var repalceA;
+		var getC = _cookie.get(CGSettings.setCookieName),
+			repalceA;
 		if(!getC){
 			repalceA = _CG.isActive;
 		}else{
@@ -458,7 +467,6 @@ function cookie(){
 	};
 };
 
-
 //main object that creates the HTML and images
 _CG.buildList = function(){
 	var mainHolder = document.getElementById(CGSettings.placeTarget),
@@ -473,7 +481,6 @@ _CG.buildList = function(){
 		doReset = false,
 		getNew = 0,
 		listH;
-		
 		
 	//calls the merged objects togheter
 	//builds the HTML list
@@ -742,7 +749,7 @@ _CG.buildList = function(){
 		};
 		return mObjs;
 	}
-	//get the thumb holder width and devided by the thumb width
+	//get the thumb holder width and devided by the thumbs width
 	//return the number of the thumbs that can be visible into thumb holder
 	var storeThumbsInView = function(){
 		var thumbH = document.getElementById('thumbH'),
@@ -915,8 +922,8 @@ _CG.buildList = function(){
 	//moves slider to left
 	//if gets under 0 then start from the end position of the given images object
 	var moveLeft = function(){
-		var listH = document.getElementById('listH');
-		var ulC = listH.children;
+		var listH = document.getElementById('listH'),
+			ulC = listH.children;
 		if(getCActive){
 			_CG.isActive = getCActive--;
 		}
@@ -978,7 +985,7 @@ _CG.buildList = function(){
 			for(var x = 0 ; x < mObjs.length; x++){
 				if(mObjs[x].id == activeLi){
 					var remainingTillEnd = mObjs.length - activeLi;
-					if(remainingTillEnd < (noThumbsInView)){
+					if(remainingTillEnd < noThumbsInView){
 						var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
 						newIndexHighlight = ((getLast * _CG.thumbs.width) - (getHWidth - _CG.thumbs.width));
 					}
@@ -1116,7 +1123,6 @@ _CG.buildList = function(){
 		var alertHolder = document.createElement('div'),
 			wrapper = document.getElementById(CGSettings.placeTarget);
 			
-			
 		alertHolder.setAttribute('id', 'alertHolder');
 		alertHolder.innerHTML = ('<div class="innerHolder"><div>Are you sure you want to '+ action +'?</div>'+
 								 '<div class="btnBig left" id="btnYes">Yes</div><div id="btnNo" class="btnBig right">No</div>'+
@@ -1142,7 +1148,7 @@ _CG.buildList = function(){
 		
 	};
 	var confirmationActions = function(action){
-		var  listH = document.getElementById('listH'),
+		var listH = document.getElementById('listH'),
 			activeLi = getActiveEl(listH),
 			getCurrentLi = document.getElementById('list_' + activeLi),
 			getCurrentBig = document.getElementById('img_' + activeLi),
@@ -1150,7 +1156,7 @@ _CG.buildList = function(){
 
 		//action delete set new width and move right
 		if(action == 'delete'){
-			var newWidth = (getHWidth - _CG.thumbs.width) - 5; //5 represetns the li margin
+			var newWidth = (getHWidth - _CG.thumbs.width) - 5; //5 represents the li margin-left
 			listH.style.width = newWidth + 'px';
 			getCurrentLi.style.display = 'none';
 			getCurrentBig.style.display = 'none';
@@ -1192,16 +1198,6 @@ function createErrorNotif(string){
 	document.body.appendChild(errorMsg);	
 	return errorMsg;
 }
-function checkIfDeleted(){
-	var allHtml = document.getElementById('imgHolder');
-	var infoH = document.getElementById('infoH');
-	var thumbH = document.getElementById('thumbH');
-	allHtml.style.display = 'none';
-	infoH.style.display = 'none';
-	thumbH.style.display = 'none';
-	createErrorNotif('You have deleted all the images from cookies');
-}
-
 //prototype fn which checks the array and removes the given string from an arrary
 //used on remove image function
 Array.prototype.clean = function(to_delete) {
@@ -1215,20 +1211,18 @@ Array.prototype.clean = function(to_delete) {
    return this;
 };
 /* TO DO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	* to fix the move into highlight logic
-	* clean up the confirmation function
+	DONE * to fix the move into highlight logic
+	DONE * clean up the confirmation function
 	* bug on removeing the current image
 	* Refactoring
 	DONE * INTERNET EXPLOERE SUPORT
 	* IE 7 CSS missing the next prev btn --- to be fixed
 	EXTRA
-	* Create horizontal gallery with option
-	* create an visual line ofer the image to show "time" when the image it's swithing
-	* JS request supprot
-	* current stage saves into cookies
-	* there are 2 types of cookies one for thumbs one for big images
-	* read images has to read each cookie and create list based on cookie
-	TO DO
+		DONE * Create vertical gallery with option
+		* create an visual line ofer the image to show "time" when the image it's switching
+		* JS request supprot --- AT This moment saves only into the cookies but not building the list based on JS request
+		* current stage saves into cookies
+		* there are 2 types of cookies one for thumbs one for big images
 	DONE * BUG on reset button
 	DONE * BUG ON MOVE RIGHT
 	DONE * on the init fn there is a set timeout don't forget to remove it
@@ -1247,13 +1241,13 @@ Array.prototype.clean = function(to_delete) {
 	DONE * create play btn -- will resume the animation
 	DONE * Build REST the slide animation from start with data from cookie
 	DONE * Save - stops the scrolling animation and saves in cookies
-	* need to set by default in cookies active witch at the beginning will be 0
-	* once the slider starts to move on save btn press that position needs to be updated and saved into the cookie with the new active value
-	* on page refresh the slider has to start from the saved position
+		* need to set by default in cookies active witch at the beginning will be 0
+		* once the slider starts to move on save btn press that position needs to be updated and saved into the cookie with the new active value
+		* on page refresh the slider has to start from the saved position
 	DONE * remove button - will remove the current image and thumb including from the cookies
-	* get the li big image and thumb and remove them based on the mObj.id
-	* get the cookies remove the current image from it
-	* set it again with the new values
+		* get the li big image and thumb and remove them based on the mObj.id
+		* get the cookies remove the current image from it
+		* set it again with the new values
 	DONE * Each action of SAVE | REMOVE | RESET must show a popup with confirmation
 	DONE * When cookies are set the list it's build but the cookies are not loaded and split it shows the html but not the cookies from images
 	DONE * CAPTION object add image title not hardcoded text
@@ -1265,8 +1259,8 @@ Array.prototype.clean = function(to_delete) {
 	DONE * on prev click needs to decrease -1
 	DONE * on thumb click needs to select the big image based on the returing id
 	DONE * GET fn it's not working properly
-	* the first time the page it's loaded the cookies are set but the get returns -1 instead of 0
-	* when the get fn it's called the first time returns -1 in the build list and api
-	* build the get only after the c_start returns 0 instead of -1
+		* the first time the page it's loaded the cookies are set but the get returns -1 instead of 0
+		* when the get fn it's called the first time returns -1 in the build list and api
+		* build the get only after the c_start returns 0 instead of -1
 	DONE * on each fn send the active value of the current active thumb for saveing
 */
