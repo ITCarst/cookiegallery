@@ -644,12 +644,12 @@ _CG.buildList = function(){
 				removeCurrent();
 			};
 		};
-		if(removeBtn){
+		if(resetBtn){
 			resetBtn.onclick = function(){
 				resetAnimation();
 			};
 		};
-		if(removeBtn){
+		if(saveBtn){
 			saveBtn.onclick = function(){
 				var stringAction = 'Save';
 				saveCurrent(stringAction);
@@ -761,7 +761,6 @@ _CG.buildList = function(){
 		}else{
 			noThumbsInView = Math.round(containerWidth / _CG.thumbs.width);
 		}
-		
 	};
 	//set width to the ul imgs.length * the thumb width	
 	var storeUlWidth = function(ulH){
@@ -769,7 +768,7 @@ _CG.buildList = function(){
 		if(_CG.displayType.vertical == true){
 			setW = (ulH.style.height = Math.round(mObjs.length * (_CG.thumbs.width + 4)) + 'px');
 		}else{
-			setW = (ulH.style.width = Math.round(mObjs.length * (_CG.thumbs.width + 4)) + 'px');
+			setW = (ulH.style.width = Math.round(mObjs.length * (_CG.thumbs.width + 4)) + 'px'); //repesents the CSS style left
 		}
 		return setW;
 	};
@@ -1114,7 +1113,7 @@ _CG.buildList = function(){
 			};
 		};
 		imgArr.clean("");
-		confirmationPopup(removeString, imgArr)
+		confirmationPopup(removeString, imgArr);
 		
 	};
 	//builds the html for the poup confirmation with yes and no btn
