@@ -109,7 +109,7 @@ var init = function () {
 					//check if cookies are set so it doesn't make an extra request
 					if(document.cookie.length > 0 || document.cookie != ''){
 						var results = document.cookie.match(CGSettings.setCookieName + '=(.*?)(;|$)');
-						//if the cookies dosen't match then do an other request witch will get our images
+						//if the cookies dosen't match then do an other request which will get our images
 						if(results){
 							preLoader();
 						}else{
@@ -885,7 +885,7 @@ _CG.buildList = function(){
 			};
 		};
 	};	
-	//general function witch gets the all objects but returns just the object with the machted id
+	//general function which gets the all objects but returns just the object with the machted id
     var getImageDataById = function(id) {
         for (var i = 0; i < mObjs.length; i++) {
             if (mObjs[i].id == id) {
@@ -1240,7 +1240,7 @@ Array.prototype.clean = function(to_delete) {
 	DONE * create play btn -- will resume the animation
 	DONE * Build REST the slide animation from start with data from cookie
 	DONE * Save - stops the scrolling animation and saves in cookies
-		* need to set by default in cookies active witch at the beginning will be 0
+		* need to set by default in cookies active which at the beginning will be 0
 		* once the slider starts to move on save btn press that position needs to be updated and saved into the cookie with the new active value
 		* on page refresh the slider has to start from the saved position
 	DONE * remove button - will remove the current image and thumb including from the cookies
