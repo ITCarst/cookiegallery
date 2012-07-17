@@ -2,10 +2,11 @@
 function httpRequest(xhr, path, filetype, splitArr, callback){
 	var _xhr = xhr,
 		retrunImageFiles = [],
-		returnImageThumb = '',
+		returnImageThumb = [],
 		count = 0,
 		total = 0,
-		sendUrl = CGSettings.readFiles + '?path=' + path; //url for read file server side
+		sendUrl = CGSettings.readFiles + '?path=' + path, //url for read file server side
+		preloadMsg = document.getElementById('preloadMsg');
 	
 	if(window.XMLHttpRequest) {
 		_xhr = new XMLHttpRequest();
@@ -19,18 +20,18 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 				try{
 					_xhr = ActiveXObject("Microsoft.XMLHTTP");
 				}catch(e) {
-					console.log("This browser does not support XMLHttpRequest." + e);		
-				}
-			}
-		}	
-	}
+					createErrorNotif("This browser does not support XMLHttpRequest." + e);
+				};
+			};
+		};
+	};
 	if(_xhr){
 		_xhr.onreadystatechange = function(){
 			if(_xhr.readyState == 4){
 				if (_xhr.status == 200) {
 					var responeTxt = _xhr.responseText,
 						matchExtension = responeTxt.match(filetype);
-
+					
 					//check for images extenstions and if the response it's bigger then 0	
 					if(matchExtension && responeTxt.length > 0 && responeTxt.length != '' ){
 							
@@ -46,12 +47,11 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 								if(parseResponse[x].match(filetype)){
 									//push images into the empty array
 									retrunImageFiles.push(parseResponse[x]);
-								}
-							}
+								};
+							};
 							if(retrunImageFiles != ''){
-								console.log("REQUEST")
 								callback(_CG.cookie.checkCookies(retrunImageFiles, false, _CG.cookie.getCActive()));
-							}
+							};
 							
 						}else if(CGSettings.readFileType.rFClient === true){
 
@@ -61,42 +61,50 @@ function httpRequest(xhr, path, filetype, splitArr, callback){
 							//remove the a tag so it wont get duplicated entries
 							var splitArray = responeTxt.split(splitArr);
 							total = splitArray.length;
-							
 							//loop through the array and get the founded files from dir
 							for(var x = 0; x < splitArray.length; x++){
 								count++;
 								//check matches for extension from the array
 								if(splitArray[x].match(filetype)){
 									//check for path and if it's thumb then add thumb to the small images
-									if(path === mainObjSettings.imagesdir){
+									if(path === CGSettings.imagesdir){
 										retrunImageFiles += splitArray[x];
-									}
-									if(path === mainObjSettings.thumbdir){
-										returnImageThumb += 'thumb_' + splitArray[x] + ' ';
-									}
-								}
-							}
+									};
+									if(path === CGSettings.thumbdir){
+										returnImageThumb += 'thumb_' + splitArray[x];
+									};
+								};
+							};
 							if(count == total){
-								_CG.cookie.checkCookies(retrunImageFiles, returnImageThumb, _CG.isActive);
-							}
+								_CG.cookie.checkCookies(retrunImageFiles, returnImageThumb, _CG.cookie.getCActive());
+							};
 						}else{
-							console.log('please make sure you have enabled one reading file option')
-						}
+							if(preloadMsg){
+								preloadMsg.style.display = 'none';
+							}
+							createErrorNotif('Please make sure you have enabled one reading file option');
+						};
 					}else{
-						console.log('you don\'t have any images in folders');
-					}
+						if(preloadMsg){
+							preloadMsg.style.display = 'none';
+						}
+						createErrorNotif(responeTxt);
+					};
 				}else{
-					console.log("Error Code:" + _xhr.status + ' Error Type:' + _xhr.statusText);  
-				}
-			}
-		}
+					if(preloadMsg){
+						preloadMsg.style.display = 'none';
+					}
+					createErrorNotif("Error Code:" + _xhr.status + ' Error Type:' + _xhr.statusText);
+				};
+			};
+		};
 		if(CGSettings.readFileType.rFServer === true){
 			//php get requst
 			_xhr.open("GET", sendUrl, true);
 		}else if(CGSettings.readFileType.rFClient === true){
 			//localhost request returing 
 			_xhr.open("GET", path, true);
-		}
+		};
 		_xhr.send(null);
-	}
-}
+	};
+};
