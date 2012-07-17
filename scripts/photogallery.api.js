@@ -190,7 +190,7 @@ function praseFiles (images) {
 					if(this.complete === true) {
 						//add +1 to counter
 						numResourcesLoaded += 1;
-						if((cLength - 1) === numResourcesLoaded) {
+						if ((cLength - 1) === numResourcesLoaded) {
 							//if counter it's = with all images then hide loading msg
 							preloadMsg.style.display = 'none';
 						};
