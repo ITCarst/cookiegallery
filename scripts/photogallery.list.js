@@ -41,11 +41,12 @@
 	DONE * on thumb click needs to select the big image based on the returing id 
   
 */
+
+//main object that creates the HTML and images
 _CG.buildList = function(){
-	var _list = this,
-		mainHolder = document.getElementById(CGSettings.placeTarget),
+	var mainHolder = document.getElementById(CGSettings.placeTarget),
 		cookieGet = _CG.cookie.get(CGSettings.setCookieName),
-		getCActive = _CG.cookie.getCActive() || _CG.isActive, //get the number of active from cookie
+		getCActive = _CG.cookie.getCActive(), //get the number of active from cookie
 		thumbs = [],
 		bigImgs = [],
 		mObjs = [],
@@ -53,20 +54,13 @@ _CG.buildList = function(){
 		countImage,
 		noThumbsInView = 0,
 		doReset = false,
-		getNew = 0;
-		
-		
-	var playEnabled = _CG.autoplay.buttons.play.enabled,
-		pauseEnabled = _CG.autoplay.buttons.pause.enabled,
-		removeEnabled = _CG.autoplay.buttons.remove.enabled,
-		resetEnabled = _CG.autoplay.buttons.reset.enabled,
-		saveEnabled = _CG.autoplay.buttons.reset.enabled;
-		
+		getNew = 0,
+		listH;
 		
 	//calls the merged objects togheter
 	//builds the HTML list
 	//init the thumbs and imgs
-	var initList = function(){
+	initList = function(){
 		//split _thumbs cookie from big img cokoie
 		splitCookies();
 		//create all html holders
@@ -74,29 +68,19 @@ _CG.buildList = function(){
 		//merge the thumbs object with the big image obj
 		mergeObjs();
 		
-		var listH = document.getElementById('listH');
-		
+		listH = document.getElementById('listH');
 		if(listH){
 			storeThumbsInView();
 			//add dynamic width to the ul
 			storeUlWidth(listH);
 			//create the li with img and append them to ul
 			setThumbs(listH);
-			
 			//if the autoplay is true do autorotate
 			if(_CG.autoplay.enabled){
-				startAutoPlay(listH, _CG.autoplay.autorotate.duration);
-			}
-			/*
-			listH.onmousemove = function(evnt){
-				//stopAnimation();
-				//onHoverStart(evnt, listH);
-			}
-			listH.onmouseout = function(){
-				//resetAutoPlayOnClick();
-			}*/
-			
-		}
+				startAutoPlay(listH, _CG.autoplay.autorotate);
+			};
+		};
+
 	};
 	//loops through cookie and splits the thumbs from big images
 	//builds 2 arrays with new values
@@ -113,8 +97,8 @@ _CG.buildList = function(){
 				thumbs.push(CGSettings.thumbdir + stripname);
 			}else{
 				bigImgs.push(CGSettings.imagesdir + cookieGet[i])			
-			}
-		}
+			};
+		};
 	};
 	//Holds only the HTML elements without actually images or thumbs
 	var createDomElements = function(){
@@ -132,36 +116,41 @@ _CG.buildList = function(){
 			
 		//check if the _CG has enabled the buttons
 		//if there are true create html elements with specific ID's for each action buttons
-		if(playEnabled == true) {
+		if(_CG.autoplay.buttons.play.enabled == true) {
 			var start = document.createElement('div');
 			start.setAttribute('id', 'play');
 			start.setAttribute('class', 'actionControls');
+			start.title = _CG.autoplay.buttons.play.txt;
 			cHolders.appendChild(start);
-		}
-		if(pauseEnabled == true){
+		};
+		if(_CG.autoplay.buttons.pause.enabled == true){
 			var stop = document.createElement('div')
 			stop.setAttribute('id', 'stop');
 			stop.setAttribute('class', 'actionControls');
+			stop.title = _CG.autoplay.buttons.pause.txt;
 			cHolders.appendChild(stop);
-		}
-		if(removeEnabled == true){
+		};
+		if(_CG.autoplay.buttons.remove.enabled == true){
 			var remove = document.createElement('div');
 			remove.setAttribute('id', 'remove');
 			remove.setAttribute('class', 'actionControls');
+			remove.title =  _CG.autoplay.buttons.remove.txt;
 			cHolders.appendChild(remove);
-		}
-		if(saveEnabled == true){
+		};
+		if(_CG.autoplay.buttons.save.enabled == true){
 			var save = document.createElement('div');
 			save.setAttribute('id', 'save');
 			save.setAttribute('class', 'actionControls');
+			save.title = _CG.autoplay.buttons.save.txt;
 			cHolders.appendChild(save);
-		}
-		if(resetEnabled == true){
+		};
+		if(_CG.autoplay.buttons.reset.enabled == true){
 			var reset = document.createElement('div');
 			reset.setAttribute('id', 'reset');
 			reset.setAttribute('class', 'actionControls');
+			reset.title = _CG.autoplay.buttons.reset.txt;
 			cHolders.appendChild(reset);
-		}
+		};
 		imgHolder.setAttribute('id', 'imgHolder');
 		imgIn.setAttribute('id', 'imgIn');
 		gControl.setAttribute('id', 'controls');
@@ -196,8 +185,9 @@ _CG.buildList = function(){
 	var createThumbHolder = function(){
 		var thumbH = document.createElement('div'),
 			ulList = document.createElement('ul');
+			
 		thumbH.setAttribute('id','thumbH');
-		ulList.setAttribute('id', 'listH')
+		ulList.setAttribute('id', 'listH');
 		mainHolder.appendChild(thumbH);
 		thumbH.appendChild(ulList);
 	};
@@ -206,64 +196,53 @@ _CG.buildList = function(){
 	//each one calls it's functionality functions
 	var clickActions = function(){
 		var nextBtn = document.getElementById('next'),
-			prevBtn = document.getElementById('prev');
-		
+			prevBtn = document.getElementById('prev'),
+			stopBtn = document.getElementById('stop'),
+			playBtn = document.getElementById('play'),
+			removeBtn = document.getElementById('remove'),
+			resetBtn = document.getElementById('reset'),
+			saveBtn = document.getElementById('save');
+
 		//chcek if action buttons are enabled then apply action functions to them
-		
-		if(playEnabled == true) {
-			var playBtn = document.getElementById('play');
-			if(playBtn){			
-				playBtn.onclick = function(){
-					resetAutoPlayOnClick();
-				}
-			}
-		}
-		if(pauseEnabled == true){
-			var stopBtn = document.getElementById('stop');
-			if(stopBtn){
-				stopBtn.onclick = function(){
-					stopAnimation();
-				}
-			}
-		}
-		if(removeEnabled == true){
-			var removeBtn = document.getElementById('remove');
-			if(removeBtn){
-				removeBtn.onclick = function(){
-					removeCurrent();
-				}
-			}
-		}
-		if(resetEnabled == true){
-			var resetBtn = document.getElementById('reset');
-			if(removeBtn){
-				resetBtn.onclick = function(){
-					resetAnimation();
-				}
-			}
-		}
-		if(saveEnabled == true){
-			var saveBtn = document.getElementById('save');
-			if(removeBtn){
-				saveBtn.onclick = function(){
-					var stringAction = 'Save';
-					saveCurrent(stringAction);
-				}
-			}
-		}
+		if(playBtn){			
+			playBtn.onclick = function(){
+				resetAutoPlayOnClick();
+			};
+		};
+		if(stopBtn){
+			stopBtn.onclick = function(){
+				stopAnimation();
+			};
+		};
+		if(removeBtn){
+			removeBtn.onclick = function(){
+				removeCurrent();
+			};
+		};
+		if(removeBtn){
+			resetBtn.onclick = function(){
+				resetAnimation();
+			};
+		};
+		if(removeBtn){
+			saveBtn.onclick = function(){
+				var stringAction = 'Save';
+				saveCurrent(stringAction);
+			};
+		};
 		if(nextBtn && prevBtn){
 			//move slider to right
 			nextBtn.onclick = function(){
 				resetAutoPlayOnClick();
 				moveRight();
-			}
+			};
 			//move slider to left
 			prevBtn.onclick = function(){
 				resetAutoPlayOnClick();
 				moveLeft();
-			}
-		}		
-	}
+			};
+		};
+	};
 	//function to create an object with detailed information
 	//returns new object
     var addImageToGallery = function(imageConfig){
@@ -289,9 +268,8 @@ _CG.buildList = function(){
 					caption : thumbs[x],
 					src : thumbs[x]
 				})			
-			)		
-		}
-		//console.log(objThumb)
+			);	
+		};
 		return objThumb;
 	};
 	//once we split the cookie push into new object just the big images
@@ -307,51 +285,79 @@ _CG.buildList = function(){
 					caption : bigImgs[x],
 					src : bigImgs[x]
 				})			
-			)		
-		}
+			);		
+		};
 		return objImg;
 	};
 	//setThumbObj and setImgObj merged togheter for haveing single id or index for the same thumb and img
 	//returns new object
 	var mergeObjs = function(){
-		var objThumb = setThumbObj();
-		var objImgs = setImgObj();
+		var objThumb = setThumbObj(),
+			objImgs = setImgObj();
 		for(var p in objThumb){
 			for(var o in objImgs){
+				//get the big image name
 				mObjs[p] = {
 					index : objThumb[p].index,
 					id : objThumb[p].id,
 					thumb : objThumb[p].thumb,
-					caption : objThumb[p].thumb,
+					caption : objImgs[p].src,
 					src : objImgs[p].src
-				}
-			}
-		}
-		//console.log(mObjs)
+				};
+			};
+		};
+		setCaptionName();
 		return mObjs;
 	};
-	//get the thumb holder width and devided by the thumb width
+	//overwrite the main obj caption with just the names of the big images
+	var setCaptionName = function(){
+		for(var x= 0; x < mObjs.length; x++){
+			var getCaption = mObjs[x].caption;
+			var matchDir = getCaption.match(CGSettings.imagesdir);
+			var matchExtension = getCaption.match(CGSettings.fileTypes)
+			if(matchDir && matchExtension){
+				var removeDir = getCaption.replace(CGSettings.imagesdir, '');
+				var removeExt = removeDir.replace(CGSettings.fileTypes, '');
+				
+				mObjs[x].caption = removeExt;
+			}
+		};
+		return mObjs;
+	}
+	//get the thumb holder width and devided by the thumbs width
 	//return the number of the thumbs that can be visible into thumb holder
 	var storeThumbsInView = function(){
-		var thumbH = document.getElementById('thumbH');
-        var containerWidth = thumbH.offsetWidth;
-        noThumbsInView = Math.round(containerWidth / _CG.thumbs.width);
+		var thumbH = document.getElementById('thumbH'),
+			containerWidth = thumbH.offsetWidth,
+			containerHeight = thumbH.offsetHeight;
+			
+        if(_CG.displayType.vertical == true){
+			noThumbsInView = Math.round(containerHeight / _CG.thumbs.height);
+		}else{
+			noThumbsInView = Math.round(containerWidth / _CG.thumbs.width);
+		}
+		
 	};
 	//set width to the ul imgs.length * the thumb width	
 	var storeUlWidth = function(ulH){
-		var setW = (ulH.style.width = Math.round(mObjs.length * (_CG.thumbs.width + 4)) + 'px');
+		var setW;
+		if(_CG.displayType.vertical == true){
+			setW = (ulH.style.height = Math.round(mObjs.length * (_CG.thumbs.width + 4)) + 'px');
+		}else{
+			setW = (ulH.style.width = Math.round(mObjs.length * (_CG.thumbs.width + 4)) + 'px');
+		}
 		return setW;
 	};
 	//once the object thubms it's set apply id and value for identifing the images
 	var setThumbs = function(ulHolder){
-		var x = 0, max = mObjs.length, id = 0, index = 0;
-		var imgH = document.getElementById('imgIn');
-		var photoCaption = document.getElementById('photoCaption');
+		var x = 0, max = mObjs.length, id = 0, index = 0,
+			imgH = document.getElementById('imgIn'),
+			photoCaption = document.getElementById('photoCaption');
 		
 		for(x; x < max; x++){
-			var liList = document.createElement('li');
-				id = mObjs[x].id;
-				index  = mObjs[x].index;
+			var liList = document.createElement('li'),
+				id = mObjs[x].id,
+				index  = mObjs[x].index,
 				thumbSrc = mObjs[x].thumb,
 				bigSrc = mObjs[x].src,
 				matchSrc = thumbSrc.match(CGSettings.thumbdir),
@@ -365,21 +371,20 @@ _CG.buildList = function(){
 			//create thumb images and append them to each li
 			createImgThumb(rmvExtension, liList, thumbSrc);
 			
-			//on click switch the big image assigned to thumb
 			liList.onclick = function(e){
 				resetAutoPlayOnClick();
 				clickOnThumbnail(e);
-			}
+			};
 			if(x == getCActive){
 				if(liList.id == 'list_' + getCActive){
-					console.log('list_' + getCActive)
 					liList.setAttribute('class', 'active');
 					createBigImg(getCActive, imgH);
 					photoCaption.innerHTML = mObjs[id].caption;
-				}
-			}
+					moveHighilightIntoView(getCActive);
+				};
+			};
 		};
-	}
+	};
 	//create thumbs annd apend them
 	var createImgThumb = function(id, list, thumbSrc){
 		if(id != null || id != ''){
@@ -389,19 +394,15 @@ _CG.buildList = function(){
 			createT.setAttribute('height', _CG.thumbs.height);
 			createT.src = thumbSrc;
 			list.appendChild(createT);
-		}
+		};
 	};
 	var createBigImg = function(id, holder){
 		if(id != null){
-			var foundId = document.getElementById('img_' + id),
-				createImg;
+			var foundId = document.getElementById('img_' + id), createImg;
 			//first time the count image is null
 			//but when the image is set the countImage gets the image
 			if(countImage != null){
-				var getImages = holder.getElementsByTagName('img'),
-					imgeLength = getImages.length,
-					x = 0;
-					
+				var getImages = holder.getElementsByTagName('img'), imgeLength = getImages.length, x = 0;
 				//loop through holder images and match the id with the found id
 				for(x; x < imgeLength; x++){
 					if(countImage.id != id){
@@ -409,29 +410,27 @@ _CG.buildList = function(){
 						clearInterval(setOpacity.timer);
 						setOpacity.timer = setInterval(function(){
 							fdout(setOpacity);
-						},_CG.autoplay.fadeduration)
-					}
-				}
-			}
+						},_CG.autoplay.fadeduration);
+					};
+				};
+			};
 			//if the holder has no image then create the first image	
 			if(!foundId){
 				createImg = document.createElement('img');
 				createImg.src = mObjs[id].src;
 				createImg.id = 'img_' + mObjs[id].id;
 				createImg.setOpacity = 0;
-				createImg.style.opacity = 0;
-				createImg.style.filter = 'alpha(opacity=0)';
+				createImg.style.opacity=0;
+				createImg.style.filter='alpha(opacity=0)';
 				holder.appendChild(createImg);
 			}else{
 				createImg = document.getElementById('img_' + id);
 				clearInterval(createImg.timer);
-			}
-			
+			};
 			createImg.timer = setInterval(function(){
 				fdin(createImg);
 			}, _CG.autoplay.fadeduration);
-	
-		}		
+		};		
 	};
 	//fade in the big image
 	var fdin = function(image){
@@ -440,14 +439,14 @@ _CG.buildList = function(){
 			image.setOpacity = image.setOpacity + _CG.autoplay.fadeduration;
 			image.style.opacity = image.setOpacity / 100;
 			image.style.filter = 'alpha(opacity=' + image.setOpacity + ')';
-		}
+		};
 		//once the image visibility reaches 100 then set opacity to 1
 		if(image.setOpacity >= 100){
 			image.style.opacity = 1;
 			image.style.filter = 'alpha(opacity=100)';
 			clearInterval(image.timer);
 			countImage = image;
-		}
+		};
 	};
 	//fade out the big image
 	var fdout = function(image){
@@ -459,24 +458,24 @@ _CG.buildList = function(){
 			clearInterval(image.timer);
 			if(image.parentNode){
 				image.parentNode.removeChild(image);
-			}
-		}
+			};
+		};
 	};	
 	//general function witch gets the all objects but returns just the object with the machted id
     var getImageDataById = function(id) {
-        var countImages = mObjs.length;
-        for (var i = 0; i < countImages; i++) {
+        for (var i = 0; i < mObjs.length; i++) {
             if (mObjs[i].id == id) {
                 return mObjs[i];
-            }
-        }
+            };
+        };
     };
 	//on thumbnail click get target id and replace the string convert it into number
 	//then send the given id to the selectImage fn
 	var clickOnThumbnail = function(e) {
-		var getTargetId = e.target.parentNode.id;
-		var getId = getTargetId.replace('list_', '');
-		var id = Number(getId);
+		var target = e ? e.target : window.event.srcElement;
+		var getTargetId = target.parentNode.id,
+			getId = getTargetId.replace('list_', ''),
+			id = Number(getId);
 		//update the startPos with the new id
 		_CG.isActive = id;
 		selectImage(id);
@@ -484,22 +483,30 @@ _CG.buildList = function(){
 	//moves the slider to right
 	//if reaches the max length of the images starts from 0
 	var moveRight = function(ulList){
-		if(getCActive >= _CG.isActive){
-			_CG.isActive = getCActive;
+		if(getCActive){
+			_CG.isActive = getCActive++;
 		}
 		_CG.isActive = _CG.isActive + 1;
+		
 		if(_CG.isActive >= mObjs.length) {
+			getCActive = 0;
             _CG.isActive = 0;
-        }
+        };
 		selectImage(mObjs[_CG.isActive].id);
 	};
 	//moves slider to left
 	//if gets under 0 then start from the end position of the given images object
 	var moveLeft = function(){
+		var listH = document.getElementById('listH'),
+			ulC = listH.children;
+		if(getCActive){
+			_CG.isActive = getCActive--;
+		}
 		_CG.isActive = _CG.isActive - 1;
+
 		if(_CG.isActive < 0){
 			_CG.isActive = mObjs.length - 1;
-		}
+		};
 		selectImage(mObjs[_CG.isActive].id);
 	};
 	//sects active class to the li
@@ -511,184 +518,232 @@ _CG.buildList = function(){
 			if(mObjs[x].id == id){
 				getList.setAttribute('class', 'active');
 			}else{
-				//if(getList.hasAttribute('class', 'active')){
 				if(getList.className == 'active'){
 					getList.removeAttribute('class', 'active');
+				};
+			};
+		};
+	};
+	var isLocatedBeyondRightEdgeOfView = function(currentLi, ulWidth, sendNo){
+		for(var x = 0 ; x < mObjs.length; x++){
+			if(mObjs[x].id == currentLi){
+				var remainingTillEnd = mObjs.length - currentLi;
+				if(remainingTillEnd < (noThumbsInView - sendNo)){
+					var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
+					newIndexHighlight = ((getLast * _CG.thumbs.width) - (ulWidth - _CG.thumbs.width));
 				}
 			}
-		}
-	}
+		}		
+	};
 	var moveHighilightIntoView = function(id){
-		var newIndexHighlight;
-		var listH = document.getElementById('listH');		
-		var activeLi = getActiveEl(listH);
+		var newIndexHighlight,
+			listH = document.getElementById('listH'),
+			activeLi = getActiveEl(listH),
+			getHWidth = listH.offsetWidth,
+			counter = 0;
 		
 		//start position is 0
 		if(activeLi == 0) {
-			newIndexHighlight = 0;
-		//start from end position
-		}else if(activeLi == (mObjs.length - 1)) {
-			var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
-			newIndexHighlight = -(getLast * _CG.thumbs.width);
-		//if active bigger then thumbs move to right e.g. 6=6
-		}else if(activeLi > noThumbsInView) {
-			newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;
-		//if active bigger = to thumbs move right 6 >5  
-		}else if(activeLi >= (noThumbsInView - 1)) {
-			var getNew = Math.min(noThumbsInView - 1, _CG.isActive - 1);
-			newIndexHighlight = - (getNew * _CG.thumbs.width);
-		}else if(activeLi <= 0) {
-			newIndexHighlight = 1;
-		}else {
-			newIndexHighlight = _CG.isActive;
-		}    
-		listH.style.webkitTransitionDuration = listH.style.MozTransitionDuration = speed + 'ms';
-		listH.style.msTransitionDuration = listH.style.OTransitionDuration = speed + 'ms';
-		listH.style.transitionDuration = speed + 'ms';
-		
-		
-		listH.style.left = newIndexHighlight + 'px';
-		/*//start position is 0
-		if(activeLi == 0) {
             newIndexHighlight = 0;
-			getNew = 0;
+        }
 		//start from end position
-        }else if(activeLi == (mObjs.length - 1)) {
-			var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
-			newIndexHighlight = - (getLast * _CG.thumbs.width);
-		//if active bigger then thumbs move to right e.g. 6=6
-        }else if(activeLi > noThumbsInView) {
-            newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;
-		//if active bigger = to thumbs move right 6 >5	
-        }else if(activeLi >= (noThumbsInView - 1)) {
-			//var getNew = Math.min(noThumbsInView - 1, startPos - 1);
-            //newIndexHighlight = - (getNew * _CG.thumbs.width);
-			if(getNew == 0){
-				getNew = _CG.thumbs.width;
-			}else {
-				getNew += getNew;
+		else if(activeLi == mObjs.length - 1) {
+			if(_CG.displayType.vertical == true){
+				newIndexHighlight = 0;
+			}else{
+				var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
+				newIndexHighlight = ((getLast * _CG.thumbs.width) - (getHWidth - _CG.thumbs.width));
 			}
-			newIndexHighlight = - getNew;
-        }else if(activeLi <= 0) {
-            newIndexHighlight = 1;
-        }else {
-			getNew = 0;
+        }
+		else if(activeLi > noThumbsInView) {
+			newIndexHighlight = - (noThumbsInView - 1) * _CG.thumbs.width;
+			for(var x = 0 ; x < mObjs.length; x++){
+				if(mObjs[x].id == activeLi){
+					var remainingTillEnd = mObjs.length - activeLi;
+					if(remainingTillEnd < noThumbsInView){
+						var getLast = Math.min(noThumbsInView -1, mObjs.length - 1);
+						newIndexHighlight = ((getLast * _CG.thumbs.width) - (getHWidth - _CG.thumbs.width));
+					}
+				}
+			}
+        }
+		else if(activeLi >= (noThumbsInView - 1)) {
+			var getNew = Math.min(noThumbsInView - 1, activeLi - 1);
+			newIndexHighlight = - (getNew * _CG.thumbs.width);
+			isLocatedBeyondRightEdgeOfView(activeLi, getHWidth, 1);
+        }
+		else if(activeLi <= 0) {
+            newIndexHighlight = activeLi;
+        }
+        else {
             newIndexHighlight = 0;
-        }		
+        }			
 		listH.style.webkitTransitionDuration = listH.style.MozTransitionDuration = speed + 'ms';
 		listH.style.msTransitionDuration = listH.style.OTransitionDuration = speed + 'ms';
 		listH.style.transitionDuration = speed + 'ms';
-		
-		listH.style.left = newIndexHighlight + 'px';*/
-		
+
+		if(_CG.displayType.vertical == true){
+			listH.style.top = newIndexHighlight + 'px';
+		}else{
+			listH.style.left = newIndexHighlight + 'px';
+		}
 	};
 	//returns the id of the active li elem
 	var getActiveEl = function(listH){
-		var getLi = listH.getElementsByTagName('li');
-		var foundActive;
+		var getLi = listH.getElementsByTagName('li'), foundActive;
 		for(var x = 0; x < getLi.length; x++){
 			if(getLi[x].className == 'active'){
 				foundActive = getLi[x].id.replace('list_', '');
 				break;			
-			}
-		}
+			};
+		};
 		return Number(foundActive);
-	}
+	};
 	//select big image based on the id
 	var selectImage = function(id){
-		var holder = document.getElementById('imgIn');
-		var imageData = getImageDataById(id);
-		var photoCaption = document.getElementById('photoCaption');
-		
+		var holder = document.getElementById('imgIn'),
+			imageData = getImageDataById(id),
+			photoCaption = document.getElementById('photoCaption');
+			
 		createBigImg(id, holder);
 		createThumbHighLight(id);
 		moveHighilightIntoView(id);
-		
 		photoCaption.innerHTML = mObjs[id].caption;
 	};
 	//start auto play of the ul based on the _CG settings duration
 	var startAutoPlay = function(ulList, time){
-		ulList.timer = setInterval(function(){
-			moveRight();
-		}, time)		
+		if(thumbs != ''){
+			ulList.timer = setInterval(function(){
+				moveRight();
+			}, time);	
+		}
 	};
 	var stopAnimation = function(){
 		var listH = document.getElementById('listH');
 		clearInterval(listH.timer);
-	}
+	};
 	//when clicking the next or prev stop the interval for auto rotate and reset it again to the _CG settings
 	var resetAutoPlayOnClick = function(){
 		var listH = document.getElementById('listH');
 		clearInterval(listH.timer);
-		startAutoPlay(listH, _CG.autoplay.autorotate.duration);
+		startAutoPlay(listH, _CG.autoplay.autorotate);
 	};
 	//reset animation reset _CG active and the cookie value recevied to 0
 	//applies on the reset btn of the gallery
 	var resetAnimation = function(){
+		stopAnimation();
+		var stringAction = 'reset';
 		doReset = true;
 		_CG.isActive = 0;
-		var stringAction = 'reset';
-		saveCurrent(stringAction);
-		selectImage(_CG.isActive);
-		resetAutoPlayOnClick();
-		
+		getCActive = 0;
+		saveCurrent(stringAction)
 	};
 	//saves the current image into cookie based on the active li
 	var saveCurrent = function(stringAction){
 		stopAnimation();
 		var listH = document.getElementById('listH'),
 			activeLi = getActiveEl(listH),
-			imgArr = _CG.cookie.get(CGSettings.setCookieName);
+			imgArr = _CG.cookie.get(CGSettings.setCookieName),//get the number of active from cookie
+			getCurrentActive = _CG.cookie.getCActive();
 			
 		for(var i=0; i < imgArr.length; i++){
-			var matchExact = imgArr[i].match('active_' + getCActive); //match exact entry used on the save btn
-			var matchAp = imgArr[i].match('active_'); //match aproximative active used from reset animation fn
-			
+			var matchExact = imgArr[i].match('active_' + getCurrentActive), //match exact entry used on the save btn
+				matchAp = imgArr[i].match('active_' + activeLi); //match aproximative active used from reset animation fn
 			if(doReset == true){
-				imgArr[i] = imgArr[i].replace(matchExact, 'active_0'); //goes here when the reset button its presed sets the cookie back from 0
-			}else{
+				imgArr[i] = imgArr[i].replace(matchAp, 'active_0'); //goes here when the reset button its presed sets the cookie back from 0
+			}else if(matchExact){
 				imgArr[i] = imgArr[i].replace(matchExact, 'active_' + activeLi);
-			}
-		}
+			};
+		};
 		confirmationPopup(stringAction,imgArr);
 	};
+	//removes the current image from the list and from the cookies
 	var removeCurrent = function(){
-		var removeString = 'delete';
-		var listH = document.getElementById('listH'),
+		stopAnimation();
+		var removeString = 'delete',
+			listH = document.getElementById('listH'),
 			imgIn = document.getElementById('imgIn'),
 			activeLi = getActiveEl(listH),
 			getCurrentLi = document.getElementById('list_' + activeLi),
-			imgArr = _CG.cookie.get(CGSettings.setCookieName);
-			
-		console.log(activeLi)
-		var getTName = getThumbNames();
+			imgArr = _CG.cookie.get(CGSettings.setCookieName),
+			getTName = getThumbNames();
+
 		for(var x = 0; x < getTName.length; x++){
-			var currentT = document.getElementById('thumb_' + getTName[x]);
-			var currentB = mObjs[x].src,
+			var currentT = document.getElementById('thumb_' + getTName[x]),
+				currentB = mObjs[x].src,
 				matchSrc = currentB.match(CGSettings.imagesdir),
 				replaceSrc = currentB.replace(matchSrc, ''); //replace extensions and get only the image name and apply id to the img thumbs
 			
 			if(currentT.parentNode == getCurrentLi){
 				for(var i=0; i < imgArr.length; i++){
-					var matchAT = imgArr[i].match(currentT.id + '.jpg'); //match active thumb
-					var matchBA = imgArr[i].match(replaceSrc); //match big image active
-					
+					var test = imgArr[i].match(CGSettings.fileTypes);
+					var matchAT = imgArr[i].match(currentT.id + test), //match active thumb
+						matchBA = imgArr[i].match(replaceSrc); //match big image active
 					if(matchAT){
 						imgArr[i] = imgArr[i].replace(matchAT, ''); //goes here when the reset button its presed sets the cookie back from 0
 					}else if(matchBA){
-						//removeA(imgArr[i], matchBA)
 						imgArr[i] = imgArr[i].replace(matchBA, '');
-				
-					}
-				}
+					};
+				};
 				break;
-			}
-			
-		}
+			};
+		};
 		imgArr.clean("");
-		confirmationPopup(removeString,imgArr)
+		confirmationPopup(removeString, imgArr)
+		
 	};
+	//builds the html for the poup confirmation with yes and no btn
+	//checks for confirmation fn and returns either false or true based on what the user clicks
+	var confirmationPopup = function(action, sendImages){
+		var alertHolder = document.createElement('div'),
+			wrapper = document.getElementById(CGSettings.placeTarget);
+			
+		alertHolder.setAttribute('id', 'alertHolder');
+		alertHolder.innerHTML = ('<div class="innerHolder"><div>Are you sure you want to '+ action +'?</div>'+
+								 '<div class="btnBig left" id="btnYes">Yes</div><div id="btnNo" class="btnBig right">No</div>'+
+								 '<div class="clear"><!-- empty --></div></div>'
+								 );
+		wrapper.appendChild(alertHolder);
+		
+		var btnYes = document.getElementById('btnYes'),
+			btnNo = document.getElementById('btnNo');
+			
+		if(btnYes){
+			btnYes.onclick = function(){
+				confirmationActions(action);
+				_CG.cookie.setCVal(CGSettings.setCookieName, sendImages, _CG._settings.expireTime);
+				wrapper.removeChild(alertHolder);
+				return true;
+			}
+			btnNo.onclick = function(){
+				wrapper.removeChild(alertHolder);
+				return false;
+			};		
+		};
+		
+	};
+	var confirmationActions = function(action){
+		var listH = document.getElementById('listH'),
+			activeLi = getActiveEl(listH),
+			getCurrentLi = document.getElementById('list_' + activeLi),
+			getCurrentBig = document.getElementById('img_' + activeLi),
+			getHWidth = listH.offsetWidth;
 
+		//action delete set new width and move right
+		if(action == 'delete'){
+			var newWidth = (getHWidth - _CG.thumbs.width) - 5; //5 represents the li margin-left
+			listH.style.width = newWidth + 'px';
+			getCurrentLi.style.display = 'none';
+			getCurrentBig.style.display = 'none';
+			moveRight();
+		}
+		if(action == 'reset'){
+			selectImage(_CG.isActive);
+			resetAutoPlayOnClick();
+		}
+		//on click save the new updated cookies
+	}
+	//get the name of the thumbs and saves it into an array
 	var getThumbNames = function(){
 		var saveNew = [];
 		for(var x = 0; x < mObjs.length; x++){
@@ -699,103 +754,37 @@ _CG.buildList = function(){
 				rmvExtension = replaceSrc.replace(matchExt, ''); //replace extensions and get only the image name and apply id to the img thumbs
 				
 			saveNew.push(rmvExtension)
-		}
+		};
 		return saveNew;
-	}
-	var removeA = function (arr){
-		var what, a= arguments, L= a.length, ax;
-		while(L> 1 && arr.length){
-			what= a[--L];
-			while((ax= arr.indexOf(what))!= -1){
-				console.log(ax)
-				arr.splice(ax, 1);
-			}
-		}
-		return arr;
-	}
-	//builds the html for the poup confirmation with yes and no btn
-	//checks for confirmation fn and returns either false or true based on what the user clicks
-	var confirmationPopup = function(action, sendImages){
-		var alertHolder = document.createElement('div');
-		var wrapper = document.getElementById('wrapper');
-		var listH = document.getElementById('listH');
-		alertHolder.setAttribute('id', 'alertHolder');
-		alertHolder.innerHTML = ('<div class="innerHolder"><div>Are you sure you want to '+ action +'?</div>'+
-								 '<div class="btnBig left" id="btnYes">Yes</div><div id="btnNo" class="btnBig right">No</div>'+
-								 '<div class="clear"><!-- empty --></div></div>'
-								 );
-		wrapper.appendChild(alertHolder);
-		
-		var btnYes = document.getElementById('btnYes');
-		var btnNo = document.getElementById('btnNo');
-		var activeLi = getActiveEl(listH);
-		var getCurrentLi = document.getElementById('list_' + activeLi);
-		var getCurrentBig = document.getElementById('img_' + activeLi);
-
-		if(btnYes){
-			btnYes.onclick = function(){
-				if(action == 'delete'){
-					getCurrentLi.style.display = 'none';
-					getCurrentBig.style.display = 'none';
-					moveRight();
-				}
-				//on click save the new updated cookies
-				_CG.cookie.setCVal(CGSettings.setCookieName, sendImages, _CG._settings.expireTime);
-				wrapper.removeChild(alertHolder);
-				return true;
-			}
-			btnNo.onclick = function(){
-				wrapper.removeChild(alertHolder);
-				return false;
-			}		
-		}
-		
 	};
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	var onHoverStart = function(e, ulList) {
-		var deltaX = getPosition(thumbH);
-		var scrollX;
-		var getWidth = storeUlWidth(ulList);
-		var width = Number(getWidth.replace('px', ''));
-		
-		deltaX = e.pageX - deltaX.x;
-		
-		//user starts to scroll right
-		if(deltaX >= width){
-			deltaX = deltaX / 1;
-			scrollX = - (deltaX - width);
-		}else if(deltaX <= width){
-			//deltaX = 0;
-			scrollX = - (deltaX);
-		}
-
-		ulList.style.left = scrollX + 'px';
-	};
-	var getPosition = function(element) {
-		var xPosition = 0;
-		var yPosition = 0;
-		while(element) {
-			xPosition += (element.offsetLeft - element.scrollLeft + element.clientLeft);
-			yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
-			element = element.offsetParent;
-		}
-		return { x: xPosition, y: yPosition };
-	}
-
+	if(CGSettings.placeTarget != ''){
+		if(mainHolder){
+			if(doneLoading === true){
+				initList();
+			};
+		};
+	};	
+};
+// error notification function which creates an element and placeses the error as a string
+function createErrorNotif(string){
+	var errorMsg = document.createElement('div');
+	errorMsg.id = 'errorMsg';
+	errorMsg.innerHTML = string;
+	document.body.appendChild(errorMsg);	
+	return errorMsg;
+}
+//prototype fn which checks the array and removes the given string from an arrary
+//used on remove image function
+Array.prototype.clean = function(to_delete) {
+	var a;
+	for (a = 0; a < this.length; a++){
+	  if (this[a] == to_delete) {         
+		 this.splice(a, 1);
+		 a--;
+	  };
+   };
+   return this;
+};
 	/*	
 	this.setup = function(){
 		var thumbH = document.getElementById('thumbH'),
@@ -952,14 +941,7 @@ _CG.buildList = function(){
 	this.initList = function(){
 		return initialize();
 	}*/
-	if(CGSettings.placeTarget != ''){
-		if(mainHolder){
-			if(doneLoading === true){
-				initList();
-			}
-		}
-	}	
-}
+
 
 /*
 GALL STRUCTURE
