@@ -618,26 +618,31 @@ _CG.buildList = function () {
 		//chcek if action buttons are enabled then apply action functions to them
 		if (playBtn) {			
 			playBtn.onclick = function () {
+				_gaq.push(['_trackEvent', 'cookiegallery', 'Play Gallery', 'Play Gallery']);
 				resetAutoPlayOnClick();
 			};
 		};
 		if (stopBtn) {
 			stopBtn.onclick = function () { 
+				_gaq.push(['_trackEvent', 'cookiegallery', 'Stop Gallery', 'Stop Gallery']);
 				stopAnimation();
 			};
 		};
 		if (removeBtn) {
 			removeBtn.onclick = function () {
+				_gaq.push(['_trackEvent', 'cookiegallery', 'Remove Current', 'Remove image']);
 				removeCurrent();
 			};
 		};
 		if (resetBtn) {
 			resetBtn.onclick = function () {
+				_gaq.push(['_trackEvent', 'cookiegallery', 'Reset', '']);
 				resetAnimation();
 			};
 		};
 		if (saveBtn) {
 			saveBtn.onclick = function () {
+				_gaq.push(['_trackEvent', 'cookiegallery', 'Save', '']);
 				var stringAction = 'Save';
 				saveCurrent(stringAction);
 			};
@@ -645,11 +650,13 @@ _CG.buildList = function () {
 		if (nextBtn && prevBtn) {
 			//move slider to right
 			nextBtn.onclick = function () {
+				_gaq.push(['_trackEvent', 'cookiegallery', 'Next', 'NextImage']);
 				resetAutoPlayOnClick();
 				moveRight();
 			};
 			//move slider to left
 			prevBtn.onclick = function () {
+				_gaq.push(['_trackEvent', 'cookiegallery', 'Prev', 'Prev Image']);
 				resetAutoPlayOnClick();
 				moveLeft();
 			};
@@ -782,6 +789,7 @@ _CG.buildList = function () {
 			createImgThumb(rmvExtension, liList, thumbSrc);
 			
 			liList.onclick = function (e) {
+				_gaq.push(['_trackEvent', 'cookiegallery', 'list click', '']);
 				resetAutoPlayOnClick();
 				clickOnThumbnail(e);
 			};
@@ -1120,12 +1128,14 @@ _CG.buildList = function () {
 			
 		if (btnYes) {
 			btnYes.onclick = function () {
+				_gaq.push(['_trackEvent', 'cookiegallery', 'confirmation yes', '']);
 				confirmationActions(action);
 				_CG.cookie.setCVal(CGSettings.setCookieName, sendImages, _CG._settings.expireTime);
 				wrapper.removeChild(alertHolder);
 				return true;
 			}
 			btnNo.onclick = function () {
+				_gaq.push(['_trackEvent', 'cookiegallery', 'confirmation no', '']);
 				wrapper.removeChild(alertHolder);
 				return false;
 			};		
