@@ -1259,3 +1259,9 @@ Array.prototype.clean = function (to_delete) {
 		* build the get only after the c_start returns 0 instead of -1
 	DONE * on each fn send the active value of the current active thumb for saveing
 */
+
+
+
+
+
+
